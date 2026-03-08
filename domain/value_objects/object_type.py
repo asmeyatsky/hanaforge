@@ -1,0 +1,78 @@
+"""SAP domain enumerations — canonical types used across the domain model."""
+
+from enum import Enum
+
+
+class ABAPObjectType(Enum):
+    PROGRAM = "PROGRAM"
+    FUNCTION_MODULE = "FUNCTION_MODULE"
+    CLASS = "CLASS"
+    BADI_IMPLEMENTATION = "BADI_IMPLEMENTATION"
+    USER_EXIT = "USER_EXIT"
+    FORM = "FORM"
+    ENHANCEMENT = "ENHANCEMENT"
+    INCLUDE = "INCLUDE"
+    INTERFACE = "INTERFACE"
+    TABLE = "TABLE"
+    VIEW = "VIEW"
+    DOMAIN_TYPE = "DOMAIN_TYPE"
+    DATA_ELEMENT = "DATA_ELEMENT"
+    SEARCH_HELP = "SEARCH_HELP"
+    LOCK_OBJECT = "LOCK_OBJECT"
+
+
+class BusinessDomain(Enum):
+    FI = "FI"
+    CO = "CO"
+    MM = "MM"
+    SD = "SD"
+    PP = "PP"
+    HCM = "HCM"
+    QM = "QM"
+    PM = "PM"
+    PS = "PS"
+    WM = "WM"
+    EWMS = "EWMS"
+    BASIS = "BASIS"
+    CROSS_APPLICATION = "CROSS_APPLICATION"
+    UNKNOWN = "UNKNOWN"
+
+
+class CompatibilityStatus(Enum):
+    COMPATIBLE = "COMPATIBLE"
+    INCOMPATIBLE = "INCOMPATIBLE"
+    NEEDS_REVIEW = "NEEDS_REVIEW"
+    UNKNOWN = "UNKNOWN"
+
+
+class RemediationStatus(Enum):
+    NOT_STARTED = "NOT_STARTED"
+    IN_PROGRESS = "IN_PROGRESS"
+    REMEDIATED = "REMEDIATED"
+    ACCEPTED_AS_IS = "ACCEPTED_AS_IS"
+
+
+class ReviewStatus(Enum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+
+
+class ProgrammeStatus(Enum):
+    CREATED = "CREATED"
+    DISCOVERY_IN_PROGRESS = "DISCOVERY_IN_PROGRESS"
+    DISCOVERY_COMPLETE = "DISCOVERY_COMPLETE"
+    ANALYSIS_IN_PROGRESS = "ANALYSIS_IN_PROGRESS"
+    ANALYSIS_COMPLETE = "ANALYSIS_COMPLETE"
+    REMEDIATION_IN_PROGRESS = "REMEDIATION_IN_PROGRESS"
+    MIGRATION_READY = "MIGRATION_READY"
+    MIGRATION_IN_PROGRESS = "MIGRATION_IN_PROGRESS"
+    CUTOVER = "CUTOVER"
+    HYPERCARE = "HYPERCARE"
+    COMPLETED = "COMPLETED"
+
+
+class SystemRole(Enum):
+    DEV = "DEV"
+    QAS = "QAS"
+    PRD = "PRD"
