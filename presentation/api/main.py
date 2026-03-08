@@ -9,7 +9,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from infrastructure.config.dependency_injection import Container
-from presentation.api.routes import abap_analysis, discovery, programmes
+from presentation.api.routes import (
+    abap_analysis,
+    data_readiness,
+    discovery,
+    infrastructure,
+    programmes,
+    test_forge,
+)
 
 
 @asynccontextmanager
@@ -47,6 +54,9 @@ app.add_middleware(
 app.include_router(programmes.router, prefix="/api/v1/programmes")
 app.include_router(discovery.router, prefix="/api/v1/discovery")
 app.include_router(abap_analysis.router, prefix="/api/v1/abap-analysis")
+app.include_router(test_forge.router, prefix="/api/v1/test-forge")
+app.include_router(data_readiness.router, prefix="/api/v1/data-readiness")
+app.include_router(infrastructure.router, prefix="/api/v1/infrastructure")
 
 
 # ---------------------------------------------------------------------------

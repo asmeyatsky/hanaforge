@@ -16,6 +16,12 @@ from domain.ports.sap_connector_ports import (
 from domain.ports.storage_ports import FileStoragePort
 from domain.ports.event_bus_ports import EventBusPort
 from domain.ports.report_generation_ports import ReportGeneratorPort
+from domain.ports.test_ports import (
+    TestGeneratorPort,
+    TestExporterPort,
+    TestScenarioRepositoryPort,
+    TestSuiteRepositoryPort,
+)
 
 __all__ = [
     "ProgrammeRepositoryPort",
@@ -30,4 +36,8 @@ __all__ = [
     "FileStoragePort",
     "EventBusPort",
     "ReportGeneratorPort",
+    "TestGeneratorPort",
+    "TestExporterPort",
+    "TestScenarioRepositoryPort",
+    "TestSuiteRepositoryPort",
 ]
