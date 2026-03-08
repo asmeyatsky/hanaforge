@@ -22,6 +22,13 @@ from domain.ports.test_ports import (
     TestScenarioRepositoryPort,
     TestSuiteRepositoryPort,
 )
+from domain.ports.migration_ports import (
+    MigrationTaskRepositoryPort,
+    AuditRepositoryPort,
+    AnomalyRepositoryPort,
+    MigrationExecutorPort,
+    AnomalyDetectionPort,
+)
 
 __all__ = [
     "ProgrammeRepositoryPort",
@@ -40,4 +47,9 @@ __all__ = [
     "TestExporterPort",
     "TestScenarioRepositoryPort",
     "TestSuiteRepositoryPort",
+    "MigrationTaskRepositoryPort",
+    "AuditRepositoryPort",
+    "AnomalyRepositoryPort",
+    "MigrationExecutorPort",
+    "AnomalyDetectionPort",
 ]

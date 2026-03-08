@@ -80,6 +80,42 @@ from application.commands.generate_terraform import GenerateTerraformUseCase
 from application.commands.estimate_costs import EstimateCostsUseCase
 from application.queries.get_infrastructure_plan import GetInfrastructurePlanQuery
 
+# --- Module 06: Migration Orchestrator ---
+from infrastructure.repositories.in_memory_migration_task_repository import InMemoryMigrationTaskRepository
+from infrastructure.repositories.in_memory_audit_repository import InMemoryAuditRepository
+from infrastructure.repositories.in_memory_anomaly_repository import InMemoryAnomalyRepository
+from infrastructure.adapters.migration_executor_adapter import StubMigrationExecutor
+from infrastructure.adapters.ai_anomaly_detection_adapter import AIAnomalyDetectionAdapter
+from domain.services.task_graph_service import TaskGraphService
+from domain.services.anomaly_detection_service import AnomalyDetectionService
+from application.commands.create_migration_plan import CreateMigrationPlanUseCase
+from application.commands.execute_migration_step import ExecuteMigrationStepUseCase
+from application.commands.run_migration_batch import RunMigrationBatchUseCase
+from application.queries.get_migration_status import GetMigrationStatusQuery
+from application.queries.get_audit_log import GetAuditLogQuery
+
+# --- Module 07: Cutover Commander ---
+from infrastructure.repositories.in_memory_runbook_repository import InMemoryRunbookRepository
+from infrastructure.repositories.in_memory_cutover_execution_repository import InMemoryCutoverExecutionRepository
+from infrastructure.repositories.in_memory_hypercare_repository import InMemoryHypercareRepository
+from infrastructure.adapters.ai_runbook_generator import AIRunbookGeneratorAdapter
+from infrastructure.adapters.system_health_adapter import StubSystemHealthAdapter
+from infrastructure.adapters.notification_adapter import LoggingNotificationAdapter
+from infrastructure.adapters.ticketing_adapter import StubTicketingAdapter
+from domain.services.runbook_generation_service import RunbookGenerationService
+from domain.services.gate_evaluation_service import GateEvaluationService
+from domain.services.lessons_learned_service import LessonsLearnedService
+from application.commands.generate_runbook import GenerateRunbookUseCase
+from application.commands.approve_runbook import ApproveRunbookUseCase
+from application.commands.start_cutover import StartCutoverUseCase
+from application.commands.evaluate_gate import EvaluateGateUseCase
+from application.commands.update_cutover_task import UpdateCutoverTaskUseCase
+from application.commands.start_hypercare import StartHypercareUseCase
+from application.commands.log_hypercare_incident import LogHypercareIncidentUseCase
+from application.commands.generate_lessons_learned import GenerateLessonsLearnedUseCase
+from application.queries.get_cutover_status import GetCutoverStatusQuery
+from application.queries.get_hypercare_status import GetHypercareStatusQuery
+
 
 class Container:
     """Dependency injection container — resolves ports to concrete adapters.
@@ -441,6 +477,251 @@ class Container:
         )
 
     # ------------------------------------------------------------------
+    # Module 06: Migration Orchestrator repositories, adapters & services
+    # ------------------------------------------------------------------
+
+    def migration_task_repository(self) -> InMemoryMigrationTaskRepository:
+        return self._get_or_create(
+            "MigrationTaskRepositoryPort", InMemoryMigrationTaskRepository
+        )
+
+    def audit_repository(self) -> InMemoryAuditRepository:
+        return self._get_or_create("AuditRepositoryPort", InMemoryAuditRepository)
+
+    def anomaly_repository(self) -> InMemoryAnomalyRepository:
+        return self._get_or_create("AnomalyRepositoryPort", InMemoryAnomalyRepository)
+
+    def migration_executor(self) -> StubMigrationExecutor:
+        return self._get_or_create(
+            "MigrationExecutorPort",
+            lambda: StubMigrationExecutor(force_success=True),
+        )
+
+    def ai_anomaly_detection(self) -> AIAnomalyDetectionAdapter:
+        return self._get_or_create(
+            "AnomalyDetectionPort", AIAnomalyDetectionAdapter
+        )
+
+    def task_graph_service(self) -> TaskGraphService:
+        return self._get_or_create("TaskGraphService", TaskGraphService)
+
+    def anomaly_detection_service(self) -> AnomalyDetectionService:
+        return self._get_or_create("AnomalyDetectionService", AnomalyDetectionService)
+
+    # Module 06: Use cases
+
+    def create_migration_plan_use_case(self) -> CreateMigrationPlanUseCase:
+        return self._get_or_create(
+            "CreateMigrationPlanUseCase",
+            lambda: CreateMigrationPlanUseCase(
+                programme_repo=self.programme_repository(),
+                task_repo=self.migration_task_repository(),
+                audit_repo=self.audit_repository(),
+                task_graph_service=self.task_graph_service(),
+                event_bus=self.event_bus(),
+            ),
+        )
+
+    def execute_migration_step_use_case(self) -> ExecuteMigrationStepUseCase:
+        return self._get_or_create(
+            "ExecuteMigrationStepUseCase",
+            lambda: ExecuteMigrationStepUseCase(
+                task_repo=self.migration_task_repository(),
+                audit_repo=self.audit_repository(),
+                anomaly_repo=self.anomaly_repository(),
+                executor=self.migration_executor(),
+                anomaly_service=self.anomaly_detection_service(),
+                event_bus=self.event_bus(),
+            ),
+        )
+
+    def run_migration_batch_use_case(self) -> RunMigrationBatchUseCase:
+        return self._get_or_create(
+            "RunMigrationBatchUseCase",
+            lambda: RunMigrationBatchUseCase(
+                task_repo=self.migration_task_repository(),
+                audit_repo=self.audit_repository(),
+                anomaly_repo=self.anomaly_repository(),
+                executor=self.migration_executor(),
+                anomaly_service=self.anomaly_detection_service(),
+                event_bus=self.event_bus(),
+            ),
+        )
+
+    # Module 06: Queries
+
+    def get_migration_status_query(self) -> GetMigrationStatusQuery:
+        return self._get_or_create(
+            "GetMigrationStatusQuery",
+            lambda: GetMigrationStatusQuery(
+                task_repo=self.migration_task_repository(),
+                anomaly_repo=self.anomaly_repository(),
+                task_graph_service=self.task_graph_service(),
+            ),
+        )
+
+    def get_audit_log_query(self) -> GetAuditLogQuery:
+        return self._get_or_create(
+            "GetAuditLogQuery",
+            lambda: GetAuditLogQuery(
+                audit_repo=self.audit_repository(),
+            ),
+        )
+
+    # ------------------------------------------------------------------
+    # Module 07: Cutover Commander repositories, adapters & services
+    # ------------------------------------------------------------------
+
+    def runbook_repository(self) -> InMemoryRunbookRepository:
+        return self._get_or_create(
+            "RunbookRepositoryPort", InMemoryRunbookRepository
+        )
+
+    def cutover_execution_repository(self) -> InMemoryCutoverExecutionRepository:
+        return self._get_or_create(
+            "CutoverExecutionRepositoryPort", InMemoryCutoverExecutionRepository
+        )
+
+    def hypercare_repository(self) -> InMemoryHypercareRepository:
+        return self._get_or_create(
+            "HypercareRepositoryPort", InMemoryHypercareRepository
+        )
+
+    def ai_runbook_generator(self) -> AIRunbookGeneratorAdapter:
+        return self._get_or_create(
+            "RunbookAIGeneratorPort",
+            lambda: AIRunbookGeneratorAdapter(api_key=self._settings.anthropic_api_key),
+        )
+
+    def system_health_adapter(self) -> StubSystemHealthAdapter:
+        return self._get_or_create(
+            "SystemHealthCheckPort", StubSystemHealthAdapter
+        )
+
+    def notification_adapter(self) -> LoggingNotificationAdapter:
+        return self._get_or_create(
+            "NotificationPort", LoggingNotificationAdapter
+        )
+
+    def ticketing_adapter(self) -> StubTicketingAdapter:
+        return self._get_or_create("TicketingPort", StubTicketingAdapter)
+
+    def runbook_generation_service(self) -> RunbookGenerationService:
+        return self._get_or_create(
+            "RunbookGenerationService", RunbookGenerationService
+        )
+
+    def gate_evaluation_service(self) -> GateEvaluationService:
+        return self._get_or_create(
+            "GateEvaluationService", GateEvaluationService
+        )
+
+    def lessons_learned_service(self) -> LessonsLearnedService:
+        return self._get_or_create(
+            "LessonsLearnedService", LessonsLearnedService
+        )
+
+    # Module 07: Use cases
+
+    def generate_runbook_use_case(self) -> GenerateRunbookUseCase:
+        return self._get_or_create(
+            "GenerateRunbookUseCase",
+            lambda: GenerateRunbookUseCase(
+                runbook_repository=self.runbook_repository(),
+                event_bus=self.event_bus(),
+                generation_service=self.runbook_generation_service(),
+            ),
+        )
+
+    def approve_runbook_use_case(self) -> ApproveRunbookUseCase:
+        return self._get_or_create(
+            "ApproveRunbookUseCase",
+            lambda: ApproveRunbookUseCase(
+                runbook_repository=self.runbook_repository(),
+                event_bus=self.event_bus(),
+            ),
+        )
+
+    def start_cutover_use_case(self) -> StartCutoverUseCase:
+        return self._get_or_create(
+            "StartCutoverUseCase",
+            lambda: StartCutoverUseCase(
+                runbook_repository=self.runbook_repository(),
+                execution_repository=self.cutover_execution_repository(),
+                event_bus=self.event_bus(),
+            ),
+        )
+
+    def evaluate_gate_use_case(self) -> EvaluateGateUseCase:
+        return self._get_or_create(
+            "EvaluateGateUseCase",
+            lambda: EvaluateGateUseCase(
+                runbook_repository=self.runbook_repository(),
+                execution_repository=self.cutover_execution_repository(),
+                event_bus=self.event_bus(),
+                gate_service=self.gate_evaluation_service(),
+            ),
+        )
+
+    def update_cutover_task_use_case(self) -> UpdateCutoverTaskUseCase:
+        return self._get_or_create(
+            "UpdateCutoverTaskUseCase",
+            lambda: UpdateCutoverTaskUseCase(
+                execution_repository=self.cutover_execution_repository(),
+                event_bus=self.event_bus(),
+            ),
+        )
+
+    def start_hypercare_use_case(self) -> StartHypercareUseCase:
+        return self._get_or_create(
+            "StartHypercareUseCase",
+            lambda: StartHypercareUseCase(
+                hypercare_repository=self.hypercare_repository(),
+                event_bus=self.event_bus(),
+            ),
+        )
+
+    def log_hypercare_incident_use_case(self) -> LogHypercareIncidentUseCase:
+        return self._get_or_create(
+            "LogHypercareIncidentUseCase",
+            lambda: LogHypercareIncidentUseCase(
+                hypercare_repository=self.hypercare_repository(),
+                event_bus=self.event_bus(),
+                ticketing=self.ticketing_adapter(),
+            ),
+        )
+
+    def generate_lessons_learned_use_case(self) -> GenerateLessonsLearnedUseCase:
+        return self._get_or_create(
+            "GenerateLessonsLearnedUseCase",
+            lambda: GenerateLessonsLearnedUseCase(
+                execution_repository=self.cutover_execution_repository(),
+                hypercare_repository=self.hypercare_repository(),
+                event_bus=self.event_bus(),
+                lessons_service=self.lessons_learned_service(),
+            ),
+        )
+
+    # Module 07: Queries
+
+    def get_cutover_status_query(self) -> GetCutoverStatusQuery:
+        return self._get_or_create(
+            "GetCutoverStatusQuery",
+            lambda: GetCutoverStatusQuery(
+                runbook_repository=self.runbook_repository(),
+                execution_repository=self.cutover_execution_repository(),
+            ),
+        )
+
+    def get_hypercare_status_query(self) -> GetHypercareStatusQuery:
+        return self._get_or_create(
+            "GetHypercareStatusQuery",
+            lambda: GetHypercareStatusQuery(
+                hypercare_repository=self.hypercare_repository(),
+            ),
+        )
+
+    # ------------------------------------------------------------------
     # Queries (Phase 1)
     # ------------------------------------------------------------------
 
@@ -530,6 +811,52 @@ class Container:
             "GenerateTerraformUseCase": self.generate_terraform_use_case,
             "EstimateCostsUseCase": self.estimate_costs_use_case,
             "GetInfrastructurePlanQuery": self.get_infrastructure_plan_query,
+            # --- Module 06: Migration Orchestrator ---
+            "MigrationTaskRepositoryPort": self.migration_task_repository,
+            "InMemoryMigrationTaskRepository": self.migration_task_repository,
+            "AuditRepositoryPort": self.audit_repository,
+            "InMemoryAuditRepository": self.audit_repository,
+            "AnomalyRepositoryPort": self.anomaly_repository,
+            "InMemoryAnomalyRepository": self.anomaly_repository,
+            "MigrationExecutorPort": self.migration_executor,
+            "StubMigrationExecutor": self.migration_executor,
+            "AnomalyDetectionPort": self.ai_anomaly_detection,
+            "AIAnomalyDetectionAdapter": self.ai_anomaly_detection,
+            "TaskGraphService": self.task_graph_service,
+            "AnomalyDetectionService": self.anomaly_detection_service,
+            "CreateMigrationPlanUseCase": self.create_migration_plan_use_case,
+            "ExecuteMigrationStepUseCase": self.execute_migration_step_use_case,
+            "RunMigrationBatchUseCase": self.run_migration_batch_use_case,
+            "GetMigrationStatusQuery": self.get_migration_status_query,
+            "GetAuditLogQuery": self.get_audit_log_query,
+            # --- Module 07: Cutover Commander ---
+            "RunbookRepositoryPort": self.runbook_repository,
+            "InMemoryRunbookRepository": self.runbook_repository,
+            "CutoverExecutionRepositoryPort": self.cutover_execution_repository,
+            "InMemoryCutoverExecutionRepository": self.cutover_execution_repository,
+            "HypercareRepositoryPort": self.hypercare_repository,
+            "InMemoryHypercareRepository": self.hypercare_repository,
+            "RunbookAIGeneratorPort": self.ai_runbook_generator,
+            "AIRunbookGeneratorAdapter": self.ai_runbook_generator,
+            "SystemHealthCheckPort": self.system_health_adapter,
+            "StubSystemHealthAdapter": self.system_health_adapter,
+            "NotificationPort": self.notification_adapter,
+            "LoggingNotificationAdapter": self.notification_adapter,
+            "TicketingPort": self.ticketing_adapter,
+            "StubTicketingAdapter": self.ticketing_adapter,
+            "RunbookGenerationService": self.runbook_generation_service,
+            "GateEvaluationService": self.gate_evaluation_service,
+            "LessonsLearnedService": self.lessons_learned_service,
+            "GenerateRunbookUseCase": self.generate_runbook_use_case,
+            "ApproveRunbookUseCase": self.approve_runbook_use_case,
+            "StartCutoverUseCase": self.start_cutover_use_case,
+            "EvaluateGateUseCase": self.evaluate_gate_use_case,
+            "UpdateCutoverTaskUseCase": self.update_cutover_task_use_case,
+            "StartHypercareUseCase": self.start_hypercare_use_case,
+            "LogHypercareIncidentUseCase": self.log_hypercare_incident_use_case,
+            "GenerateLessonsLearnedUseCase": self.generate_lessons_learned_use_case,
+            "GetCutoverStatusQuery": self.get_cutover_status_query,
+            "GetHypercareStatusQuery": self.get_hypercare_status_query,
         }
 
         factory = _RESOLVER_MAP.get(type_name)
