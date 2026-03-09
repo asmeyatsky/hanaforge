@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Any
 
 from infrastructure.config.settings import Settings, get_settings
+from infrastructure.auth.jwt_handler import JWTHandler
 
 # Repositories (in-memory for dev)
 from infrastructure.repositories.firestore_programme_repository import (
@@ -24,6 +25,39 @@ from infrastructure.repositories.in_memory_custom_object_repository import (
 from infrastructure.repositories.in_memory_remediation_repository import (
     InMemoryRemediationRepository,
 )
+
+# Firestore repositories (production)
+from infrastructure.repositories.firestore_programme_repo import FirestoreProgrammeRepository
+from infrastructure.repositories.firestore_landscape_repo import FirestoreLandscapeRepository
+from infrastructure.repositories.firestore_custom_object_repo import FirestoreCustomObjectRepository
+from infrastructure.repositories.firestore_remediation_repo import FirestoreRemediationRepository
+from infrastructure.repositories.firestore_data_domain_repo import FirestoreDataDomainRepository
+from infrastructure.repositories.firestore_test_repo import (
+    FirestoreTestScenarioRepository,
+    FirestoreTestSuiteRepository,
+)
+from infrastructure.repositories.firestore_infra_plan_repo import FirestoreInfrastructurePlanRepository
+from infrastructure.repositories.firestore_migration_task_repo import FirestoreMigrationTaskRepository
+from infrastructure.repositories.firestore_audit_repo import FirestoreAuditRepository
+from infrastructure.repositories.firestore_anomaly_repo import FirestoreAnomalyRepository
+from infrastructure.repositories.firestore_runbook_repo import FirestoreRunbookRepository
+from infrastructure.repositories.firestore_cutover_execution_repo import FirestoreCutoverExecutionRepository
+from infrastructure.repositories.firestore_hypercare_repo import FirestoreHypercareRepository
+
+# --- Agentic Execution ---
+from infrastructure.repositories.in_memory_agent_task_repository import InMemoryAgentTaskRepository
+from infrastructure.adapters.claude_agent_executor import ClaudeAgentExecutor
+from domain.services.agent_tool_registry import AgentToolRegistry
+from application.commands.run_agent_task import RunAgentTaskUseCase
+
+# --- RISE with SAP ---
+from infrastructure.adapters.rise_connector_adapter import RISEConnectorAdapter
+from application.commands.run_readiness_check import RunReadinessCheckUseCase
+
+# --- Migration Benchmarks ---
+from infrastructure.repositories.in_memory_benchmark_repository import InMemoryBenchmarkRepository
+from domain.services.benchmark_estimation_service import BenchmarkEstimationService
+from application.queries.get_benchmark_estimate import GetBenchmarkEstimateQuery
 
 # Adapters
 from infrastructure.adapters.claude_analysis_adapter import ClaudeAnalysisAdapter
@@ -141,33 +175,62 @@ class Container:
             self._singletons[key] = factory()
         return self._singletons[key]
 
+    def _firestore_kwargs(self) -> dict:
+        """Common kwargs for Firestore repository constructors."""
+        return {
+            "project_id": self._settings.gcp_project_id or None,
+            "database": self._settings.firestore_database,
+        }
+
+    # ------------------------------------------------------------------
+    # Core / Auth
+    # ------------------------------------------------------------------
+
+    def jwt_handler(self) -> JWTHandler:
+        return self._get_or_create(
+            "JWTHandler",
+            lambda: JWTHandler(
+                secret=self._settings.jwt_secret,
+                algorithm=self._settings.jwt_algorithm,
+                expiry_seconds=self._settings.jwt_expiry_minutes * 60,
+            ),
+        )
+
     # ------------------------------------------------------------------
     # Repositories
     # ------------------------------------------------------------------
 
-    def programme_repository(self) -> InMemoryProgrammeRepository:
-        return self._get_or_create(
-            "ProgrammeRepositoryPort",
-            InMemoryProgrammeRepository,
-        )
+    def programme_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "ProgrammeRepositoryPort",
+                lambda: FirestoreProgrammeRepository(**self._firestore_kwargs()),
+            )
+        return self._get_or_create("ProgrammeRepositoryPort", InMemoryProgrammeRepository)
 
-    def landscape_repository(self) -> InMemoryLandscapeRepository:
-        return self._get_or_create(
-            "LandscapeRepositoryPort",
-            InMemoryLandscapeRepository,
-        )
+    def landscape_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "LandscapeRepositoryPort",
+                lambda: FirestoreLandscapeRepository(**self._firestore_kwargs()),
+            )
+        return self._get_or_create("LandscapeRepositoryPort", InMemoryLandscapeRepository)
 
-    def custom_object_repository(self) -> InMemoryCustomObjectRepository:
-        return self._get_or_create(
-            "CustomObjectRepositoryPort",
-            InMemoryCustomObjectRepository,
-        )
+    def custom_object_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "CustomObjectRepositoryPort",
+                lambda: FirestoreCustomObjectRepository(**self._firestore_kwargs()),
+            )
+        return self._get_or_create("CustomObjectRepositoryPort", InMemoryCustomObjectRepository)
 
-    def remediation_repository(self) -> InMemoryRemediationRepository:
-        return self._get_or_create(
-            "RemediationRepositoryPort",
-            InMemoryRemediationRepository,
-        )
+    def remediation_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "RemediationRepositoryPort",
+                lambda: FirestoreRemediationRepository(**self._firestore_kwargs()),
+            )
+        return self._get_or_create("RemediationRepositoryPort", InMemoryRemediationRepository)
 
     # ------------------------------------------------------------------
     # Adapters
@@ -264,7 +327,12 @@ class Container:
     # Module 03: Data Readiness repositories & adapters
     # ------------------------------------------------------------------
 
-    def data_repository(self) -> InMemoryDataRepository:
+    def data_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "DataRepositoryPort",
+                lambda: FirestoreDataDomainRepository(**self._firestore_kwargs()),
+            )
         return self._get_or_create("DataRepositoryPort", InMemoryDataRepository)
 
     def data_profiling(self) -> LocalDataProfilingAdapter:
@@ -348,10 +416,20 @@ class Container:
     # Module 04: TestForge repositories & adapters
     # ------------------------------------------------------------------
 
-    def test_scenario_repository(self) -> InMemoryTestScenarioRepository:
+    def test_scenario_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "TestScenarioRepositoryPort",
+                lambda: FirestoreTestScenarioRepository(**self._firestore_kwargs()),
+            )
         return self._get_or_create("TestScenarioRepositoryPort", InMemoryTestScenarioRepository)
 
-    def test_suite_repository(self) -> InMemoryTestSuiteRepository:
+    def test_suite_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "TestSuiteRepositoryPort",
+                lambda: FirestoreTestSuiteRepository(**self._firestore_kwargs()),
+            )
         return self._get_or_create("TestSuiteRepositoryPort", InMemoryTestSuiteRepository)
 
     def test_generator(self) -> ClaudeTestGeneratorAdapter:
@@ -416,7 +494,12 @@ class Container:
     # Module 05: GCP Infrastructure repositories & adapters
     # ------------------------------------------------------------------
 
-    def infrastructure_plan_repository(self) -> InMemoryInfrastructurePlanRepository:
+    def infrastructure_plan_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "InfrastructurePlanRepositoryPort",
+                lambda: FirestoreInfrastructurePlanRepository(**self._firestore_kwargs()),
+            )
         return self._get_or_create(
             "InfrastructurePlanRepositoryPort", InMemoryInfrastructurePlanRepository
         )
@@ -480,15 +563,28 @@ class Container:
     # Module 06: Migration Orchestrator repositories, adapters & services
     # ------------------------------------------------------------------
 
-    def migration_task_repository(self) -> InMemoryMigrationTaskRepository:
-        return self._get_or_create(
-            "MigrationTaskRepositoryPort", InMemoryMigrationTaskRepository
-        )
+    def migration_task_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "MigrationTaskRepositoryPort",
+                lambda: FirestoreMigrationTaskRepository(**self._firestore_kwargs()),
+            )
+        return self._get_or_create("MigrationTaskRepositoryPort", InMemoryMigrationTaskRepository)
 
-    def audit_repository(self) -> InMemoryAuditRepository:
+    def audit_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "AuditRepositoryPort",
+                lambda: FirestoreAuditRepository(**self._firestore_kwargs()),
+            )
         return self._get_or_create("AuditRepositoryPort", InMemoryAuditRepository)
 
-    def anomaly_repository(self) -> InMemoryAnomalyRepository:
+    def anomaly_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "AnomalyRepositoryPort",
+                lambda: FirestoreAnomalyRepository(**self._firestore_kwargs()),
+            )
         return self._get_or_create("AnomalyRepositoryPort", InMemoryAnomalyRepository)
 
     def migration_executor(self) -> StubMigrationExecutor:
@@ -572,20 +668,29 @@ class Container:
     # Module 07: Cutover Commander repositories, adapters & services
     # ------------------------------------------------------------------
 
-    def runbook_repository(self) -> InMemoryRunbookRepository:
-        return self._get_or_create(
-            "RunbookRepositoryPort", InMemoryRunbookRepository
-        )
+    def runbook_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "RunbookRepositoryPort",
+                lambda: FirestoreRunbookRepository(**self._firestore_kwargs()),
+            )
+        return self._get_or_create("RunbookRepositoryPort", InMemoryRunbookRepository)
 
-    def cutover_execution_repository(self) -> InMemoryCutoverExecutionRepository:
-        return self._get_or_create(
-            "CutoverExecutionRepositoryPort", InMemoryCutoverExecutionRepository
-        )
+    def cutover_execution_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "CutoverExecutionRepositoryPort",
+                lambda: FirestoreCutoverExecutionRepository(**self._firestore_kwargs()),
+            )
+        return self._get_or_create("CutoverExecutionRepositoryPort", InMemoryCutoverExecutionRepository)
 
-    def hypercare_repository(self) -> InMemoryHypercareRepository:
-        return self._get_or_create(
-            "HypercareRepositoryPort", InMemoryHypercareRepository
-        )
+    def hypercare_repository(self) -> Any:
+        if self._settings.use_firestore:
+            return self._get_or_create(
+                "HypercareRepositoryPort",
+                lambda: FirestoreHypercareRepository(**self._firestore_kwargs()),
+            )
+        return self._get_or_create("HypercareRepositoryPort", InMemoryHypercareRepository)
 
     def ai_runbook_generator(self) -> AIRunbookGeneratorAdapter:
         return self._get_or_create(
@@ -751,6 +856,69 @@ class Container:
         )
 
     # ------------------------------------------------------------------
+    # Agentic Execution
+    # ------------------------------------------------------------------
+
+    def agent_task_repository(self) -> Any:
+        return self._get_or_create("AgentTaskRepositoryPort", InMemoryAgentTaskRepository)
+
+    def agent_executor(self) -> Any:
+        return self._get_or_create(
+            "AgentExecutorPort",
+            lambda: ClaudeAgentExecutor(api_key=self._settings.anthropic_api_key),
+        )
+
+    def agent_tool_registry(self) -> AgentToolRegistry:
+        return self._get_or_create("AgentToolRegistry", AgentToolRegistry)
+
+    def run_agent_task_use_case(self) -> RunAgentTaskUseCase:
+        return self._get_or_create(
+            "RunAgentTaskUseCase",
+            lambda: RunAgentTaskUseCase(
+                agent_task_repo=self.agent_task_repository(),
+                agent_executor=self.agent_executor(),
+                tool_registry=self.agent_tool_registry(),
+            ),
+        )
+
+    # ------------------------------------------------------------------
+    # RISE with SAP
+    # ------------------------------------------------------------------
+
+    def rise_connector(self) -> Any:
+        return self._get_or_create("RISEConnectorPort", RISEConnectorAdapter)
+
+    def run_readiness_check_use_case(self) -> RunReadinessCheckUseCase:
+        return self._get_or_create(
+            "RunReadinessCheckUseCase",
+            lambda: RunReadinessCheckUseCase(
+                programme_repo=self.programme_repository(),
+                rise_connector=self.rise_connector(),
+            ),
+        )
+
+    # ------------------------------------------------------------------
+    # Migration Benchmarks
+    # ------------------------------------------------------------------
+
+    def benchmark_repository(self) -> Any:
+        return self._get_or_create("BenchmarkRepositoryPort", InMemoryBenchmarkRepository)
+
+    def benchmark_estimation_service(self) -> BenchmarkEstimationService:
+        return self._get_or_create("BenchmarkEstimationService", BenchmarkEstimationService)
+
+    def get_benchmark_estimate_query(self) -> GetBenchmarkEstimateQuery:
+        return self._get_or_create(
+            "GetBenchmarkEstimateQuery",
+            lambda: GetBenchmarkEstimateQuery(
+                programme_repo=self.programme_repository(),
+                landscape_repo=self.landscape_repository(),
+                benchmark_repo=self.benchmark_repository(),
+                estimation_service=self.benchmark_estimation_service(),
+            ),
+        )
+
+    # ------------------------------------------------------------------
     # Generic resolver
     # ------------------------------------------------------------------
 
@@ -763,6 +931,9 @@ class Container:
         type_name = key if isinstance(key, str) else key.__name__
 
         _RESOLVER_MAP: dict[str, Any] = {
+            # --- Core / Auth ---
+            "Settings": lambda: self._settings,
+            "JWTHandler": self.jwt_handler,
             # --- Phase 1: Ports / repositories ---
             "ProgrammeRepositoryPort": self.programme_repository,
             "LandscapeRepositoryPort": self.landscape_repository,
@@ -857,6 +1028,18 @@ class Container:
             "GenerateLessonsLearnedUseCase": self.generate_lessons_learned_use_case,
             "GetCutoverStatusQuery": self.get_cutover_status_query,
             "GetHypercareStatusQuery": self.get_hypercare_status_query,
+            # --- Agentic Execution ---
+            "AgentTaskRepositoryPort": self.agent_task_repository,
+            "AgentExecutorPort": self.agent_executor,
+            "AgentToolRegistry": self.agent_tool_registry,
+            "RunAgentTaskUseCase": self.run_agent_task_use_case,
+            # --- RISE with SAP ---
+            "RISEConnectorPort": self.rise_connector,
+            "RunReadinessCheckUseCase": self.run_readiness_check_use_case,
+            # --- Migration Benchmarks ---
+            "BenchmarkRepositoryPort": self.benchmark_repository,
+            "BenchmarkEstimationService": self.benchmark_estimation_service,
+            "GetBenchmarkEstimateQuery": self.get_benchmark_estimate_query,
         }
 
         factory = _RESOLVER_MAP.get(type_name)

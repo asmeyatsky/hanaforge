@@ -44,7 +44,7 @@ async def generate_runbook(
     programme_id: str,
     body: GenerateRunbookRequest,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> RunbookResponse:
     """Generate a structured SAP cutover runbook from programme artefacts."""
     container = request.app.state.container
@@ -66,7 +66,7 @@ async def approve_runbook(
     runbook_id: str,
     request: Request,
     approver: str = "system",
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> RunbookResponse:
     """Approve a DRAFT cutover runbook for execution."""
     container = request.app.state.container
@@ -93,7 +93,7 @@ async def approve_runbook(
 async def start_cutover(
     runbook_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> CutoverExecutionResponse:
     """Start cutover execution from an approved runbook."""
     container = request.app.state.container
@@ -114,7 +114,7 @@ async def start_cutover(
 async def get_cutover_status(
     programme_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> CutoverStatusResponse:
     """Get comprehensive cutover status including runbook, execution, and gates."""
     container = request.app.state.container
@@ -137,7 +137,7 @@ async def evaluate_gate(
     gate_id: str,
     body: dict,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> GateEvaluationResponse:
     """Evaluate a go/no-go decision gate with system health check results."""
     container = request.app.state.container
@@ -169,7 +169,7 @@ async def update_task(
     task_id: str,
     body: dict,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> CutoverExecutionResponse:
     """Update the status of a task during cutover execution."""
     container = request.app.state.container
@@ -203,7 +203,7 @@ async def start_hypercare(
     programme_id: str,
     body: StartHypercareRequest,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> HypercareResponse:
     """Start a hypercare monitoring session for a programme."""
     container = request.app.state.container
@@ -224,7 +224,7 @@ async def log_incident(
     session_id: str,
     body: dict,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> HypercareResponse:
     """Log an incident during the hypercare period."""
     container = request.app.state.container
@@ -253,7 +253,7 @@ async def log_incident(
 async def get_hypercare_status(
     programme_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> HypercareResponse:
     """Get active hypercare session status for a programme."""
     container = request.app.state.container
@@ -280,7 +280,7 @@ async def get_hypercare_status(
 async def generate_lessons_learned(
     programme_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> LessonsLearnedResponse:
     """Analyse cutover execution and hypercare to generate lessons-learned document."""
     container = request.app.state.container

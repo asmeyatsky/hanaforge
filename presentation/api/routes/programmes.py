@@ -26,7 +26,7 @@ router = APIRouter(prefix="", tags=["Programmes"])
 async def create_programme(
     body: CreateProgrammeRequest,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> ProgrammeResponse:
     """Create a new SAP S/4HANA migration programme."""
     container = request.app.state.container
@@ -42,7 +42,7 @@ async def create_programme(
 async def list_programmes(
     request: Request,
     customer_id: str | None = None,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> ProgrammeListResponse:
     """List all migration programmes, optionally filtered by customer ID."""
     container = request.app.state.container
@@ -58,7 +58,7 @@ async def list_programmes(
 async def get_programme(
     programme_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> ProgrammeResponse:
     """Retrieve a single migration programme by its unique identifier."""
     container = request.app.state.container

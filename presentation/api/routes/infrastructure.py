@@ -33,7 +33,7 @@ async def create_plan(
     programme_id: str,
     body: CreateInfrastructurePlanRequest,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> InfrastructurePlanResponse:
     """Create a new GCP infrastructure plan for an SAP S/4HANA migration programme."""
     container = request.app.state.container
@@ -57,7 +57,7 @@ async def create_plan(
 async def get_plan(
     programme_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> InfrastructurePlanResponse:
     """Retrieve the latest infrastructure plan for a programme."""
     container = request.app.state.container
@@ -81,7 +81,7 @@ async def get_plan(
 async def generate_terraform(
     plan_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> TerraformResponse:
     """Generate complete Terraform HCL for a previously created infrastructure plan."""
     container = request.app.state.container
@@ -105,7 +105,7 @@ async def generate_terraform(
 async def get_costs(
     programme_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> CostEstimateResponse:
     """Calculate monthly GCP cost estimate for a programme."""
     container = request.app.state.container
@@ -127,7 +127,7 @@ async def get_costs(
 async def validate_plan(
     plan_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> ValidationResultResponse:
     """Validate an infrastructure plan against SAP on GCP certification requirements."""
     container = request.app.state.container

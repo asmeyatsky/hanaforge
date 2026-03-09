@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/client';
 import type { Programme } from '../types';
 
-type Tab = 'overview' | 'discovery' | 'analysis' | 'data' | 'testing';
+type Tab = 'overview' | 'discovery' | 'analysis' | 'data' | 'testing' | 'infrastructure' | 'migration' | 'cutover';
 
 function statusBadge(status: string) {
   const s = status.toLowerCase();
@@ -25,8 +25,11 @@ const tabs: { key: Tab; label: string; disabled: boolean }[] = [
   { key: 'overview', label: 'Overview', disabled: false },
   { key: 'discovery', label: 'Discovery', disabled: false },
   { key: 'analysis', label: 'ABAP Analysis', disabled: false },
-  { key: 'data', label: 'Data Readiness', disabled: true },
-  { key: 'testing', label: 'Testing', disabled: true },
+  { key: 'data', label: 'Data Readiness', disabled: false },
+  { key: 'testing', label: 'TestForge', disabled: false },
+  { key: 'infrastructure', label: 'Infrastructure', disabled: false },
+  { key: 'migration', label: 'Migration', disabled: false },
+  { key: 'cutover', label: 'Cutover', disabled: false },
 ];
 
 export default function ProgrammeDetail() {
@@ -99,6 +102,16 @@ export default function ProgrammeDetail() {
       navigate(`/programmes/${id}/discovery`);
     } else if (tab === 'analysis') {
       navigate(`/programmes/${id}/analysis`);
+    } else if (tab === 'data') {
+      navigate(`/programmes/${id}/data-readiness`);
+    } else if (tab === 'testing') {
+      navigate(`/programmes/${id}/test-forge`);
+    } else if (tab === 'infrastructure') {
+      navigate(`/programmes/${id}/infrastructure`);
+    } else if (tab === 'migration') {
+      navigate(`/programmes/${id}/migration`);
+    } else if (tab === 'cutover') {
+      navigate(`/programmes/${id}/cutover`);
     } else {
       setActiveTab(tab);
     }
@@ -223,10 +236,11 @@ export default function ProgrammeDetail() {
                 {[
                   { phase: 'Discovery', status: 'complete', date: '15 Jan 2026' },
                   { phase: 'ABAP Analysis', status: 'in_progress', date: 'In progress' },
-                  { phase: 'Remediation', status: 'pending', date: 'Pending' },
                   { phase: 'Data Readiness', status: 'pending', date: 'Pending' },
-                  { phase: 'Testing', status: 'pending', date: 'Pending' },
-                  { phase: 'Migration / Cutover', status: 'pending', date: 'Target Q4 2026' },
+                  { phase: 'TestForge', status: 'pending', date: 'Pending' },
+                  { phase: 'Infrastructure', status: 'pending', date: 'Pending' },
+                  { phase: 'Migration Execution', status: 'pending', date: 'Pending' },
+                  { phase: 'Cutover & Hypercare', status: 'pending', date: 'Target Q4 2026' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-4">
                     <div
@@ -321,6 +335,51 @@ export default function ProgrammeDetail() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
                   </svg>
                   ABAP Analysis
+                </button>
+                <button
+                  onClick={() => navigate(`/programmes/${id}/data-readiness`)}
+                  className="btn-secondary w-full text-left justify-start"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375" />
+                  </svg>
+                  Data Readiness
+                </button>
+                <button
+                  onClick={() => navigate(`/programmes/${id}/test-forge`)}
+                  className="btn-secondary w-full text-left justify-start"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3" />
+                  </svg>
+                  TestForge
+                </button>
+                <button
+                  onClick={() => navigate(`/programmes/${id}/infrastructure`)}
+                  className="btn-secondary w-full text-left justify-start"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3" />
+                  </svg>
+                  Infrastructure
+                </button>
+                <button
+                  onClick={() => navigate(`/programmes/${id}/migration`)}
+                  className="btn-secondary w-full text-left justify-start"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                  </svg>
+                  Migration
+                </button>
+                <button
+                  onClick={() => navigate(`/programmes/${id}/cutover`)}
+                  className="btn-secondary w-full text-left justify-start"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+                  </svg>
+                  Cutover
                 </button>
               </div>
             </div>

@@ -22,7 +22,7 @@ async def upload_abap_source(
     landscape_id: str,
     file: UploadFile,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> dict:
     """Upload a ZIP archive containing ABAP source files for analysis.
 
@@ -55,7 +55,7 @@ async def run_abap_analysis(
     landscape_id: str,
     request: Request,
     programme_id: str,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> AnalysisResultsResponse:
     """Trigger AI-powered ABAP compatibility analysis for all objects
     uploaded to the given landscape.
@@ -74,7 +74,7 @@ async def get_analysis_results(
     programme_id: str,
     landscape_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> AnalysisResultsResponse:
     """Retrieve the ABAP analysis results for a specific programme and landscape."""
     container = request.app.state.container

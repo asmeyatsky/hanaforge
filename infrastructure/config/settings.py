@@ -20,6 +20,19 @@ class Settings(BaseSettings):
     google_ai_api_key: str = ""
     sap_default_host: str = ""
 
+    # Auth
+    auth_enabled: bool = False
+    jwt_secret: str = "hanaforge-dev-secret-change-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_expiry_minutes: int = 60
+
+    # Persistence
+    use_firestore: bool = False
+
+    # Logging
+    log_level: str = "INFO"
+    log_format: str = "text"  # "json" for production, "text" for dev
+
     model_config = {
         "env_prefix": "HANAFORGE_",
         "env_file": ".env",

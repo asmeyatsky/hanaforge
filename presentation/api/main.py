@@ -9,14 +9,21 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from infrastructure.config.dependency_injection import Container
+from presentation.api.error_handlers import register_error_handlers
+from presentation.api.middleware.correlation_id import CorrelationIdMiddleware
+from presentation.api.middleware.request_logging import RequestLoggingMiddleware
 from presentation.api.routes import (
     abap_analysis,
+    agents,
+    auth,
+    benchmarks,
     cutover,
     data_readiness,
     discovery,
     infrastructure,
     migration,
     programmes,
+    rise,
     test_forge,
 )
 
@@ -40,8 +47,15 @@ app = FastAPI(
 )
 
 # ---------------------------------------------------------------------------
-# Middleware
+# Error handlers
 # ---------------------------------------------------------------------------
+register_error_handlers(app)
+
+# ---------------------------------------------------------------------------
+# Middleware (order matters — outermost first)
+# ---------------------------------------------------------------------------
+app.add_middleware(RequestLoggingMiddleware)
+app.add_middleware(CorrelationIdMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Dev-only: restrict in production
@@ -53,6 +67,7 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 # Routers
 # ---------------------------------------------------------------------------
+app.include_router(auth.router, prefix="/api/v1/auth")
 app.include_router(programmes.router, prefix="/api/v1/programmes")
 app.include_router(discovery.router, prefix="/api/v1/discovery")
 app.include_router(abap_analysis.router, prefix="/api/v1/abap-analysis")
@@ -61,6 +76,9 @@ app.include_router(data_readiness.router, prefix="/api/v1/data-readiness")
 app.include_router(infrastructure.router, prefix="/api/v1/infrastructure")
 app.include_router(migration.router, prefix="/api/v1/migration")
 app.include_router(cutover.router, prefix="/api/v1/cutover")
+app.include_router(agents.router, prefix="/api/v1/agents")
+app.include_router(rise.router, prefix="/api/v1/rise")
+app.include_router(benchmarks.router, prefix="/api/v1/benchmarks")
 
 
 # ---------------------------------------------------------------------------

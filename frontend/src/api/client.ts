@@ -5,6 +5,11 @@ import type {
   AnalysisResult,
   DiscoveryResult,
   SAPConnectionConfig,
+  DataReadinessResult,
+  TestForgeResult,
+  InfrastructurePlan,
+  MigrationPlan,
+  CutoverPlan,
 } from '../types';
 
 class APIError extends Error {
@@ -116,6 +121,121 @@ class HanaForgeClient {
   async getAnalysisResults(programmeId: string): Promise<AnalysisResult> {
     return this.request<AnalysisResult>(
       `/programmes/${programmeId}/analysis`,
+    );
+  }
+
+  // -------------------------------------------------------------------
+  // Data Readiness (M03)
+  // -------------------------------------------------------------------
+
+  async getDataReadiness(programmeId: string): Promise<DataReadinessResult> {
+    return this.request<DataReadinessResult>(
+      `/data-readiness/programmes/${programmeId}`,
+    );
+  }
+
+  async runProfiling(programmeId: string): Promise<DataReadinessResult> {
+    return this.request<DataReadinessResult>(
+      `/data-readiness/programmes/${programmeId}/profile`,
+      { method: 'POST' },
+    );
+  }
+
+  // -------------------------------------------------------------------
+  // TestForge (M04)
+  // -------------------------------------------------------------------
+
+  async getTestResults(programmeId: string): Promise<TestForgeResult> {
+    return this.request<TestForgeResult>(
+      `/test-forge/programmes/${programmeId}`,
+    );
+  }
+
+  async generateTests(programmeId: string): Promise<TestForgeResult> {
+    return this.request<TestForgeResult>(
+      `/test-forge/programmes/${programmeId}/generate`,
+      { method: 'POST' },
+    );
+  }
+
+  // -------------------------------------------------------------------
+  // Infrastructure (M05)
+  // -------------------------------------------------------------------
+
+  async getInfrastructurePlan(programmeId: string): Promise<InfrastructurePlan> {
+    return this.request<InfrastructurePlan>(
+      `/infrastructure/programmes/${programmeId}`,
+    );
+  }
+
+  async generateInfrastructurePlan(programmeId: string): Promise<InfrastructurePlan> {
+    return this.request<InfrastructurePlan>(
+      `/infrastructure/programmes/${programmeId}/generate`,
+      { method: 'POST' },
+    );
+  }
+
+  async downloadTerraform(programmeId: string): Promise<Blob> {
+    const url = `${this.baseURL}/infrastructure/programmes/${programmeId}/terraform`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new APIError(response.status, 'Failed to download Terraform files');
+    }
+    return response.blob();
+  }
+
+  // -------------------------------------------------------------------
+  // Migration Execution (M06)
+  // -------------------------------------------------------------------
+
+  async getMigrationPlan(programmeId: string): Promise<MigrationPlan> {
+    return this.request<MigrationPlan>(
+      `/migration/programmes/${programmeId}`,
+    );
+  }
+
+  async createMigrationPlan(programmeId: string): Promise<MigrationPlan> {
+    return this.request<MigrationPlan>(
+      `/migration/programmes/${programmeId}/plan`,
+      { method: 'POST' },
+    );
+  }
+
+  async executeMigration(programmeId: string): Promise<MigrationPlan> {
+    return this.request<MigrationPlan>(
+      `/migration/programmes/${programmeId}/execute`,
+      { method: 'POST' },
+    );
+  }
+
+  // -------------------------------------------------------------------
+  // Cutover (M07)
+  // -------------------------------------------------------------------
+
+  async getCutoverPlan(programmeId: string): Promise<CutoverPlan> {
+    return this.request<CutoverPlan>(
+      `/cutover/programmes/${programmeId}`,
+    );
+  }
+
+  async generateRunbook(programmeId: string): Promise<CutoverPlan> {
+    return this.request<CutoverPlan>(
+      `/cutover/programmes/${programmeId}/runbook`,
+      { method: 'POST' },
+    );
+  }
+
+  async startCutover(programmeId: string): Promise<CutoverPlan> {
+    return this.request<CutoverPlan>(
+      `/cutover/programmes/${programmeId}/start`,
+      { method: 'POST' },
+    );
+  }
+
+  async startHypercare(programmeId: string): Promise<CutoverPlan> {
+    return this.request<CutoverPlan>(
+      `/cutover/programmes/${programmeId}/hypercare`,
+      { method: 'POST' },
     );
   }
 }

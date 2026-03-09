@@ -33,7 +33,7 @@ async def create_migration_plan(
     programme_id: str,
     body: CreateMigrationPlanRequest,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> MigrationPlanResponse:
     """Generate a full migration task graph for a programme based on the chosen approach."""
     container = request.app.state.container
@@ -49,7 +49,7 @@ async def create_migration_plan(
 async def get_migration_status(
     programme_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> MigrationStatusResponse:
     """Retrieve full migration status including health, critical path, and task summary."""
     container = request.app.state.container
@@ -65,7 +65,7 @@ async def get_migration_status(
 async def execute_migration_step(
     task_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> MigrationTaskResponse:
     """Execute a single migration task after validating its dependencies are complete."""
     container = request.app.state.container
@@ -89,7 +89,7 @@ async def execute_migration_step(
 async def run_migration_batch(
     programme_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> MigrationBatchResponse:
     """Execute all ready migration tasks in parallel batches."""
     container = request.app.state.container
@@ -106,7 +106,7 @@ async def get_audit_log(
     programme_id: str,
     request: Request,
     limit: int = 100,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> AuditLogResponse:
     """Retrieve the migration audit log for compliance and traceability."""
     container = request.app.state.container
@@ -122,7 +122,7 @@ async def get_audit_log(
 async def get_active_anomalies(
     programme_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> list[AnomalyAlertResponse]:
     """Retrieve active (unacknowledged) anomaly alerts for a programme."""
     container = request.app.state.container
@@ -139,7 +139,7 @@ async def get_active_anomalies(
 async def acknowledge_anomaly(
     alert_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> dict:
     """Mark an anomaly alert as acknowledged/reviewed."""
     container = request.app.state.container

@@ -54,7 +54,7 @@ async def generate_test_scenarios(
     programme_id: str,
     body: GenerateTestsRequest,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> TestGenerationResponse:
     """Generate end-to-end test scenarios for the specified programme and process area."""
     container = request.app.state.container
@@ -80,7 +80,7 @@ async def generate_interface_tests(
     programme_id: str,
     body: GenerateInterfaceTestsRequest,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> TestGenerationResponse:
     """Generate test cases for each IDoc, RFC, BAPI, REST, or OData interface."""
     container = request.app.state.container
@@ -102,7 +102,7 @@ async def list_test_scenarios(
     programme_id: str,
     request: Request,
     process_area: str | None = None,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> TestResultsResponse:
     """Retrieve test scenarios and status summary, optionally filtered by process area."""
     container = request.app.state.container
@@ -119,7 +119,7 @@ async def list_test_scenarios(
 async def get_traceability_matrix(
     programme_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> TraceabilityMatrixResponse:
     """Retrieve the traceability matrix mapping processes to test cases and defects."""
     container = request.app.state.container
@@ -135,7 +135,7 @@ async def export_test_scenarios(
     programme_id: str,
     body: ExportRequest,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> Response:
     """Export tests to HP ALM, Tricentis Tosca, Azure DevOps, Jira Xray, or CSV."""
     container = request.app.state.container

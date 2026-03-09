@@ -32,7 +32,7 @@ async def upload_data_export(
     landscape_id: str,
     file: UploadFile,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> dict:
     """Upload an SAP table data export file for subsequent profiling."""
     if not file.filename:
@@ -69,7 +69,7 @@ async def upload_data_export(
 async def run_data_profiling(
     landscape_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> DataProfilingResultsResponse:
     """Trigger parallel data profiling for all uploaded tables in a landscape."""
     container = request.app.state.container
@@ -85,7 +85,7 @@ async def run_data_profiling(
 async def get_profiling_results(
     landscape_id: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> DataProfilingResultsResponse:
     """Retrieve data profiling results for all tables in a landscape."""
     container = request.app.state.container
@@ -104,7 +104,7 @@ async def assess_bp_consolidation(
     request: Request,
     customer_file: UploadFile | None = None,
     vendor_file: UploadFile | None = None,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> BPConsolidationResponse:
     """Assess Customer/Vendor consolidation readiness for S/4HANA Business Partner model."""
     if customer_file is None or vendor_file is None:
@@ -143,7 +143,7 @@ async def assess_universal_journal(
     landscape_id: str,
     request: Request,
     body: dict,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> UniversalJournalResponse:
     """Assess ACDOCA migration readiness based on FI and CO configurations."""
     fi_config = body.get("fi_config", {})
@@ -175,7 +175,7 @@ async def generate_transformation_rules(
     landscape_id: str,
     table_name: str,
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> list[dict]:
     """Generate LTMC-compatible data transformation rules using AI."""
     container = request.app.state.container

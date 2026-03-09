@@ -24,7 +24,7 @@ async def start_discovery(
     programme_id: str,
     body: dict[str, Any],
     request: Request,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> DiscoveryResultsResponse:
     """Trigger an AI-powered discovery run against the source SAP landscape.
 
@@ -45,7 +45,7 @@ async def get_discovery_results(
     programme_id: str,
     request: Request,
     landscape_id: str | None = None,
-    _user: dict[str, str] = Depends(get_current_user),
+    _user=Depends(get_current_user),
 ) -> DiscoveryResultsResponse:
     """Retrieve the latest discovery results for a given programme.
 

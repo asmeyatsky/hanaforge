@@ -1,42 +1,85 @@
-"""Authentication middleware — Bearer token extraction and user context.
+"""Authentication middleware — JWT verification with dev-mode bypass.
 
-TODO: Integrate Firebase Auth for production token verification.
-TODO: Add tenant isolation checks against the token claims.
-TODO: Cache verified tokens with short TTL to reduce auth latency.
+When auth is disabled (default for dev), a default admin user is injected.
+When enabled, full JWT validation runs with role-based access control.
 """
 
 from __future__ import annotations
 
-from fastapi import Depends, HTTPException, status
+from typing import Any
+
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-_bearer_scheme = HTTPBearer()
+from infrastructure.auth.models import CurrentUser, DEV_USER, Role
+
+_bearer_scheme = HTTPBearer(auto_error=False)
+
+
+def _get_jwt_handler(request: Request) -> Any:
+    """Retrieve the JWTHandler from the DI container."""
+    return request.app.state.container.resolve("JWTHandler")
+
+
+def _is_auth_enabled(request: Request) -> bool:
+    """Check if authentication is enabled in settings."""
+    settings = request.app.state.container.resolve("Settings")
+    return getattr(settings, "auth_enabled", False)
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(_bearer_scheme),
-) -> dict[str, str]:
-    """Extract and validate the Bearer token from the Authorization header.
+    request: Request,
+    credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+) -> CurrentUser:
+    """Extract and validate the Bearer token, or return dev user if auth is disabled."""
+    if not _is_auth_enabled(request):
+        return DEV_USER
 
-    For development: accepts any non-empty token and returns a stub user context.
-    For production: this should verify the token against Firebase Auth and extract
-    real user_id / tenant_id from the JWT claims.
-    """
-    token = credentials.credentials
-    if not token:
+    if credentials is None or not credentials.credentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing authentication token",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # TODO: Replace with Firebase Auth token verification:
-    #   decoded = firebase_admin.auth.verify_id_token(token)
-    #   user_id = decoded["uid"]
-    #   tenant_id = decoded.get("tenant_id", "default")
+    jwt_handler = _get_jwt_handler(request)
+    try:
+        return jwt_handler.token_to_user(credentials.credentials)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-    return {
-        "user_id": "dev-user",
-        "tenant_id": "dev-tenant",
-        "token": token,
-    }
+
+def require_roles(*required_roles: Role):
+    """Dependency factory that checks the user has at least one of the required roles."""
+
+    async def _check(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
+        if not user.has_any_role(*required_roles):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Requires one of: {[r.value for r in required_roles]}",
+            )
+        return user
+
+    return _check
+
+
+async def get_optional_user(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+) -> CurrentUser | None:
+    """Return user if token present, None otherwise. Never raises 401."""
+    if not _is_auth_enabled(request):
+        return DEV_USER
+
+    if credentials is None or not credentials.credentials:
+        return None
+
+    jwt_handler = _get_jwt_handler(request)
+    try:
+        return jwt_handler.token_to_user(credentials.credentials)
+    except Exception:
+        return None

@@ -3,11 +3,11 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 const modules = [
   { id: 'M01', name: 'Discovery', color: 'bg-emerald-400', ready: true },
   { id: 'M02', name: 'ABAP Intelligence', color: 'bg-blue-400', ready: true },
-  { id: 'M03', name: 'Remediation', color: 'bg-violet-400', ready: false },
-  { id: 'M04', name: 'Data Readiness', color: 'bg-amber-400', ready: false },
-  { id: 'M05', name: 'Test Engine', color: 'bg-rose-400', ready: false },
-  { id: 'M06', name: 'Migration Exec', color: 'bg-cyan-400', ready: false },
-  { id: 'M07', name: 'Observability', color: 'bg-slate-400', ready: false },
+  { id: 'M03', name: 'Data Readiness', color: 'bg-violet-400', ready: true },
+  { id: 'M04', name: 'TestForge', color: 'bg-amber-400', ready: true },
+  { id: 'M05', name: 'Infrastructure', color: 'bg-rose-400', ready: true },
+  { id: 'M06', name: 'Migration Exec', color: 'bg-cyan-400', ready: true },
+  { id: 'M07', name: 'Cutover', color: 'bg-slate-400', ready: true },
 ];
 
 function buildBreadcrumbs(pathname: string): { label: string; href: string }[] {
@@ -34,6 +34,36 @@ function buildBreadcrumbs(pathname: string): { label: string; href: string }[] {
         crumbs.push({
           label: 'ABAP Analysis',
           href: `/programmes/${segments[1]}/analysis`,
+        });
+      }
+      if (segments[2] === 'data-readiness') {
+        crumbs.push({
+          label: 'Data Readiness',
+          href: `/programmes/${segments[1]}/data-readiness`,
+        });
+      }
+      if (segments[2] === 'test-forge') {
+        crumbs.push({
+          label: 'TestForge',
+          href: `/programmes/${segments[1]}/test-forge`,
+        });
+      }
+      if (segments[2] === 'infrastructure') {
+        crumbs.push({
+          label: 'Infrastructure',
+          href: `/programmes/${segments[1]}/infrastructure`,
+        });
+      }
+      if (segments[2] === 'migration') {
+        crumbs.push({
+          label: 'Migration',
+          href: `/programmes/${segments[1]}/migration`,
+        });
+      }
+      if (segments[2] === 'cutover') {
+        crumbs.push({
+          label: 'Cutover',
+          href: `/programmes/${segments[1]}/cutover`,
         });
       }
     }
