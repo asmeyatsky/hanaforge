@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from typing import Any
+
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
 
 from application.commands.create_infrastructure_plan import (
     CreateInfrastructurePlanUseCase,
+)
+from application.commands.create_monitoring_dashboard import (
+    CreateMonitoringDashboardUseCase,
 )
 from application.commands.estimate_costs import EstimateCostsUseCase
 from application.commands.generate_terraform import GenerateTerraformUseCase
@@ -149,3 +154,53 @@ async def validate_plan(
         warnings=list(result.warnings),
         errors=list(result.errors),
     )
+
+
+# ---------------------------------------------------------------------------
+# Cloud Monitoring dashboards & alerting (FR-05-06)
+# ---------------------------------------------------------------------------
+
+
+@router.post(
+    "/programmes/{programme_id}/monitoring",
+    status_code=status.HTTP_201_CREATED,
+    summary="Create Cloud Monitoring dashboards and alert policies",
+)
+async def create_monitoring_dashboards(
+    programme_id: str,
+    request: Request,
+    custom_thresholds: dict[str, float] | None = Body(default=None),
+    _user=Depends(get_current_user),
+) -> dict[str, Any]:
+    """Create SAP and GCP Cloud Monitoring dashboards with alert policies for a programme."""
+    container = request.app.state.container
+    use_case: CreateMonitoringDashboardUseCase = container.resolve(
+        "CreateMonitoringDashboardUseCase"
+    )
+    try:
+        return await use_case.execute(
+            programme_id=programme_id,
+            custom_thresholds=custom_thresholds,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
+
+
+@router.get(
+    "/programmes/{programme_id}/monitoring",
+    summary="Get monitoring dashboard status",
+)
+async def get_monitoring_status(
+    programme_id: str,
+    request: Request,
+    _user=Depends(get_current_user),
+) -> dict[str, Any]:
+    """Retrieve the current monitoring dashboard status for a programme."""
+    container = request.app.state.container
+    use_case: CreateMonitoringDashboardUseCase = container.resolve(
+        "CreateMonitoringDashboardUseCase"
+    )
+    return await use_case.get_status(programme_id=programme_id)

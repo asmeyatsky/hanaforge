@@ -116,7 +116,7 @@ def mock_ai_analysis() -> AsyncMock:
             deprecated_apis=["KONV access"],
         ),
     ]
-    ai.analyse = AsyncMock(side_effect=results)
+    ai.analyze_object = AsyncMock(side_effect=results)
     return ai
 
 
@@ -155,7 +155,7 @@ class TestRunABAPAnalysisUseCase:
     ) -> None:
         await use_case.execute(landscape_id="land-001", programme_id="prog-001")
 
-        assert mock_ai_analysis.analyse.await_count == len(objects)
+        assert mock_ai_analysis.analyze_object.await_count == len(objects)
 
     @pytest.mark.asyncio
     async def test_creates_remediations_for_incompatible(

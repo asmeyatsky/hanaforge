@@ -212,30 +212,77 @@ class HanaForgeClient {
   // Cutover (M07)
   // -------------------------------------------------------------------
 
-  async getCutoverPlan(programmeId: string): Promise<CutoverPlan> {
+  async getCutoverStatus(programmeId: string): Promise<CutoverPlan> {
     return this.request<CutoverPlan>(
-      `/cutover/programmes/${programmeId}`,
+      `/cutover/status/${programmeId}`,
     );
+  }
+
+  /** @deprecated Use getCutoverStatus instead */
+  async getCutoverPlan(programmeId: string): Promise<CutoverPlan> {
+    return this.getCutoverStatus(programmeId);
   }
 
   async generateRunbook(programmeId: string): Promise<CutoverPlan> {
     return this.request<CutoverPlan>(
-      `/cutover/programmes/${programmeId}/runbook`,
-      { method: 'POST' },
+      `/cutover/runbook/${programmeId}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          migration_tasks: [],
+          integration_inventory: [],
+          data_sequences: [],
+        }),
+      },
     );
   }
 
-  async startCutover(programmeId: string): Promise<CutoverPlan> {
+  async startCutover(runbookId: string): Promise<CutoverPlan> {
     return this.request<CutoverPlan>(
-      `/cutover/programmes/${programmeId}/start`,
+      `/cutover/execute/${runbookId}`,
       { method: 'POST' },
     );
   }
 
   async startHypercare(programmeId: string): Promise<CutoverPlan> {
     return this.request<CutoverPlan>(
-      `/cutover/programmes/${programmeId}/hypercare`,
-      { method: 'POST' },
+      `/cutover/hypercare/${programmeId}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          duration_days: 90,
+          monitoring_config: {},
+        }),
+      },
+    );
+  }
+
+  async updateCutoverTask(
+    executionId: string,
+    taskId: string,
+    taskStatus: string,
+    notes?: string,
+  ): Promise<CutoverPlan> {
+    return this.request<CutoverPlan>(
+      `/cutover/task/${executionId}/${taskId}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({ status: taskStatus, notes }),
+      },
+    );
+  }
+
+  async evaluateGate(
+    executionId: string,
+    gateId: string,
+    checks: Record<string, unknown>,
+  ): Promise<unknown> {
+    return this.request<unknown>(
+      `/cutover/gate/${executionId}/${gateId}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(checks),
+      },
     );
   }
 }

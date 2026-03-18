@@ -22,3 +22,13 @@ class ReportGeneratorPort(Protocol):
         programme: Programme,
         complexity: ComplexityScore,
     ) -> str: ...
+
+    async def generate_board_presentation(
+        self,
+        programme: Programme,
+        landscapes: list[Any],
+        objects: list[Any],
+        remediations: list[Any],
+        complexity: ComplexityScore,
+        recommendation: str,
+    ) -> bytes: ...

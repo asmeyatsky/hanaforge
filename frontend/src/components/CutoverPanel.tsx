@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { apiClient } from '../api/client';
-import type { CutoverPlan } from '../types';
+import type { CutoverPlan, RunbookStep } from '../types';
 
 function stepStatusColor(status: string): string {
   switch (status) {
@@ -70,72 +70,70 @@ function incidentStatusBadge(status: string) {
   }
 }
 
+const POLL_INTERVAL_MS = 5000;
+
 export default function CutoverPanel() {
   const { id: programmeId } = useParams<{ id: string }>();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState<CutoverPlan | null>(null);
+  const [updatingTask, setUpdatingTask] = useState<string | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Determine if cutover is active (should poll)
+  const isActive = plan?.status === 'executing';
+
+  const fetchStatus = useCallback(async () => {
+    if (!programmeId) return;
+    try {
+      const data = await apiClient.getCutoverStatus(programmeId);
+      setPlan(data);
+      setError(null);
+    } catch {
+      // Only set error if we don't already have data (initial load)
+      if (!plan) {
+        setError(null); // Silently fail on poll, keep existing data
+      }
+    }
+  }, [programmeId, plan]);
+
+  // Auto-poll during active cutover
+  useEffect(() => {
+    if (isActive) {
+      pollRef.current = setInterval(fetchStatus, POLL_INTERVAL_MS);
+    }
+    return () => {
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
+  }, [isActive, fetchStatus]);
 
   const handleGenerateRunbook = async () => {
     if (!programmeId) return;
     setLoading(true);
     setError(null);
-
     try {
       const data = await apiClient.generateRunbook(programmeId);
       setPlan(data);
     } catch {
-      // Demo fallback
-      setPlan({
-        programme_id: programmeId,
-        plan_id: 'cut-001',
-        status: 'executing',
-        cutover_start: '2026-03-15T22:00:00Z',
-        cutover_end: null,
-        hypercare_start: null,
-        hypercare_end: null,
-        created_at: new Date().toISOString(),
-        runbook_steps: [
-          { id: 'rs1', order: 1, name: 'Lock Source System', description: 'Set SAP ECC to maintenance mode, block user transactions', estimated_duration_min: 15, actual_duration_min: 12, status: 'completed', owner: 'Basis Admin' },
-          { id: 'rs2', order: 2, name: 'Final Data Export', description: 'Export delta changes since last sync', estimated_duration_min: 45, actual_duration_min: 52, status: 'completed', owner: 'Data Team' },
-          { id: 'rs3', order: 3, name: 'Delta Data Load', description: 'Load incremental data into S/4HANA', estimated_duration_min: 60, actual_duration_min: null, status: 'in_progress', owner: 'Data Team' },
-          { id: 'rs4', order: 4, name: 'Custom Code Activation', description: 'Deploy and activate remediated ABAP code', estimated_duration_min: 30, actual_duration_min: null, status: 'pending', owner: 'ABAP Team' },
-          { id: 'rs5', order: 5, name: 'Configuration Verification', description: 'Verify all customising settings in target system', estimated_duration_min: 45, actual_duration_min: null, status: 'pending', owner: 'Functional Team' },
-          { id: 'rs6', order: 6, name: 'Integration Reconnection', description: 'Point interfaces (RFC, IDoc, API) to new system', estimated_duration_min: 30, actual_duration_min: null, status: 'pending', owner: 'Integration Team' },
-          { id: 'rs7', order: 7, name: 'Smoke Test Execution', description: 'Run critical business process smoke tests', estimated_duration_min: 60, actual_duration_min: null, status: 'pending', owner: 'QA Team' },
-          { id: 'rs8', order: 8, name: 'User Access Restoration', description: 'Enable user access on S/4HANA, disable ECC access', estimated_duration_min: 15, actual_duration_min: null, status: 'pending', owner: 'Basis Admin' },
-          { id: 'rs9', order: 9, name: 'Go-Live Communication', description: 'Send go-live notification to all stakeholders', estimated_duration_min: 5, actual_duration_min: null, status: 'pending', owner: 'Programme Manager' },
-        ],
-        go_no_go_gates: [
-          { id: 'gng1', name: 'Data Completeness', category: 'Technical', status: 'go', checked_by: 'Data Lead', checked_at: '2026-03-15T20:00:00Z' },
-          { id: 'gng2', name: 'Performance Benchmark', category: 'Technical', status: 'go', checked_by: 'Perf. Engineer', checked_at: '2026-03-15T20:30:00Z' },
-          { id: 'gng3', name: 'Business Sign-off', category: 'Business', status: 'go', checked_by: 'Programme Sponsor', checked_at: '2026-03-15T21:00:00Z' },
-          { id: 'gng4', name: 'Security Clearance', category: 'Security', status: 'go', checked_by: 'CISO', checked_at: '2026-03-15T21:15:00Z' },
-          { id: 'gng5', name: 'Rollback Plan Verified', category: 'Risk', status: 'go', checked_by: 'Risk Manager', checked_at: '2026-03-15T21:30:00Z' },
-          { id: 'gng6', name: 'Hypercare Team Ready', category: 'Operations', status: 'pending', checked_by: null, checked_at: null },
-        ],
-        incidents: [
-          { id: 'inc1', title: 'BAPI_SALESORDER_CREATEFROMDAT2 timeout on large orders', severity: 'P2', status: 'investigating', reported_at: '2026-03-16T09:15:00Z', resolved_at: null, assignee: 'ABAP Team' },
-          { id: 'inc2', title: 'IDoc partner profile missing for MATMAS05', severity: 'P3', status: 'resolved', reported_at: '2026-03-16T08:30:00Z', resolved_at: '2026-03-16T09:00:00Z', assignee: 'Integration Team' },
-          { id: 'inc3', title: 'Month-end close job RFIBLK00 aborted', severity: 'P1', status: 'open', reported_at: '2026-03-16T10:00:00Z', resolved_at: null, assignee: 'FI Team' },
-        ],
-      });
-      setError(null);
+      setError('Failed to generate runbook. Check that the programme exists and has discovery data.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleStartCutover = async () => {
-    if (!programmeId) return;
+    if (!programmeId || !plan) return;
     setLoading(true);
     setError(null);
     try {
-      const data = await apiClient.startCutover(programmeId);
+      const data = await apiClient.startCutover(plan.plan_id);
       setPlan(data);
     } catch {
-      setError('Failed to start cutover. Ensure all Go/No-Go gates are cleared.');
+      setError('Failed to start cutover. Ensure all Go/No-Go gates are cleared and the runbook is approved.');
     } finally {
       setLoading(false);
     }
@@ -160,7 +158,7 @@ export default function CutoverPanel() {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiClient.getCutoverPlan(programmeId);
+      const data = await apiClient.getCutoverStatus(programmeId);
       setPlan(data);
     } catch {
       setError('No existing cutover plan found. Generate a runbook to get started.');
@@ -169,13 +167,38 @@ export default function CutoverPanel() {
     }
   };
 
+  const handleRefresh = async () => {
+    await fetchStatus();
+  };
+
+  const handleUpdateTask = async (step: RunbookStep, newStatus: string) => {
+    if (!plan) return;
+    setUpdatingTask(step.id);
+    try {
+      const data = await apiClient.updateCutoverTask(
+        plan.plan_id,
+        step.id,
+        newStatus,
+      );
+      setPlan(data);
+      setError(null);
+    } catch {
+      setError(`Failed to update task "${step.name}" to ${newStatus}.`);
+    } finally {
+      setUpdatingTask(null);
+    }
+  };
+
   const completedSteps = plan ? plan.runbook_steps.filter((s) => s.status === 'completed').length : 0;
   const totalSteps = plan ? plan.runbook_steps.length : 0;
   const totalEstimatedMin = plan ? plan.runbook_steps.reduce((sum, s) => sum + s.estimated_duration_min, 0) : 0;
   const totalActualMin = plan ? plan.runbook_steps.reduce((sum, s) => sum + (s.actual_duration_min || 0), 0) : 0;
+  const progressPercent = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
 
   const goCount = plan ? plan.go_no_go_gates.filter((g) => g.status === 'go').length : 0;
   const noGoCount = plan ? plan.go_no_go_gates.filter((g) => g.status === 'no_go').length : 0;
+
+  const activeIncidents = plan ? plan.incidents.filter((i) => i.status === 'open' || i.status === 'investigating').length : 0;
 
   return (
     <div className="space-y-8">
@@ -188,8 +211,26 @@ export default function CutoverPanel() {
           <p className="mt-1 text-sm text-slate-500">
             Manage your cutover runbook, Go/No-Go gates, and post-go-live hypercare operations.
           </p>
+          {isActive && (
+            <p className="mt-1 text-xs text-blue-600 flex items-center gap-1">
+              <span className="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              Live — auto-refreshing every {POLL_INTERVAL_MS / 1000}s
+            </p>
+          )}
         </div>
         <div className="flex gap-3">
+          {plan && (
+            <button
+              onClick={handleRefresh}
+              disabled={loading}
+              className="btn-secondary disabled:opacity-50"
+              title="Refresh status"
+            >
+              <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          )}
           {!plan && (
             <button
               onClick={handleLoadExisting}
@@ -280,13 +321,19 @@ export default function CutoverPanel() {
       {plan && (
         <>
           {/* Summary stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+            <div className="stat-card">
+              <p className="text-sm text-slate-500">Status</p>
+              <p className="mt-1 text-lg font-bold text-slate-900 uppercase">
+                {plan.status.replace('_', ' ')}
+              </p>
+            </div>
             <div className="stat-card">
               <p className="text-sm text-slate-500">Cutover Progress</p>
               <p className="mt-1 text-3xl font-bold text-slate-900">
-                {completedSteps}/{totalSteps}
+                {progressPercent}%
               </p>
-              <p className="text-xs text-slate-400 mt-1">steps completed</p>
+              <p className="text-xs text-slate-400 mt-1">{completedSteps}/{totalSteps} steps</p>
             </div>
             <div className="stat-card">
               <p className="text-sm text-slate-500">Est. Total Time</p>
@@ -311,12 +358,26 @@ export default function CutoverPanel() {
             </div>
             <div className="stat-card">
               <p className="text-sm text-slate-500">Incidents</p>
-              <p className="mt-1 text-3xl font-bold text-red-600">
-                {plan.incidents.filter((i) => i.status === 'open' || i.status === 'investigating').length}
+              <p className={`mt-1 text-3xl font-bold ${activeIncidents > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                {activeIncidents}
               </p>
               <p className="text-xs text-slate-400 mt-1">
                 active / {plan.incidents.length} total
               </p>
+            </div>
+          </div>
+
+          {/* Overall progress bar */}
+          <div className="card p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-slate-700">Overall Progress</span>
+              <span className="text-sm font-mono text-slate-500">{progressPercent}%</span>
+            </div>
+            <div className="w-full bg-slate-200 rounded-full h-3">
+              <div
+                className="bg-emerald-500 h-3 rounded-full transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
             </div>
           </div>
 
@@ -366,7 +427,7 @@ export default function CutoverPanel() {
             </div>
           </div>
 
-          {/* Runbook steps table */}
+          {/* Runbook steps table with task actions */}
           <div className="card overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
               <h3 className="text-sm font-semibold text-slate-900">
@@ -384,7 +445,7 @@ export default function CutoverPanel() {
                     </div>
                     <p className="text-xs text-slate-500 mt-0.5">{step.description}</p>
                   </div>
-                  <div className="flex items-center gap-6 flex-shrink-0">
+                  <div className="flex items-center gap-4 flex-shrink-0">
                     <div className="text-right">
                       <p className="text-xs text-slate-400">Owner</p>
                       <p className="text-xs font-medium text-slate-700">{step.owner}</p>
@@ -397,6 +458,50 @@ export default function CutoverPanel() {
                           : `est. ${step.estimated_duration_min}m`}
                       </p>
                     </div>
+                    {/* Task action buttons */}
+                    {isActive && (
+                      <div className="flex gap-1 min-w-[120px] justify-end">
+                        {step.status === 'pending' && (
+                          <button
+                            onClick={() => handleUpdateTask(step, 'IN_PROGRESS')}
+                            disabled={updatingTask === step.id}
+                            className="px-2 py-1 text-[10px] font-medium rounded bg-blue-100 text-blue-700 hover:bg-blue-200 disabled:opacity-50"
+                          >
+                            {updatingTask === step.id ? '...' : 'Start'}
+                          </button>
+                        )}
+                        {step.status === 'in_progress' && (
+                          <>
+                            <button
+                              onClick={() => handleUpdateTask(step, 'COMPLETED')}
+                              disabled={updatingTask === step.id}
+                              className="px-2 py-1 text-[10px] font-medium rounded bg-emerald-100 text-emerald-700 hover:bg-emerald-200 disabled:opacity-50"
+                            >
+                              {updatingTask === step.id ? '...' : 'Complete'}
+                            </button>
+                            <button
+                              onClick={() => handleUpdateTask(step, 'FAILED')}
+                              disabled={updatingTask === step.id}
+                              className="px-2 py-1 text-[10px] font-medium rounded bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50"
+                            >
+                              Fail
+                            </button>
+                          </>
+                        )}
+                        {step.status === 'failed' && (
+                          <button
+                            onClick={() => handleUpdateTask(step, 'IN_PROGRESS')}
+                            disabled={updatingTask === step.id}
+                            className="px-2 py-1 text-[10px] font-medium rounded bg-amber-100 text-amber-700 hover:bg-amber-200 disabled:opacity-50"
+                          >
+                            {updatingTask === step.id ? '...' : 'Retry'}
+                          </button>
+                        )}
+                        {step.status === 'completed' && (
+                          <span className="px-2 py-1 text-[10px] font-medium text-emerald-600">Done</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -502,6 +607,45 @@ export default function CutoverPanel() {
               </div>
             </div>
           )}
+
+          {/* Timing information */}
+          <div className="card p-6">
+            <h3 className="text-sm font-semibold text-slate-900 mb-4">Timeline</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+              <div>
+                <p className="text-slate-400">Cutover Start</p>
+                <p className="font-medium text-slate-700">
+                  {plan.cutover_start
+                    ? new Date(plan.cutover_start).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                    : 'Not started'}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-400">Cutover End</p>
+                <p className="font-medium text-slate-700">
+                  {plan.cutover_end
+                    ? new Date(plan.cutover_end).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                    : 'In progress'}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-400">Hypercare Start</p>
+                <p className="font-medium text-slate-700">
+                  {plan.hypercare_start
+                    ? new Date(plan.hypercare_start).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                    : '--'}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-400">Hypercare End</p>
+                <p className="font-medium text-slate-700">
+                  {plan.hypercare_end
+                    ? new Date(plan.hypercare_end).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                    : '--'}
+                </p>
+              </div>
+            </div>
+          </div>
         </>
       )}
     </div>

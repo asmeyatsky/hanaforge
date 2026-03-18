@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expiry_minutes: int = 60
 
+    # CORS (comma-separated origins; "*" for dev only)
+    cors_allowed_origins: str = "*"
+
     # Persistence
     use_firestore: bool = False
 

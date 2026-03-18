@@ -34,10 +34,16 @@ Key areas to check:
 Return your analysis as a JSON object with EXACTLY this schema:
 {
   "compatible": <bool>,
+  "compatibility_status": "<one of COMPATIBLE, INCOMPATIBLE, NEEDS_REVIEW>",
   "deprecated_apis": [<list of deprecated API names found>],
   "issues": [<list of human-readable issue descriptions>],
+  "issue_type": "<primary issue type: deprecated_api, table_change, statement_obsolete, bp_migration, or null if compatible>",
+  "deprecated_api": "<primary deprecated API name or null>",
+  "suggested_replacement": "<recommended replacement API/approach or null>",
   "remediation_code": <string with suggested replacement code or null>,
-  "confidence": <float between 0.0 and 1.0>
+  "generated_code": <string with complete remediated ABAP code or null>,
+  "confidence": <float between 0.0 and 1.0>,
+  "effort_points": <int 1-5 where 1=trivial, 2=low, 3=medium, 4=high, 5=critical rewrite>
 }
 
 Return ONLY the JSON object, no markdown fences or additional text.
@@ -88,10 +94,29 @@ class ClaudeAnalysisAdapter:
                 cleaned = cleaned.rsplit("```", 1)[0]
             parsed = json.loads(cleaned.strip())
 
+        compatible = parsed.get("compatible", False)
+        confidence = float(parsed.get("confidence", 0.5))
+
+        # Derive compatibility_status from compatible flag if not explicitly set
+        raw_status = parsed.get("compatibility_status")
+        if raw_status:
+            compatibility_status = raw_status
+        elif compatible:
+            compatibility_status = "COMPATIBLE"
+        else:
+            compatibility_status = "INCOMPATIBLE"
+
         return AnalysisResult(
-            compatible=parsed.get("compatible", False),
+            compatible=compatible,
             deprecated_apis=parsed.get("deprecated_apis", []),
             issues=parsed.get("issues", []),
             remediation_code=parsed.get("remediation_code"),
-            confidence=float(parsed.get("confidence", 0.5)),
+            confidence=confidence,
+            compatibility_status=compatibility_status,
+            issue_type=parsed.get("issue_type"),
+            deprecated_api=parsed.get("deprecated_api"),
+            suggested_replacement=parsed.get("suggested_replacement"),
+            generated_code=parsed.get("generated_code"),
+            confidence_score=confidence,
+            effort_points=parsed.get("effort_points"),
         )

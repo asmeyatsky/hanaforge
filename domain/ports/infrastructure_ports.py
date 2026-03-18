@@ -63,3 +63,35 @@ class InfrastructurePlanRepositoryPort(Protocol):
     async def get_by_id(self, id: str) -> InfrastructurePlan | None: ...
     async def list_by_programme(self, programme_id: str) -> list[InfrastructurePlan]: ...
     async def get_latest_by_programme(self, programme_id: str) -> InfrastructurePlan | None: ...
+
+
+# ---------------------------------------------------------------------------
+# Cloud Monitoring
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class MonitoringDashboardConfig:
+    """Configuration for a Cloud Monitoring dashboard."""
+
+    name: str
+    metrics: list[dict[str, object]]
+    alert_thresholds: dict[str, float]
+
+
+class CloudMonitoringPort(Protocol):
+    """Port for Google Cloud Monitoring dashboard and alerting management."""
+
+    async def create_dashboard(self, config: MonitoringDashboardConfig) -> dict:
+        """Create a Cloud Monitoring dashboard from a config specification."""
+        ...
+
+    async def create_alert_policies(
+        self, plan_ref: str, thresholds: dict[str, float]
+    ) -> list[dict]:
+        """Create alert policies for the given plan reference and thresholds."""
+        ...
+
+    async def get_dashboard_url(self, dashboard_id: str) -> str:
+        """Return the console URL for a given dashboard ID."""
+        ...

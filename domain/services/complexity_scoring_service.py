@@ -15,6 +15,30 @@ class ComplexityScoringService:
     _WEIGHT_DB_SIZE = 0.20
     _WEIGHT_USER_COUNT = 0.15
 
+    async def calculate(
+        self,
+        custom_objects: list[dict],
+        integration_points: list[dict],
+    ) -> ComplexityScore:
+        """Calculate complexity from raw discovery data (dicts, not entities).
+
+        Used by the DiscoveryWorkflow DAG before entities are fully constructed.
+        """
+        obj_count = len(custom_objects)
+        integration_count = len(integration_points)
+
+        object_score = self._score_custom_object_count(obj_count)
+        # Estimate integration complexity as a proxy for incompatible ratio
+        integration_score = min(100.0, integration_count * 8.0) if integration_count else 10.0
+
+        weighted = (
+            object_score * 0.45
+            + integration_score * 0.55
+        )
+
+        final = max(1, min(100, round(weighted)))
+        return ComplexityScore(score=final)
+
     def calculate_landscape_complexity(
         self,
         landscape: SAPLandscape,

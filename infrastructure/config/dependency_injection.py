@@ -59,6 +59,9 @@ from infrastructure.repositories.in_memory_benchmark_repository import InMemoryB
 from domain.services.benchmark_estimation_service import BenchmarkEstimationService
 from application.queries.get_benchmark_estimate import GetBenchmarkEstimateQuery
 
+# --- Multi-tenancy ---
+from domain.services.tenant_access_service import TenantAccessService
+
 # Adapters
 from infrastructure.adapters.claude_analysis_adapter import ClaudeAnalysisAdapter
 from infrastructure.adapters.claude_migration_advisor import ClaudeMigrationAdvisor
@@ -67,11 +70,16 @@ from infrastructure.adapters.gcs_storage_adapter import LocalFileStorageAdapter
 from infrastructure.adapters.pubsub_event_bus_adapter import InMemoryEventBusAdapter
 from infrastructure.adapters.report_generator_adapter import SimpleReportGenerator
 
+# Remediation export
+from infrastructure.adapters.remediation_exporter_adapter import RemediationExporterAdapter
+from application.commands.export_remediation_backlog import ExportRemediationBacklogUseCase
+
 # Use cases
 from application.commands.create_programme import CreateProgrammeUseCase
 from application.commands.start_discovery import StartDiscoveryUseCase
 from application.commands.upload_abap_source import UploadABAPSourceUseCase
 from application.commands.run_abap_analysis import RunABAPAnalysisUseCase
+from application.commands.generate_board_presentation import GenerateBoardPresentationUseCase
 
 # Queries
 from application.queries.get_programme import GetProgrammeQuery
@@ -107,11 +115,14 @@ from application.queries.get_traceability_matrix import GetTraceabilityMatrixQue
 from infrastructure.repositories.in_memory_infrastructure_repository import InMemoryInfrastructurePlanRepository
 from infrastructure.adapters.quick_sizer_parser import QuickSizerXMLParser
 from infrastructure.terraform.terraform_generator import TerraformHCLGenerator
+from infrastructure.adapters.cloud_build_provisioning_adapter import CloudBuildProvisioningAdapter
 from domain.services.sizing_service import SAPSizingService
 from domain.services.plan_validation_service import PlanValidationService
 from application.commands.create_infrastructure_plan import CreateInfrastructurePlanUseCase
 from application.commands.generate_terraform import GenerateTerraformUseCase
 from application.commands.estimate_costs import EstimateCostsUseCase
+from infrastructure.adapters.cloud_monitoring_adapter import CloudMonitoringAdapter
+from application.commands.create_monitoring_dashboard import CreateMonitoringDashboardUseCase
 from application.queries.get_infrastructure_plan import GetInfrastructurePlanQuery
 
 # --- Module 06: Migration Orchestrator ---
@@ -278,6 +289,12 @@ class Container:
             SimpleReportGenerator,
         )
 
+    def remediation_exporter(self) -> RemediationExporterAdapter:
+        return self._get_or_create(
+            "RemediationExporterPort",
+            RemediationExporterAdapter,
+        )
+
     # ------------------------------------------------------------------
     # Use cases
     # ------------------------------------------------------------------
@@ -320,6 +337,28 @@ class Container:
                 remediation_repo=self.remediation_repository(),
                 ai_analysis=self.abap_analysis(),
                 event_bus=self.event_bus(),
+            ),
+        )
+
+    def generate_board_presentation_use_case(self) -> GenerateBoardPresentationUseCase:
+        return self._get_or_create(
+            "GenerateBoardPresentationUseCase",
+            lambda: GenerateBoardPresentationUseCase(
+                programme_repo=self.programme_repository(),
+                landscape_repo=self.landscape_repository(),
+                object_repo=self.custom_object_repository(),
+                remediation_repo=self.remediation_repository(),
+                report_generator=self.report_generator(),
+            ),
+        )
+
+    def export_remediation_backlog_use_case(self) -> ExportRemediationBacklogUseCase:
+        return self._get_or_create(
+            "ExportRemediationBacklogUseCase",
+            lambda: ExportRemediationBacklogUseCase(
+                object_repo=self.custom_object_repository(),
+                remediation_repo=self.remediation_repository(),
+                exporter=self.remediation_exporter(),
             ),
         )
 
@@ -516,6 +555,14 @@ class Container:
     def plan_validation_service(self) -> PlanValidationService:
         return self._get_or_create("PlanValidationService", PlanValidationService)
 
+    def provisioning_adapter(self) -> CloudBuildProvisioningAdapter:
+        return self._get_or_create(
+            "ProvisioningPort",
+            lambda: CloudBuildProvisioningAdapter(
+                gcp_project_id=self._settings.gcp_project_id,
+            ),
+        )
+
     # Module 05: Use cases
 
     def create_infrastructure_plan_use_case(self) -> CreateInfrastructurePlanUseCase:
@@ -556,6 +603,23 @@ class Container:
             "GetInfrastructurePlanQuery",
             lambda: GetInfrastructurePlanQuery(
                 plan_repo=self.infrastructure_plan_repository(),
+            ),
+        )
+
+    def cloud_monitoring(self) -> CloudMonitoringAdapter:
+        return self._get_or_create(
+            "CloudMonitoringPort",
+            lambda: CloudMonitoringAdapter(
+                gcp_project_id=self._settings.gcp_project_id,
+            ),
+        )
+
+    def create_monitoring_dashboard_use_case(self) -> CreateMonitoringDashboardUseCase:
+        return self._get_or_create(
+            "CreateMonitoringDashboardUseCase",
+            lambda: CreateMonitoringDashboardUseCase(
+                plan_repo=self.infrastructure_plan_repository(),
+                monitoring=self.cloud_monitoring(),
             ),
         )
 
@@ -919,6 +983,18 @@ class Container:
         )
 
     # ------------------------------------------------------------------
+    # Multi-tenancy
+    # ------------------------------------------------------------------
+
+    def tenant_access_service(self) -> TenantAccessService:
+        return self._get_or_create(
+            "TenantAccessService",
+            lambda: TenantAccessService(
+                programme_repository=self.programme_repository(),
+            ),
+        )
+
+    # ------------------------------------------------------------------
     # Generic resolver
     # ------------------------------------------------------------------
 
@@ -945,11 +1021,14 @@ class Container:
             "FileStoragePort": self.file_storage,
             "EventBusPort": self.event_bus,
             "ReportGeneratorPort": self.report_generator,
+            "RemediationExporterPort": self.remediation_exporter,
             # Phase 1: Use cases
             "CreateProgrammeUseCase": self.create_programme_use_case,
             "StartDiscoveryUseCase": self.start_discovery_use_case,
             "UploadABAPSourceUseCase": self.upload_abap_source_use_case,
             "RunABAPAnalysisUseCase": self.run_abap_analysis_use_case,
+            "GenerateBoardPresentationUseCase": self.generate_board_presentation_use_case,
+            "ExportRemediationBacklogUseCase": self.export_remediation_backlog_use_case,
             # Phase 1: Queries
             "GetProgrammeQuery": self.get_programme_query,
             "ListProgrammesQuery": self.list_programmes_query,
@@ -978,10 +1057,15 @@ class Container:
             "InfrastructurePlanRepositoryPort": self.infrastructure_plan_repository,
             "QuickSizerParserPort": self.quick_sizer_parser,
             "TerraformGeneratorPort": self.terraform_generator,
+            "ProvisioningPort": self.provisioning_adapter,
+            "CloudBuildProvisioningAdapter": self.provisioning_adapter,
             "CreateInfrastructurePlanUseCase": self.create_infrastructure_plan_use_case,
             "GenerateTerraformUseCase": self.generate_terraform_use_case,
             "EstimateCostsUseCase": self.estimate_costs_use_case,
             "GetInfrastructurePlanQuery": self.get_infrastructure_plan_query,
+            "CloudMonitoringPort": self.cloud_monitoring,
+            "CloudMonitoringAdapter": self.cloud_monitoring,
+            "CreateMonitoringDashboardUseCase": self.create_monitoring_dashboard_use_case,
             # --- Module 06: Migration Orchestrator ---
             "MigrationTaskRepositoryPort": self.migration_task_repository,
             "InMemoryMigrationTaskRepository": self.migration_task_repository,
@@ -1040,6 +1124,8 @@ class Container:
             "BenchmarkRepositoryPort": self.benchmark_repository,
             "BenchmarkEstimationService": self.benchmark_estimation_service,
             "GetBenchmarkEstimateQuery": self.get_benchmark_estimate_query,
+            # --- Multi-tenancy ---
+            "TenantAccessService": self.tenant_access_service,
         }
 
         factory = _RESOLVER_MAP.get(type_name)

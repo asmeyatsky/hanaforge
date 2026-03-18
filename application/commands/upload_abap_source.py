@@ -14,6 +14,7 @@ from domain.ports import (
 )
 from domain.value_objects.object_type import (
     ABAPObjectType,
+    BusinessDomain,
     CompatibilityStatus,
     RemediationStatus,
 )
@@ -107,6 +108,9 @@ class UploadABAPSourceUseCase:
                 landscape_id=landscape_id,
                 object_type=obj["object_type"],
                 object_name=obj["object_name"],
+                package_name=obj.get("package_name", "ZUNKNOWN"),
+                domain=BusinessDomain(obj.get("domain", "UNKNOWN")),
+                complexity_score=None,
                 compatibility_status=CompatibilityStatus.UNKNOWN,
                 remediation_status=RemediationStatus.NOT_STARTED,
                 source_code=obj["source_code"],

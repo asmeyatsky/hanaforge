@@ -16,6 +16,14 @@ class AnalysisResult:
     issues: list[str]
     remediation_code: str | None
     confidence: float
+    # Extended fields for remediation workflow
+    compatibility_status: str = "UNKNOWN"
+    issue_type: str | None = None
+    deprecated_api: str | None = None
+    suggested_replacement: str | None = None
+    generated_code: str | None = None
+    confidence_score: float = 0.5
+    effort_points: int | None = None
 
     def __post_init__(self) -> None:
         if not (0.0 <= self.confidence <= 1.0):

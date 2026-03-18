@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from infrastructure.config.dependency_injection import Container
+from infrastructure.config.settings import get_settings
 from presentation.api.error_handlers import register_error_handlers
 from presentation.api.middleware.correlation_id import CorrelationIdMiddleware
 from presentation.api.middleware.request_logging import RequestLoggingMiddleware
@@ -31,7 +32,9 @@ from presentation.api.routes import (
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Application lifespan: initialise the DI container on startup."""
-    app.state.container = Container()
+    container = Container()
+    app.state.container = container
+    app.state.settings = container.settings
     yield
 
 
@@ -56,9 +59,10 @@ register_error_handlers(app)
 # ---------------------------------------------------------------------------
 app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(CorrelationIdMiddleware)
+_cors_settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Dev-only: restrict in production
+    allow_origins=_cors_settings.cors_allowed_origins.split(",") if _cors_settings.cors_allowed_origins != "*" else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

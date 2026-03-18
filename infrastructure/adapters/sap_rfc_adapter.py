@@ -40,6 +40,38 @@ class SAPRFCAdapter:
         self._user = user
         self._password = password
 
+    async def connect(self, connection_params: dict) -> Any:
+        """Establish connection to SAP system.
+
+        Real implementation would use pyrfc to open an RFC connection.
+        Returns a connection handle for subsequent extract calls.
+        """
+        return {
+            "host": connection_params.get("host", self._host),
+            "system_number": connection_params.get("system_number", self._system_number),
+            "client": connection_params.get("client", self._client),
+            "connected": True,
+        }
+
+    async def discover(self, connection_params: dict) -> dict:
+        """Full discovery: connect, extract metadata, objects, and integrations.
+
+        Orchestrates all extraction calls and returns a consolidated result dict.
+        """
+        connection = await self.connect(connection_params)
+        metadata = await self.extract_landscape_metadata(connection)
+        custom_objects = await self.extract_custom_objects(connection)
+        integration_points = await self.extract_integration_points(connection)
+
+        return {
+            "system_id": metadata.get("system_id", "UNKNOWN"),
+            "system_role": metadata.get("system_role", "DEV"),
+            "db_size_gb": metadata.get("db_size_gb", 0.0),
+            "number_of_users": metadata.get("number_of_users", 0),
+            "custom_objects": custom_objects,
+            "integration_points": integration_points,
+        }
+
     async def extract_custom_objects(self, connection: Any) -> list[dict]:
         """Extract custom Z/Y objects from the SAP repository.
 

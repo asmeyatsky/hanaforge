@@ -95,7 +95,7 @@ class DiscoveryWorkflow:
     ) -> dict:
         """Extract landscape metadata (system info, DB size, etc.)."""
         connection = results["connect"]
-        metadata = await self._sap_discovery.extract_metadata(connection)
+        metadata = await self._sap_discovery.extract_landscape_metadata(connection)
         return metadata
 
     async def _extract_objects(
@@ -146,10 +146,13 @@ class DiscoveryWorkflow:
         metadata = results.get("extract_metadata", {})
         objects = results.get("extract_objects", [])
 
-        recommendation = await self._migration_advisor.recommend(
-            complexity_score=complexity,
-            metadata=metadata,
-            custom_objects=objects,
+        landscape_summary = {
+            "complexity_score": complexity,
+            "metadata": metadata,
+            "custom_objects_count": len(objects),
+        }
+        recommendation = await self._migration_advisor.recommend_approach(
+            landscape_summary=landscape_summary,
         )
         return {
             "approach": recommendation.approach.value,

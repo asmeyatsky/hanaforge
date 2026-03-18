@@ -63,7 +63,13 @@ class StartDiscoveryUseCase:
             system_id=system_id,
             system_role=SystemRole(system_role_raw),
             db_size_gb=db_size_gb,
+            number_of_users=discovery_result.get("number_of_users", 0),
             custom_object_count=len(custom_objects),
+            integration_points=tuple(
+                ip.get("name", str(ip)) if isinstance(ip, dict) else str(ip)
+                for ip in integration_points
+            ),
+            created_at=datetime.now(timezone.utc),
         )
         await self._landscape_repo.save(landscape)
 

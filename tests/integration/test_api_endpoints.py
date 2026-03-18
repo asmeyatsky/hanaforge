@@ -30,10 +30,14 @@ def client():
 
 @pytest.fixture()
 def programme_payload() -> dict:
-    """Valid payload for creating a programme."""
+    """Valid payload for creating a programme.
+
+    Uses ``dev-tenant`` as customer_id to match the default DEV_USER injected
+    when auth is disabled, so that tenant-filtered queries return results.
+    """
     return {
         "name": "Acme ECC Migration",
-        "customer_id": "ACME-001",
+        "customer_id": "dev-tenant",
         "sap_source_version": "ECC 6.0",
         "target_version": "S/4HANA 2023",
         "go_live_date": None,
@@ -117,7 +121,7 @@ class TestCreateProgramme:
     ) -> None:
         body = client.post("/api/v1/programmes/", json=programme_payload).json()
         assert body["name"] == "Acme ECC Migration"
-        assert body["customer_id"] == "ACME-001"
+        assert body["customer_id"] == "dev-tenant"
         assert body["sap_source_version"] == "ECC 6.0"
         assert body["target_version"] == "S/4HANA 2023"
         assert body["status"] == "CREATED"
@@ -189,35 +193,39 @@ class TestListProgrammes:
     def test_list_multiple_programmes(
         self, client: TestClient, programme_payload: dict
     ) -> None:
-        # Create two programmes
+        # Create two programmes with the same tenant (dev-tenant)
         client.post("/api/v1/programmes/", json=programme_payload)
-        payload_2 = {**programme_payload, "name": "Beta Migration", "customer_id": "BETA-001"}
+        payload_2 = {**programme_payload, "name": "Beta Migration"}
         client.post("/api/v1/programmes/", json=payload_2)
 
         body = client.get("/api/v1/programmes/").json()
         assert body["total"] >= 2
 
-    def test_list_filter_by_customer_id(
+    def test_list_filter_by_tenant(
         self, client: TestClient, programme_payload: dict
     ) -> None:
-        # Create a programme for a specific customer
-        payload = {**programme_payload, "customer_id": "FILTER-TEST-001"}
-        client.post("/api/v1/programmes/", json=payload)
+        """In dev mode, tenant is dev-tenant from DEV_USER. Only programmes
+        with matching customer_id are returned."""
+        # Create programme with dev-tenant customer_id (matches dev auth)
+        client.post("/api/v1/programmes/", json=programme_payload)
 
-        body = client.get(
-            "/api/v1/programmes/", params={"customer_id": "FILTER-TEST-001"}
-        ).json()
+        body = client.get("/api/v1/programmes/").json()
         assert body["total"] >= 1
         for prog in body["programmes"]:
-            assert prog["customer_id"] == "FILTER-TEST-001"
+            assert prog["customer_id"] == "dev-tenant"
 
-    def test_list_filter_no_match(self, client: TestClient) -> None:
-        body = client.get(
-            "/api/v1/programmes/",
-            params={"customer_id": "NONEXISTENT-999"},
-        ).json()
-        assert body["total"] == 0
-        assert body["programmes"] == []
+    def test_list_excludes_other_tenants(
+        self, client: TestClient, programme_payload: dict
+    ) -> None:
+        """Programmes created with a different customer_id should not appear
+        in the dev-tenant listing."""
+        # Create with non-matching customer_id
+        payload = {**programme_payload, "customer_id": "OTHER-TENANT"}
+        client.post("/api/v1/programmes/", json=payload)
+
+        body = client.get("/api/v1/programmes/").json()
+        other_progs = [p for p in body["programmes"] if p["customer_id"] == "OTHER-TENANT"]
+        assert len(other_progs) == 0
 
 
 class TestGetProgrammeById:

@@ -12,7 +12,9 @@ from application.dtos.programme_dto import (
 )
 from application.queries.get_programme import GetProgrammeQuery
 from application.queries.list_programmes import ListProgrammesQuery
+from domain.services.tenant_access_service import TenantAccessService
 from presentation.api.middleware.auth import get_current_user
+from presentation.api.middleware.tenant_context import TenantContext, get_tenant_context
 
 router = APIRouter(prefix="", tags=["Programmes"])
 
@@ -41,13 +43,12 @@ async def create_programme(
 )
 async def list_programmes(
     request: Request,
-    customer_id: str | None = None,
-    _user=Depends(get_current_user),
+    tenant: TenantContext = Depends(get_tenant_context),
 ) -> ProgrammeListResponse:
-    """List all migration programmes, optionally filtered by customer ID."""
+    """List migration programmes belonging to the current tenant."""
     container = request.app.state.container
     query: ListProgrammesQuery = container.resolve(ListProgrammesQuery)
-    return await query.execute(customer_id=customer_id)
+    return await query.execute(customer_id=tenant.customer_id)
 
 
 @router.get(
@@ -58,15 +59,20 @@ async def list_programmes(
 async def get_programme(
     programme_id: str,
     request: Request,
-    _user=Depends(get_current_user),
+    tenant: TenantContext = Depends(get_tenant_context),
 ) -> ProgrammeResponse:
     """Retrieve a single migration programme by its unique identifier."""
     container = request.app.state.container
-    query: GetProgrammeQuery = container.resolve(GetProgrammeQuery)
-    result = await query.execute(programme_id=programme_id)
-    if result is None:
+
+    # Validate tenant ownership before returning
+    tenant_svc: TenantAccessService = container.resolve(TenantAccessService)
+    try:
+        programme = await tenant_svc.validate_programme_access(
+            programme_id=programme_id, customer_id=tenant.customer_id,
+        )
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Programme {programme_id!r} not found",
         )
-    return result
+    return ProgrammeResponse.from_entity(programme)

@@ -64,7 +64,12 @@ class RunABAPAnalysisUseCase:
 
         async def _analyse_one(obj: CustomObject) -> tuple[AnalysisResult, CustomObject]:
             async with semaphore:
-                result = await self._ai_analysis.analyse(obj)
+                result = await self._ai_analysis.analyze_object(
+                    source_code=obj.source_code,
+                    object_type=obj.object_type,
+                    sap_source_version="ECC 6.0",
+                    target_version="S/4HANA 2023",
+                )
                 return result, obj
 
         analysis_tasks = [_analyse_one(obj) for obj in objects]
