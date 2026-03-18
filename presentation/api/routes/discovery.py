@@ -9,7 +9,7 @@ from fastapi.responses import Response
 
 from application.commands.generate_board_presentation import GenerateBoardPresentationUseCase
 from application.commands.start_discovery import StartDiscoveryUseCase
-from application.dtos.analysis_dto import DiscoveryResultsResponse
+from application.dtos.analysis_dto import AnalysisResultsResponse, DiscoveryResultsResponse
 from application.queries.get_analysis_results import GetAnalysisResultsQuery
 from domain.services.tenant_access_service import TenantAccessService
 from presentation.api.middleware.tenant_context import TenantContext, get_tenant_context
@@ -55,7 +55,7 @@ async def start_discovery(
 
 @router.get(
     "/{programme_id}/landscape",
-    response_model=DiscoveryResultsResponse,
+    response_model=AnalysisResultsResponse,
     summary="Get discovery results for a programme",
 )
 async def get_discovery_results(
@@ -63,7 +63,7 @@ async def get_discovery_results(
     request: Request,
     landscape_id: str | None = None,
     tenant: TenantContext = Depends(get_tenant_context),
-) -> DiscoveryResultsResponse:
+) -> AnalysisResultsResponse:
     """Retrieve the latest discovery results for a given programme.
 
     If landscape_id is provided, returns results for that specific landscape;

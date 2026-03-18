@@ -316,19 +316,19 @@ def create_cutover_commander_server(container: Container) -> Server:
     async def list_resources() -> list[Resource]:
         return [
             Resource(
-                uri="cutover://{programme_id}/status",
+                uri="cutover://{programme_id}/status",  # type: ignore[arg-type]
                 name="Cutover Status",
                 description="Real-time cutover execution status for a programme",
                 mimeType="application/json",
             ),
             Resource(
-                uri="cutover://{programme_id}/runbook",
+                uri="cutover://{programme_id}/runbook",  # type: ignore[arg-type]
                 name="Cutover Runbook",
                 description="Current cutover runbook for a programme",
                 mimeType="application/json",
             ),
             Resource(
-                uri="cutover://{programme_id}/hypercare",
+                uri="cutover://{programme_id}/hypercare",  # type: ignore[arg-type]
                 name="Hypercare Status",
                 description="Active hypercare session status for a programme",
                 mimeType="application/json",
@@ -348,7 +348,7 @@ def create_cutover_commander_server(container: Container) -> Server:
             if resource_type == "status":
                 query = container.resolve("GetCutoverStatusQuery")
                 result = await query.execute(programme_id)
-                return result.model_dump_json(indent=2)
+                return str(result.model_dump_json(indent=2))
 
             if resource_type == "runbook":
                 runbook_repo = container.resolve("RunbookRepositoryPort")
@@ -364,7 +364,7 @@ def create_cutover_commander_server(container: Container) -> Server:
                 result = await query.execute(programme_id)
                 if result is None:
                     return json.dumps({"error": "No active hypercare session"})
-                return result.model_dump_json(indent=2)
+                return str(result.model_dump_json(indent=2))
 
             return json.dumps({"error": f"Unknown resource type: {resource_type}"})
         except Exception as exc:

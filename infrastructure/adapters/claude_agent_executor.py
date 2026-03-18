@@ -95,8 +95,8 @@ class ClaudeAgentExecutor:
                 model=self._model,
                 max_tokens=4096,
                 system=_SYSTEM_PROMPT,
-                tools=api_tools,
-                messages=messages,
+                tools=api_tools,  # type: ignore[arg-type]
+                messages=messages,  # type: ignore[arg-type]
             )
 
             total_input_tokens += response.usage.input_tokens

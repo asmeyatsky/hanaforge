@@ -233,13 +233,13 @@ def create_data_readiness_server(container: Container) -> Server:
     async def list_resources() -> list[Resource]:
         return [
             Resource(
-                uri="data://{landscape_id}/profiles",
+                uri="data://{landscape_id}/profiles",  # type: ignore[arg-type]
                 name="Data Profiles",
                 description="Read data profiling results for a landscape",
                 mimeType="application/json",
             ),
             Resource(
-                uri="data://{landscape_id}/risk-register",
+                uri="data://{landscape_id}/risk-register",  # type: ignore[arg-type]
                 name="Risk Register",
                 description="Read data migration risk register for a landscape",
                 mimeType="application/json",
@@ -259,7 +259,7 @@ def create_data_readiness_server(container: Container) -> Server:
         if resource_type == "profiles":
             query = container.resolve("GetDataProfilingResultsQuery")
             result = await query.execute(landscape_id=landscape_id)
-            return result.model_dump_json(indent=2)
+            return str(result.model_dump_json(indent=2))
 
         if resource_type == "risk-register":
             query = container.resolve("GetDataProfilingResultsQuery")

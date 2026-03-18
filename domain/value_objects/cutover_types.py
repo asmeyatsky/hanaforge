@@ -62,6 +62,38 @@ class HypercareStatus(Enum):
     CLOSED = "CLOSED"
 
 
+class ApprovalStatus(Enum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+
+
+class StepCategory(Enum):
+    PREPARATION = "PREPARATION"
+    SYSTEM_LOCKDOWN = "SYSTEM_LOCKDOWN"
+    DATA_MIGRATION = "DATA_MIGRATION"
+    TECHNICAL_CUTOVER = "TECHNICAL_CUTOVER"
+    VALIDATION = "VALIDATION"
+    COMMUNICATION = "COMMUNICATION"
+    GO_LIVE = "GO_LIVE"
+    POST_GO_LIVE = "POST_GO_LIVE"
+
+
+class TaskProgressStatus(Enum):
+    NOT_STARTED = "NOT_STARTED"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
+    SKIPPED = "SKIPPED"
+    FAILED = "FAILED"
+
+
+class IncidentSeverity(Enum):
+    CRITICAL = "CRITICAL"
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW = "LOW"
+
+
 # ---------------------------------------------------------------------------
 # Value Objects
 # ---------------------------------------------------------------------------
@@ -195,6 +227,42 @@ class HypercareIncident:
             from datetime import timezone
 
             object.__setattr__(self, "reported_at", datetime.now(timezone.utc))
+
+
+@dataclass(frozen=True)
+class RunbookStep:
+    """A single step in a cutover runbook (Firestore deserialization)."""
+
+    id: str
+    name: str
+    owner: str
+    estimated_duration_minutes: int
+    category: StepCategory = StepCategory.PREPARATION
+    depends_on: tuple[str, ...] = ()
+    order: int = 0
+
+
+@dataclass(frozen=True)
+class TaskProgress:
+    """Tracks runtime progress of a single task in a cutover execution."""
+
+    task_id: str
+    task_name: str
+    status: TaskProgressStatus = TaskProgressStatus.NOT_STARTED
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    notes: str | None = None
+
+
+@dataclass(frozen=True)
+class GateDecision:
+    """Records a go/no-go gate decision during cutover execution."""
+
+    gate_id: str
+    decision: str  # GO | NO_GO | OVERRIDE
+    decided_by: str = ""
+    decided_at: datetime | None = None
+    notes: str | None = None
 
 
 @dataclass(frozen=True)

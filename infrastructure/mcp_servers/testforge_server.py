@@ -170,19 +170,19 @@ def create_testforge_server(container: Container) -> Server:
     async def list_resources() -> list[Resource]:
         return [
             Resource(
-                uri="tests://{programme_id}/scenarios",
+                uri="tests://{programme_id}/scenarios",  # type: ignore[arg-type]
                 name="Test Scenarios",
                 description="List test scenarios for a programme",
                 mimeType="application/json",
             ),
             Resource(
-                uri="tests://{programme_id}/traceability",
+                uri="tests://{programme_id}/traceability",  # type: ignore[arg-type]
                 name="Traceability Matrix",
                 description="View traceability matrix for a programme",
                 mimeType="application/json",
             ),
             Resource(
-                uri="tests://{programme_id}/suites",
+                uri="tests://{programme_id}/suites",  # type: ignore[arg-type]
                 name="Test Suites",
                 description="List test suites for a programme",
                 mimeType="application/json",
@@ -201,12 +201,12 @@ def create_testforge_server(container: Container) -> Server:
         if resource_type == "scenarios":
             query = container.resolve("GetTestResultsQuery")
             result = await query.execute(programme_id=programme_id)
-            return result.model_dump_json(indent=2)
+            return str(result.model_dump_json(indent=2))
 
         if resource_type == "traceability":
             query = container.resolve("GetTraceabilityMatrixQuery")
             result = await query.execute(programme_id=programme_id)
-            return result.model_dump_json(indent=2)
+            return str(result.model_dump_json(indent=2))
 
         if resource_type == "suites":
             suite_repo = container.resolve("TestSuiteRepositoryPort")

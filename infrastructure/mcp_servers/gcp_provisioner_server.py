@@ -170,14 +170,14 @@ def create_gcp_provisioner_server(container: Container) -> Server:
             return [TextContent(type="text", text=result.model_dump_json(indent=2))]
 
         if name == "generate_terraform":
-            use_case = container.resolve("GenerateTerraformUseCase")
-            result = await use_case.execute(plan_id=arguments["plan_id"])
-            return [TextContent(type="text", text=result.model_dump_json(indent=2))]
+            tf_use_case = container.resolve("GenerateTerraformUseCase")
+            tf_result = await tf_use_case.execute(plan_id=arguments["plan_id"])
+            return [TextContent(type="text", text=tf_result.model_dump_json(indent=2))]
 
         if name == "estimate_costs":
-            use_case = container.resolve("EstimateCostsUseCase")
-            result = await use_case.execute(programme_id=arguments["programme_id"])
-            return [TextContent(type="text", text=result.model_dump_json(indent=2))]
+            cost_use_case = container.resolve("EstimateCostsUseCase")
+            cost_result = await cost_use_case.execute(programme_id=arguments["programme_id"])
+            return [TextContent(type="text", text=cost_result.model_dump_json(indent=2))]
 
         if name == "validate_plan":
             from domain.services.plan_validation_service import (
@@ -195,17 +195,17 @@ def create_gcp_provisioner_server(container: Container) -> Server:
                 ]
 
             validation_service = PlanValidationService()
-            result = validation_service.validate_sap_certification(plan)
+            validation_result = validation_service.validate_sap_certification(plan)
             return [
                 TextContent(
                     type="text",
                     text=json.dumps(
                         {
-                            "status": result.status.value,
-                            "checks_passed": result.checks_passed,
-                            "checks_failed": result.checks_failed,
-                            "warnings": list(result.warnings),
-                            "errors": list(result.errors),
+                            "status": validation_result.status.value,
+                            "checks_passed": validation_result.checks_passed,
+                            "checks_failed": validation_result.checks_failed,
+                            "warnings": list(validation_result.warnings),
+                            "errors": list(validation_result.errors),
                         },
                         indent=2,
                     ),
@@ -227,19 +227,19 @@ def create_gcp_provisioner_server(container: Container) -> Server:
     async def list_resources() -> list[Resource]:
         return [
             Resource(
-                uri="infra://{programme_id}/plan",
+                uri="infra://{programme_id}/plan",  # type: ignore[arg-type]
                 name="Infrastructure Plan",
                 description="Read the current infrastructure plan for a programme",
                 mimeType="application/json",
             ),
             Resource(
-                uri="infra://{programme_id}/terraform",
+                uri="infra://{programme_id}/terraform",  # type: ignore[arg-type]
                 name="Terraform HCL",
                 description="Read the generated Terraform HCL for a programme",
                 mimeType="text/plain",
             ),
             Resource(
-                uri="infra://{programme_id}/costs",
+                uri="infra://{programme_id}/costs",  # type: ignore[arg-type]
                 name="Cost Estimate",
                 description="Read the cost estimate for a programme",
                 mimeType="application/json",
@@ -284,9 +284,9 @@ def create_gcp_provisioner_server(container: Container) -> Server:
             from application.commands.estimate_costs import EstimateCostsUseCase
 
             try:
-                use_case: EstimateCostsUseCase = container.resolve("EstimateCostsUseCase")
-                result = await use_case.execute(programme_id=programme_id)
-                return result.model_dump_json(indent=2)
+                cost_use_case: EstimateCostsUseCase = container.resolve("EstimateCostsUseCase")
+                cost_result = await cost_use_case.execute(programme_id=programme_id)
+                return cost_result.model_dump_json(indent=2)
             except ValueError as exc:
                 return json.dumps({"error": str(exc)})
 

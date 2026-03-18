@@ -119,13 +119,13 @@ def create_discovery_server(container: Container) -> Server:
     async def list_resources() -> list[Resource]:
         return [
             Resource(
-                uri="discovery://{programme_id}/landscape",
+                uri="discovery://{programme_id}/landscape",  # type: ignore[arg-type]
                 name="Landscape Data",
                 description="Read landscape data for a programme",
                 mimeType="application/json",
             ),
             Resource(
-                uri="discovery://{programme_id}/objects",
+                uri="discovery://{programme_id}/objects",  # type: ignore[arg-type]
                 name="Object Inventory",
                 description="Read custom object inventory for a programme",
                 mimeType="application/json",

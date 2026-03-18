@@ -47,6 +47,12 @@ class FirestoreRemediationRepository(FirestoreBase):
     async def save(self, suggestion: RemediationSuggestion) -> None:
         await self._doc(COLLECTION, suggestion.id).set(self._to_dict(suggestion))
 
+    async def save_batch(self, suggestions: list[RemediationSuggestion]) -> None:
+        batch = self.client.batch()
+        for s in suggestions:
+            batch.set(self._doc(COLLECTION, s.id), self._to_dict(s))
+        await batch.commit()
+
     async def get_by_object(self, object_id: str) -> list[RemediationSuggestion]:
         query = self._collection(COLLECTION).where("object_id", "==", object_id)
         return [self._from_dict(doc.to_dict()) async for doc in query.stream()]

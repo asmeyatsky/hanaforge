@@ -133,14 +133,14 @@ def create_migration_orchestrator_server(container: Container) -> Server:
             return [TextContent(type="text", text=result.model_dump_json(indent=2))]
 
         if name == "execute_step":
-            use_case = container.resolve("ExecuteMigrationStepUseCase")
-            result = await use_case.execute(task_id=arguments["task_id"])
-            return [TextContent(type="text", text=result.model_dump_json(indent=2))]
+            step_use_case = container.resolve("ExecuteMigrationStepUseCase")
+            step_result = await step_use_case.execute(task_id=arguments["task_id"])
+            return [TextContent(type="text", text=step_result.model_dump_json(indent=2))]
 
         if name == "run_batch":
-            use_case = container.resolve("RunMigrationBatchUseCase")
-            result = await use_case.execute(programme_id=arguments["programme_id"])
-            return [TextContent(type="text", text=result.model_dump_json(indent=2))]
+            batch_use_case = container.resolve("RunMigrationBatchUseCase")
+            batch_result = await batch_use_case.execute(programme_id=arguments["programme_id"])
+            return [TextContent(type="text", text=batch_result.model_dump_json(indent=2))]
 
         if name == "acknowledge_anomaly":
             anomaly_repo = container.resolve("AnomalyRepositoryPort")
@@ -173,25 +173,25 @@ def create_migration_orchestrator_server(container: Container) -> Server:
     async def list_resources() -> list[Resource]:
         return [
             Resource(
-                uri="migration://{programme_id}/status",
+                uri="migration://{programme_id}/status",  # type: ignore[arg-type]
                 name="Migration Status",
                 description="Full migration status including health, critical path, and task summary",
                 mimeType="application/json",
             ),
             Resource(
-                uri="migration://{programme_id}/tasks",
+                uri="migration://{programme_id}/tasks",  # type: ignore[arg-type]
                 name="Migration Tasks",
                 description="List of all migration tasks for a programme",
                 mimeType="application/json",
             ),
             Resource(
-                uri="migration://{programme_id}/audit-log",
+                uri="migration://{programme_id}/audit-log",  # type: ignore[arg-type]
                 name="Audit Log",
                 description="Migration audit log for compliance and traceability",
                 mimeType="application/json",
             ),
             Resource(
-                uri="migration://{programme_id}/anomalies",
+                uri="migration://{programme_id}/anomalies",  # type: ignore[arg-type]
                 name="Active Anomalies",
                 description="Active (unacknowledged) anomaly alerts for a programme",
                 mimeType="application/json",

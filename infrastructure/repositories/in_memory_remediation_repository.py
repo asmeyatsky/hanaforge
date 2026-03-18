@@ -62,6 +62,10 @@ class InMemoryRemediationRepository:
     async def save(self, suggestion: RemediationSuggestion) -> None:
         self._store[suggestion.id] = self._to_dict(suggestion)
 
+    async def save_batch(self, suggestions: list[RemediationSuggestion]) -> None:
+        for suggestion in suggestions:
+            self._store[suggestion.id] = self._to_dict(suggestion)
+
     async def get_by_object(self, object_id: str) -> list[RemediationSuggestion]:
         return [self._from_dict(data) for data in self._store.values() if data["object_id"] == object_id]
 

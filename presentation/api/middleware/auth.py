@@ -6,7 +6,7 @@ When enabled, full JWT validation runs with role-based access control.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -44,7 +44,7 @@ async def get_current_user(
 
     jwt_handler = _get_jwt_handler(request)
     try:
-        return jwt_handler.token_to_user(credentials.credentials)
+        return cast(CurrentUser, jwt_handler.token_to_user(credentials.credentials))
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -80,6 +80,6 @@ async def get_optional_user(
 
     jwt_handler = _get_jwt_handler(request)
     try:
-        return jwt_handler.token_to_user(credentials.credentials)
+        return cast(CurrentUser, jwt_handler.token_to_user(credentials.credentials))
     except Exception:
         return None

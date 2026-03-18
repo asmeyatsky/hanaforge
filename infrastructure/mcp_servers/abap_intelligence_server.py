@@ -118,13 +118,13 @@ def create_abap_intelligence_server(container: Container) -> Server:
     async def list_resources() -> list[Resource]:
         return [
             Resource(
-                uri="abap://{landscape_id}/objects",
+                uri="abap://{landscape_id}/objects",  # type: ignore[arg-type]
                 name="Analyzed Objects",
                 description="List all analyzed ABAP custom objects for a landscape",
                 mimeType="application/json",
             ),
             Resource(
-                uri="abap://{landscape_id}/remediations",
+                uri="abap://{landscape_id}/remediations",  # type: ignore[arg-type]
                 name="Remediation Suggestions",
                 description="List all remediation suggestions for a landscape",
                 mimeType="application/json",

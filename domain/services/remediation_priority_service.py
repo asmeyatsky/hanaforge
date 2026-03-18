@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from domain.entities.custom_object import CustomObject
 from domain.value_objects.object_type import BusinessDomain, CompatibilityStatus
+
+if TYPE_CHECKING:
+    from domain.entities.remediation import RemediationSuggestion
 
 _DOMAIN_CRITICALITY: dict[BusinessDomain, int] = {
     BusinessDomain.FI: 0,
@@ -26,6 +31,10 @@ _DOMAIN_CRITICALITY: dict[BusinessDomain, int] = {
 class RemediationPriorityService:
     def prioritize_backlog(self, objects: list[CustomObject]) -> list[CustomObject]:
         return sorted(objects, key=self._sort_key)
+
+    async def prioritize(self, suggestions: list[RemediationSuggestion]) -> list[RemediationSuggestion]:
+        """Sort remediation suggestions by confidence score (highest first)."""
+        return sorted(suggestions, key=lambda s: s.confidence_score, reverse=True)
 
     @staticmethod
     def _sort_key(obj: CustomObject) -> tuple[int, int, int]:

@@ -26,7 +26,7 @@ class LocalFileStorageAdapter:
             raise ValueError(f"Path traversal detected: {path}")
         return resolved
 
-    async def upload(self, file_bytes: bytes, path: str) -> str:
+    async def upload(self, path: str, file_bytes: bytes) -> str:
         target = self._resolve(path)
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(file_bytes)

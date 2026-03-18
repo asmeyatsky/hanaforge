@@ -193,7 +193,7 @@ class CheckDataReadinessTool:
             )
             # Return whatever the query gives us as a dict
             if hasattr(result, "model_dump"):
-                return result.model_dump()
+                return dict(result.model_dump())
             return {"programme_id": programme_id, "result": str(result)}
         except Exception as exc:
             return {"error": f"Data readiness check failed: {exc}"}
@@ -239,7 +239,7 @@ class GenerateTestScenariosTool:
                 landscape_id=landscape_id,
             )
             if hasattr(result, "model_dump"):
-                return result.model_dump()
+                return dict(result.model_dump())
             return {"programme_id": programme_id, "result": str(result)}
         except Exception as exc:
             return {"error": f"Test generation failed: {exc}"}

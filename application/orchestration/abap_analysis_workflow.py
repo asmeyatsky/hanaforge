@@ -172,7 +172,7 @@ class ABAPAnalysisWorkflow:
         if not suggestions:
             return []
 
-        prioritized = await self._priority_service.prioritize(suggestions)
+        prioritized: list[RemediationSuggestion] = await self._priority_service.prioritize(suggestions)
         return prioritized
 
     async def _publish_results(

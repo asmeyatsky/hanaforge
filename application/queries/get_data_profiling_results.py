@@ -62,7 +62,9 @@ class GetDataProfilingResultsQuery:
         # Calculate overall quality
         profiled_with_quality = [d for d in domains if d.quality_score is not None]
         if profiled_with_quality:
-            overall_quality = sum(d.quality_score.overall for d in profiled_with_quality) / len(profiled_with_quality)
+            overall_quality = sum(
+                d.quality_score.overall for d in profiled_with_quality if d.quality_score is not None
+            ) / len(profiled_with_quality)
         else:
             overall_quality = 0.0
 

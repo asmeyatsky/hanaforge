@@ -81,7 +81,10 @@ class ClaudeAnalysisAdapter:
         )
 
         # Parse the structured JSON response from Claude
-        raw_text = response.content[0].text.strip()
+        first_block = response.content[0]
+        if not hasattr(first_block, "text"):
+            raise ValueError("Expected a TextBlock response from Claude")
+        raw_text = first_block.text.strip()  # type: ignore[union-attr]
         try:
             parsed = json.loads(raw_text)
         except json.JSONDecodeError:

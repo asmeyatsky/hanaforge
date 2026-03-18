@@ -4,6 +4,7 @@ Wires all infrastructure adapters to domain ports and creates use cases
 with their dependencies injected.  This is the single place where concrete
 implementations are chosen.
 """
+# mypy: disable-error-code="no-any-return"
 
 from __future__ import annotations
 
@@ -421,6 +422,7 @@ class Container:
             "AssessBPConsolidationUseCase",
             lambda: AssessBPConsolidationUseCase(
                 bp_service=self.bp_consolidation_service(),
+                event_bus=self.event_bus(),
             ),
         )
 
@@ -429,6 +431,7 @@ class Container:
             "AssessUniversalJournalUseCase",
             lambda: AssessUniversalJournalUseCase(
                 uj_service=self.universal_journal_service(),
+                event_bus=self.event_bus(),
             ),
         )
 
@@ -498,7 +501,6 @@ class Container:
             "GenerateInterfaceTestsUseCase",
             lambda: GenerateInterfaceTestsUseCase(
                 scenario_repo=self.test_scenario_repository(),
-                test_generator=self.test_generator(),
                 event_bus=self.event_bus(),
             ),
         )
@@ -509,7 +511,6 @@ class Container:
             lambda: ExportTestScenariosUseCase(
                 scenario_repo=self.test_scenario_repository(),
                 exporter=self.test_exporter(),
-                event_bus=self.event_bus(),
             ),
         )
 
@@ -526,6 +527,7 @@ class Container:
             "GetTraceabilityMatrixQuery",
             lambda: GetTraceabilityMatrixQuery(
                 scenario_repo=self.test_scenario_repository(),
+                suite_repo=self.test_suite_repository(),
             ),
         )
 
@@ -567,12 +569,11 @@ class Container:
         return self._get_or_create(
             "CreateInfrastructurePlanUseCase",
             lambda: CreateInfrastructurePlanUseCase(
-                programme_repo=self.programme_repository(),
-                plan_repo=self.infrastructure_plan_repository(),
+                repository=self.infrastructure_plan_repository(),
+                event_bus=self.event_bus(),
+                quick_sizer_parser=self.quick_sizer_parser(),
                 sizing_service=self.sizing_service(),
                 validation_service=self.plan_validation_service(),
-                quick_sizer_parser=self.quick_sizer_parser(),
-                event_bus=self.event_bus(),
             ),
         )
 
@@ -580,10 +581,10 @@ class Container:
         return self._get_or_create(
             "GenerateTerraformUseCase",
             lambda: GenerateTerraformUseCase(
-                plan_repo=self.infrastructure_plan_repository(),
+                repository=self.infrastructure_plan_repository(),
                 terraform_generator=self.terraform_generator(),
-                validation_service=self.plan_validation_service(),
                 event_bus=self.event_bus(),
+                validation_service=self.plan_validation_service(),
             ),
         )
 
@@ -591,7 +592,7 @@ class Container:
         return self._get_or_create(
             "EstimateCostsUseCase",
             lambda: EstimateCostsUseCase(
-                plan_repo=self.infrastructure_plan_repository(),
+                repository=self.infrastructure_plan_repository(),
                 sizing_service=self.sizing_service(),
             ),
         )
@@ -600,7 +601,7 @@ class Container:
         return self._get_or_create(
             "GetInfrastructurePlanQuery",
             lambda: GetInfrastructurePlanQuery(
-                plan_repo=self.infrastructure_plan_repository(),
+                repository=self.infrastructure_plan_repository(),
             ),
         )
 
@@ -915,7 +916,10 @@ class Container:
     def agent_executor(self) -> Any:
         return self._get_or_create(
             "AgentExecutorPort",
-            lambda: ClaudeAgentExecutor(api_key=self._settings.anthropic_api_key),
+            lambda: ClaudeAgentExecutor(
+                api_key=self._settings.anthropic_api_key,
+                tool_registry=self.agent_tool_registry(),
+            ),
         )
 
     def agent_tool_registry(self) -> AgentToolRegistry:
