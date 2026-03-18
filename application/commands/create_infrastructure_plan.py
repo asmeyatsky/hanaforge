@@ -10,8 +10,11 @@ from __future__ import annotations
 import asyncio
 import base64
 import uuid
-from functools import partial
 
+from application.dtos.infrastructure_dto import (
+    CreateInfrastructurePlanRequest,
+    InfrastructurePlanResponse,
+)
 from domain.entities.infrastructure_plan import InfrastructurePlan
 from domain.ports.event_bus_ports import EventBusPort
 from domain.ports.infrastructure_ports import (
@@ -27,12 +30,6 @@ from domain.value_objects.gcp_types import (
     SizingInput,
 )
 from domain.value_objects.object_type import SystemRole
-
-from application.dtos.infrastructure_dto import (
-    CreateInfrastructurePlanRequest,
-    InfrastructurePlanResponse,
-    SizingInputRequest,
-)
 
 
 class CreateInfrastructurePlanUseCase:

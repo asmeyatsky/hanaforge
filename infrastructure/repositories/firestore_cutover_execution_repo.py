@@ -35,6 +35,7 @@ class FirestoreCutoverExecutionRepository(FirestoreBase):
     @staticmethod
     def _from_doc(data: dict) -> CutoverExecution:
         from datetime import datetime
+
         from domain.value_objects.cutover_types import (
             ExecutionStatus,
             GateDecision,

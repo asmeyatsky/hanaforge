@@ -6,11 +6,10 @@ applying appropriate CUD discount optimisation per landscape tier.
 
 from __future__ import annotations
 
+from application.dtos.infrastructure_dto import CostEstimateResponse
 from domain.ports.infrastructure_ports import InfrastructurePlanRepositoryPort
 from domain.services.sizing_service import SAPSizingService
 from domain.value_objects.gcp_types import GCPRegion
-
-from application.dtos.infrastructure_dto import CostEstimateResponse
 
 
 class EstimateCostsUseCase:

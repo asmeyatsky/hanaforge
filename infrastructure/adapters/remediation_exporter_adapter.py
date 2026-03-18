@@ -13,7 +13,6 @@ from domain.entities.custom_object import CustomObject
 from domain.entities.remediation import RemediationSuggestion
 from domain.ports.remediation_export_ports import RemediationExportFormat
 
-
 # Effort points -> Jira / Azure DevOps priority mapping (5 = highest priority)
 _EFFORT_TO_JIRA_PRIORITY: dict[int, str] = {
     5: "Highest",

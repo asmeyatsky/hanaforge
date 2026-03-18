@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
+from application.dtos.cutover_dto import CutoverExecutionResponse
 from domain.ports.cutover_ports import CutoverExecutionRepositoryPort
 from domain.ports.event_bus_ports import EventBusPort
-
-from application.dtos.cutover_dto import CutoverExecutionResponse
 
 
 class UpdateCutoverTaskUseCase:

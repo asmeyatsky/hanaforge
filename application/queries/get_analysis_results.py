@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
+from application.dtos.analysis_dto import ABAPAnalysisResponse, AnalysisResultsResponse
 from domain.ports import CustomObjectRepositoryPort, RemediationRepositoryPort
 from domain.value_objects.object_type import CompatibilityStatus
-
-from application.dtos.analysis_dto import ABAPAnalysisResponse, AnalysisResultsResponse
 
 
 class GetAnalysisResultsQuery:

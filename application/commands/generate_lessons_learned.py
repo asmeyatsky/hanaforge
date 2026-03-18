@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from application.dtos.cutover_dto import LessonsLearnedResponse
 from domain.events.cutover_events import LessonsLearnedGeneratedEvent
 from domain.ports.cutover_ports import (
     CutoverExecutionRepositoryPort,
@@ -9,8 +10,6 @@ from domain.ports.cutover_ports import (
 )
 from domain.ports.event_bus_ports import EventBusPort
 from domain.services.lessons_learned_service import LessonsLearnedService
-
-from application.dtos.cutover_dto import LessonsLearnedResponse
 
 
 class GenerateLessonsLearnedUseCase:

@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-import time
-
-import pytest
 import jwt as pyjwt
+import pytest
 
 from infrastructure.auth.jwt_handler import JWTHandler
-from infrastructure.auth.models import CurrentUser, DEV_USER, Role
-
+from infrastructure.auth.models import DEV_USER, CurrentUser, Role
 
 SECRET = "test-secret-key"
 ALGORITHM = "HS256"

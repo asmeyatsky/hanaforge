@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from domain.ports import ProgrammeRepositoryPort
-
 from application.dtos.programme_dto import (
     ProgrammeListResponse,
     ProgrammeResponse,
 )
+from domain.ports import ProgrammeRepositoryPort
 
 
 class ListProgrammesQuery:

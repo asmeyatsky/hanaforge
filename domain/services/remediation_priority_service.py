@@ -5,7 +5,6 @@ from __future__ import annotations
 from domain.entities.custom_object import CustomObject
 from domain.value_objects.object_type import BusinessDomain, CompatibilityStatus
 
-
 _DOMAIN_CRITICALITY: dict[BusinessDomain, int] = {
     BusinessDomain.FI: 0,
     BusinessDomain.SD: 1,

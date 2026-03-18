@@ -17,7 +17,6 @@ from domain.value_objects.object_type import (
     RemediationStatus,
 )
 
-
 # ---------------------------------------------------------------------------
 # Lightweight stub for the AI analysis result.
 # The real AnalysisResult from domain.ports is a frozen dataclass; we replicate

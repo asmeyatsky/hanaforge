@@ -5,6 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
+from application.dtos.analysis_dto import DiscoveryResultsResponse
 from domain.entities.sap_landscape import SAPLandscape
 from domain.events.programme_events import DiscoveryStartedEvent
 from domain.ports import (
@@ -14,8 +15,6 @@ from domain.ports import (
     SAPDiscoveryPort,
 )
 from domain.value_objects.object_type import SystemRole
-
-from application.dtos.analysis_dto import DiscoveryResultsResponse
 
 
 class StartDiscoveryUseCase:

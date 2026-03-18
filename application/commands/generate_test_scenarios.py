@@ -6,6 +6,7 @@ import asyncio
 import uuid
 from datetime import datetime, timezone
 
+from application.dtos.test_dto import TestGenerationResponse, TestScenarioResponse
 from domain.entities.test_suite import TestSuite
 from domain.events.test_events import TestGenerationCompletedEvent
 from domain.ports.event_bus_ports import EventBusPort
@@ -15,8 +16,6 @@ from domain.ports.test_ports import (
     TestSuiteRepositoryPort,
 )
 from domain.value_objects.test_types import ProcessArea
-
-from application.dtos.test_dto import TestGenerationResponse, TestScenarioResponse
 
 
 class GenerateTestScenariosUseCase:

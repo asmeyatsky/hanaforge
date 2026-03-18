@@ -15,7 +15,6 @@ from domain.value_objects.migration_approach import (
     MigrationRecommendation,
 )
 
-
 _SYSTEM_PROMPT = """\
 You are a senior SAP S/4HANA migration strategist.
 

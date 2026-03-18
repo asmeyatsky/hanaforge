@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from pydantic import BaseModel
 
-from infrastructure.auth.models import CurrentUser, Role
+from infrastructure.auth.models import CurrentUser
 from presentation.api.middleware.auth import get_current_user
 
 router = APIRouter(prefix="", tags=["Auth"])

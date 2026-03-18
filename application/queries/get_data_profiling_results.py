@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
+from application.dtos.data_dto import DataDomainResponse, DataProfilingResultsResponse
 from domain.ports.data_analysis_ports import DataRepositoryPort
 from domain.services.data_quality_service import DataQualityService
 from domain.value_objects.data_quality import DataMigrationStatus
-
-from application.dtos.data_dto import DataDomainResponse, DataProfilingResultsResponse
 
 
 class GetDataProfilingResultsQuery:

@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from domain.ports import ProgrammeRepositoryPort
-
 from application.dtos.programme_dto import ProgrammeResponse
+from domain.ports import ProgrammeRepositoryPort
 
 
 class GetProgrammeQuery:

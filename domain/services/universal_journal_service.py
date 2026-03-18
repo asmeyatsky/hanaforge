@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from domain.value_objects.data_quality import UniversalJournalAssessment
 
-
 # Standard SAP coding block fields that do NOT count as custom
 _STANDARD_CODING_BLOCKS = frozenset({
     "BUKRS", "BELNR", "GJAHR", "BUZEI",

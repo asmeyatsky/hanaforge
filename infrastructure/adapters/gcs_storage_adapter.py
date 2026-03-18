@@ -6,9 +6,7 @@ of cloud dependencies.  A GCS-backed adapter will replace this for production.
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
-
 
 _BASE_DIR = Path("/tmp/hanaforge-storage")
 

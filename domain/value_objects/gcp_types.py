@@ -14,7 +14,6 @@ from enum import Enum
 
 from domain.value_objects.object_type import SystemRole
 
-
 # ---------------------------------------------------------------------------
 # GCP Region — key SAP-certified regions
 # ---------------------------------------------------------------------------

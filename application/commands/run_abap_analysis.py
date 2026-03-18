@@ -6,6 +6,7 @@ import asyncio
 import uuid
 from datetime import datetime, timezone
 
+from application.dtos.analysis_dto import ABAPAnalysisResponse, AnalysisResultsResponse
 from domain.entities.custom_object import CustomObject
 from domain.entities.remediation import RemediationSuggestion
 from domain.events.programme_events import AnalysisCompletedEvent
@@ -20,9 +21,6 @@ from domain.value_objects.object_type import (
     CompatibilityStatus,
     ReviewStatus,
 )
-
-from application.dtos.analysis_dto import ABAPAnalysisResponse, AnalysisResultsResponse
-
 
 _MAX_CONCURRENT = 10
 

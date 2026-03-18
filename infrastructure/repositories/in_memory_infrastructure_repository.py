@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 from domain.entities.infrastructure_plan import InfrastructurePlan
 from domain.value_objects.gcp_types import (

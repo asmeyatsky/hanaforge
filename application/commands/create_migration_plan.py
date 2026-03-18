@@ -5,6 +5,11 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
+from application.dtos.migration_dto import (
+    CreateMigrationPlanRequest,
+    MigrationPlanResponse,
+    MigrationTaskResponse,
+)
 from domain.entities.audit_entry import AuditEntry
 from domain.events.migration_events import MigrationStartedEvent
 from domain.ports.event_bus_ports import EventBusPort
@@ -12,12 +17,6 @@ from domain.ports.migration_ports import AuditRepositoryPort, MigrationTaskRepos
 from domain.services.task_graph_service import TaskGraphService
 from domain.value_objects.migration_approach import MigrationApproach
 from domain.value_objects.migration_types import AuditAction, AuditSeverity
-
-from application.dtos.migration_dto import (
-    CreateMigrationPlanRequest,
-    MigrationPlanResponse,
-    MigrationTaskResponse,
-)
 
 
 class CreateMigrationPlanUseCase:

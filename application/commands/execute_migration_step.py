@@ -5,6 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
+from application.dtos.migration_dto import MigrationTaskResponse
 from domain.entities.audit_entry import AuditEntry
 from domain.events.migration_events import AnomalyDetectedEvent
 from domain.ports.event_bus_ports import EventBusPort
@@ -20,8 +21,6 @@ from domain.value_objects.migration_types import (
     AuditSeverity,
     MigrationTaskStatus,
 )
-
-from application.dtos.migration_dto import MigrationTaskResponse
 
 
 class ExecuteMigrationStepUseCase:

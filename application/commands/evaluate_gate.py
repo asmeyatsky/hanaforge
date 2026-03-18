@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from application.dtos.cutover_dto import GateEvaluationResponse
 from domain.events.cutover_events import GoNoGoGateEvaluatedEvent
 from domain.ports.cutover_ports import (
     CutoverExecutionRepositoryPort,
@@ -11,8 +12,6 @@ from domain.ports.cutover_ports import (
 )
 from domain.ports.event_bus_ports import EventBusPort
 from domain.services.gate_evaluation_service import GateEvaluationService
-
-from application.dtos.cutover_dto import GateEvaluationResponse
 
 
 class EvaluateGateUseCase:

@@ -16,7 +16,6 @@ from fastapi.testclient import TestClient
 
 from presentation.api.main import app
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------

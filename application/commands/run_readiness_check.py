@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from domain.ports.rise_ports import RISEConnectorPort
 from domain.ports.repository_ports import ProgrammeRepositoryPort
+from domain.ports.rise_ports import RISEConnectorPort
 from domain.value_objects.rise_types import (
     RISEConnection,
     RISEConnectionMode,

@@ -11,7 +11,6 @@ import xml.etree.ElementTree as ET
 from domain.value_objects.gcp_types import SizingInput
 from domain.value_objects.object_type import SystemRole
 
-
 # ---------------------------------------------------------------------------
 # XML element paths used in SAP Quick Sizer exports
 # ---------------------------------------------------------------------------

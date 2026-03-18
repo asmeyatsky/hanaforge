@@ -19,7 +19,6 @@ from domain.value_objects.object_type import (
     RemediationStatus,
 )
 
-
 # ---------------------------------------------------------------------------
 # Lightweight ABAP ZIP parser
 # ---------------------------------------------------------------------------

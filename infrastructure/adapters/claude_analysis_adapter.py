@@ -13,7 +13,6 @@ import anthropic
 from domain.ports.ai_analysis_ports import AnalysisResult
 from domain.value_objects.object_type import ABAPObjectType
 
-
 _SYSTEM_PROMPT = """\
 You are an SAP S/4HANA migration expert specialising in ABAP code analysis.
 
@@ -37,7 +36,7 @@ Return your analysis as a JSON object with EXACTLY this schema:
   "compatibility_status": "<one of COMPATIBLE, INCOMPATIBLE, NEEDS_REVIEW>",
   "deprecated_apis": [<list of deprecated API names found>],
   "issues": [<list of human-readable issue descriptions>],
-  "issue_type": "<primary issue type: deprecated_api, table_change, statement_obsolete, bp_migration, or null if compatible>",
+  "issue_type": "<deprecated_api|table_change|statement_obsolete|bp_migration or null>",
   "deprecated_api": "<primary deprecated API name or null>",
   "suggested_replacement": "<recommended replacement API/approach or null>",
   "remediation_code": <string with suggested replacement code or null>,

@@ -35,6 +35,7 @@ class FirestoreHypercareRepository(FirestoreBase):
     @staticmethod
     def _from_doc(data: dict) -> HypercareSession:
         from datetime import datetime
+
         from domain.value_objects.cutover_types import (
             HypercareIncident,
             HypercareStatus,

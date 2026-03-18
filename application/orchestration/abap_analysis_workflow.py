@@ -12,6 +12,7 @@ import asyncio
 import uuid
 from typing import Any
 
+from application.orchestration.dag_orchestrator import DAGOrchestrator, WorkflowStep
 from domain.entities.remediation import RemediationSuggestion
 from domain.events.programme_events import AnalysisCompletedEvent
 from domain.ports import (
@@ -22,9 +23,6 @@ from domain.ports import (
 )
 from domain.services import RemediationPriorityService
 from domain.value_objects.object_type import CompatibilityStatus, RemediationStatus
-
-from application.orchestration.dag_orchestrator import DAGOrchestrator, WorkflowStep
-
 
 _MAX_CONCURRENT = 10
 

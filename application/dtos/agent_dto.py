@@ -6,7 +6,6 @@ from pydantic import BaseModel, Field
 
 from domain.entities.agent_task import AgentTask
 
-
 # ------------------------------------------------------------------
 # Request DTOs
 # ------------------------------------------------------------------

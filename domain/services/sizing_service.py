@@ -23,7 +23,6 @@ from domain.value_objects.gcp_types import (
 )
 from domain.value_objects.object_type import SystemRole
 
-
 # ---------------------------------------------------------------------------
 # Approximate on-demand monthly pricing (USD) per machine type
 # Source: GCP pricing calculator, rounded for estimation purposes

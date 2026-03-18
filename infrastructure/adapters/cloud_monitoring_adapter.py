@@ -11,6 +11,8 @@ import logging
 import uuid
 from datetime import datetime, timezone
 
+from domain.ports.infrastructure_ports import MonitoringDashboardConfig
+
 logger = logging.getLogger(__name__)
 
 
@@ -28,7 +30,7 @@ class CloudMonitoringAdapter:
     # CloudMonitoringPort implementation
     # ------------------------------------------------------------------
 
-    async def create_dashboard(self, config: "MonitoringDashboardConfig") -> dict:
+    async def create_dashboard(self, config: MonitoringDashboardConfig) -> dict:
         """Build a Cloud Monitoring dashboard JSON payload from *config*.
 
         Returns a dict matching the ``google.monitoring.dashboard.v1.Dashboard``

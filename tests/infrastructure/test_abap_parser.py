@@ -5,8 +5,6 @@ from __future__ import annotations
 import io
 import zipfile
 
-import pytest
-
 from application.commands.upload_abap_source import _parse_abap_zip
 from domain.value_objects.object_type import ABAPObjectType
 

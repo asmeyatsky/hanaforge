@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
+from application.dtos.test_dto import TestResultsResponse, TestScenarioResponse
 from domain.ports.test_ports import TestScenarioRepositoryPort
 from domain.value_objects.test_types import ProcessArea, TestStatus
-
-from application.dtos.test_dto import TestResultsResponse, TestScenarioResponse
 
 
 class GetTestResultsQuery:

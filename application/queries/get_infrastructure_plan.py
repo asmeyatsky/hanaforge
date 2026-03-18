@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from domain.ports.infrastructure_ports import InfrastructurePlanRepositoryPort
-
 from application.dtos.infrastructure_dto import InfrastructurePlanResponse
+from domain.ports.infrastructure_ports import InfrastructurePlanRepositoryPort
 
 
 class GetInfrastructurePlanQuery:

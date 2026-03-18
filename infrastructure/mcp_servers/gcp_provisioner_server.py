@@ -172,16 +172,12 @@ def create_gcp_provisioner_server(container: Container) -> Server:
             return [TextContent(type="text", text=result.model_dump_json(indent=2))]
 
         if name == "generate_terraform":
-            from application.commands.generate_terraform import (
-                GenerateTerraformUseCase,
-            )
 
             use_case = container.resolve("GenerateTerraformUseCase")
             result = await use_case.execute(plan_id=arguments["plan_id"])
             return [TextContent(type="text", text=result.model_dump_json(indent=2))]
 
         if name == "estimate_costs":
-            from application.commands.estimate_costs import EstimateCostsUseCase
 
             use_case = container.resolve("EstimateCostsUseCase")
             result = await use_case.execute(

@@ -7,12 +7,11 @@ repository and service ports — they never contain business logic themselves.
 
 from __future__ import annotations
 
+from domain.ports.migration_ports import MigrationTaskRepositoryPort
 from domain.ports.repository_ports import (
     CustomObjectRepositoryPort,
     ProgrammeRepositoryPort,
 )
-from domain.ports.migration_ports import MigrationTaskRepositoryPort
-
 
 # ---------------------------------------------------------------------------
 # check_programme_status

@@ -2,17 +2,16 @@
 
 from __future__ import annotations
 
-from domain.ports.migration_ports import (
-    AnomalyRepositoryPort,
-    MigrationTaskRepositoryPort,
-)
-from domain.services.task_graph_service import TaskGraphService
-
 from application.dtos.migration_dto import (
     AnomalyAlertResponse,
     MigrationStatusResponse,
     MigrationTaskResponse,
 )
+from domain.ports.migration_ports import (
+    AnomalyRepositoryPort,
+    MigrationTaskRepositoryPort,
+)
+from domain.services.task_graph_service import TaskGraphService
 
 
 class GetMigrationStatusQuery:

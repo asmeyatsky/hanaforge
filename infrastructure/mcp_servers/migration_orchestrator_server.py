@@ -138,16 +138,12 @@ def create_migration_orchestrator_server(container: Container) -> Server:
             return [TextContent(type="text", text=result.model_dump_json(indent=2))]
 
         if name == "execute_step":
-            from application.commands.execute_migration_step import (
-                ExecuteMigrationStepUseCase,
-            )
 
             use_case = container.resolve("ExecuteMigrationStepUseCase")
             result = await use_case.execute(task_id=arguments["task_id"])
             return [TextContent(type="text", text=result.model_dump_json(indent=2))]
 
         if name == "run_batch":
-            from application.commands.run_migration_batch import RunMigrationBatchUseCase
 
             use_case = container.resolve("RunMigrationBatchUseCase")
             result = await use_case.execute(programme_id=arguments["programme_id"])
@@ -239,7 +235,6 @@ def create_migration_orchestrator_server(container: Container) -> Server:
             return json.dumps(task_data, indent=2)
 
         if resource_type == "audit-log":
-            from application.queries.get_audit_log import GetAuditLogQuery
 
             query = container.resolve("GetAuditLogQuery")
             result = await query.execute(programme_id=programme_id)

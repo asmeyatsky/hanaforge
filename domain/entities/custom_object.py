@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 
-from domain.events.event_base import DomainEvent
 from domain.events.analysis_events import ObjectAnalysedEvent
+from domain.events.event_base import DomainEvent
 from domain.value_objects.effort_points import EffortPoints
 from domain.value_objects.object_type import (
     ABAPObjectType,

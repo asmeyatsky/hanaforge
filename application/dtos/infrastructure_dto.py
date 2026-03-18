@@ -6,7 +6,6 @@ from pydantic import BaseModel, Field
 
 from domain.entities.infrastructure_plan import InfrastructurePlan
 
-
 # ---------------------------------------------------------------------------
 # Request models
 # ---------------------------------------------------------------------------

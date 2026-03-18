@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from domain.ports.migration_ports import AuditRepositoryPort
-
 from application.dtos.migration_dto import AuditEntryResponse, AuditLogResponse
+from domain.ports.migration_ports import AuditRepositoryPort
 
 
 class GetAuditLogQuery:

@@ -8,7 +8,6 @@ import anthropic
 
 from domain.value_objects.data_quality import TransformationRule, TransformationRuleType
 
-
 _SYSTEM_PROMPT = """\
 You are an SAP S/4HANA data migration expert specialising in LTMC
 (Legacy Transfer Migration Cockpit) data transformation rules.

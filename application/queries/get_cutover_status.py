@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-from domain.ports.cutover_ports import (
-    CutoverExecutionRepositoryPort,
-    RunbookRepositoryPort,
-)
-
 from application.dtos.cutover_dto import (
     CutoverExecutionResponse,
     CutoverStatusResponse,
     GoNoGoGateResponse,
     RunbookResponse,
+)
+from domain.ports.cutover_ports import (
+    CutoverExecutionRepositoryPort,
+    RunbookRepositoryPort,
 )
 
 

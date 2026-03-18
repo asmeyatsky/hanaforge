@@ -12,13 +12,12 @@ from __future__ import annotations
 
 from typing import Any
 
+from application.orchestration.dag_orchestrator import DAGOrchestrator, WorkflowStep
 from domain.ports import (
     MigrationAdvisorPort,
     SAPDiscoveryPort,
 )
 from domain.services import ComplexityScoringService
-
-from application.orchestration.dag_orchestrator import DAGOrchestrator, WorkflowStep
 
 
 class DiscoveryWorkflow:

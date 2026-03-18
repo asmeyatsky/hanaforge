@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import asyncio
 
+from application.dtos.test_dto import TestGenerationResponse, TestScenarioResponse
 from domain.ports.event_bus_ports import EventBusPort
 from domain.ports.test_ports import TestScenarioRepositoryPort
 from domain.services.test_generation_service import TestGenerationService
 from domain.value_objects.test_types import InterfaceTestType
-
-from application.dtos.test_dto import TestGenerationResponse, TestScenarioResponse
 
 
 class GenerateInterfaceTestsUseCase:

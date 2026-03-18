@@ -9,17 +9,16 @@ from __future__ import annotations
 import asyncio
 import uuid
 
+from application.dtos.infrastructure_dto import (
+    TerraformResponse,
+    ValidationResultResponse,
+)
 from domain.ports.event_bus_ports import EventBusPort
 from domain.ports.infrastructure_ports import (
     InfrastructurePlanRepositoryPort,
     TerraformGeneratorPort,
 )
 from domain.services.plan_validation_service import PlanValidationService
-
-from application.dtos.infrastructure_dto import (
-    TerraformResponse,
-    ValidationResultResponse,
-)
 
 
 class GenerateTerraformUseCase:

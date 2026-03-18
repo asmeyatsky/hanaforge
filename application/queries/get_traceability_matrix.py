@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
+from application.dtos.test_dto import TraceabilityMatrixResponse
 from domain.ports.test_ports import TestScenarioRepositoryPort, TestSuiteRepositoryPort
 from domain.services.test_generation_service import TestGenerationService
-
-from application.dtos.test_dto import TraceabilityMatrixResponse
 
 
 class GetTraceabilityMatrixQuery:

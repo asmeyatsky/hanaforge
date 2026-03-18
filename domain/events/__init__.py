@@ -1,15 +1,15 @@
-from domain.events.event_base import DomainEvent
-from domain.events.programme_events import (
-    ProgrammeCreatedEvent,
-    DiscoveryStartedEvent,
-    DiscoveryCompletedEvent,
-    AnalysisStartedEvent,
-    AnalysisCompletedEvent,
-)
 from domain.events.analysis_events import (
     ObjectAnalysedEvent,
     RemediationGeneratedEvent,
     RemediationReviewedEvent,
+)
+from domain.events.event_base import DomainEvent
+from domain.events.programme_events import (
+    AnalysisCompletedEvent,
+    AnalysisStartedEvent,
+    DiscoveryCompletedEvent,
+    DiscoveryStartedEvent,
+    ProgrammeCreatedEvent,
 )
 
 __all__ = [

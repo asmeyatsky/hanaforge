@@ -7,7 +7,7 @@ dependency-free.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 from domain.entities.programme import Programme
 from domain.value_objects.complexity_score import ComplexityScore

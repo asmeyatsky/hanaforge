@@ -5,15 +5,12 @@ from __future__ import annotations
 import asyncio
 from dataclasses import replace
 
+from application.dtos.data_dto import DataDomainResponse, DataProfilingResultsResponse
 from domain.events.data_events import DataProfilingCompletedEvent, DataProfilingStartedEvent
 from domain.ports.data_analysis_ports import DataProfilingPort, DataRepositoryPort
 from domain.ports.event_bus_ports import EventBusPort
-from domain.ports.storage_ports import FileStoragePort
 from domain.services.data_quality_service import DataQualityService
 from domain.value_objects.data_quality import DataMigrationStatus
-
-from application.dtos.data_dto import DataDomainResponse, DataProfilingResultsResponse
-
 
 _MAX_CONCURRENT = 10
 

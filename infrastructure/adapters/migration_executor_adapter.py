@@ -12,7 +12,6 @@ import random
 from domain.entities.migration_task import MigrationTask
 from domain.value_objects.migration_types import MigrationTaskType
 
-
 # ------------------------------------------------------------------
 # Simulated durations (seconds in stub mode) and success rates
 # ------------------------------------------------------------------

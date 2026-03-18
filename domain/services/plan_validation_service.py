@@ -18,7 +18,6 @@ from domain.value_objects.gcp_types import (
     ValidationStatus,
 )
 
-
 # Minimum HANA memory (GB) per certified instance type
 _MIN_HANA_MEMORY: dict[GCPMachineType, int] = {
     GCPMachineType.M3_ULTRAMEM_32: 256,

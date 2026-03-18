@@ -20,7 +20,6 @@ from domain.value_objects.migration_types import (
     MigrationTaskType,
 )
 
-
 # ------------------------------------------------------------------
 # Estimated durations per task type (minutes) for critical path
 # ------------------------------------------------------------------

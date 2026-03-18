@@ -11,7 +11,7 @@ from typing import Any
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from infrastructure.auth.models import CurrentUser, DEV_USER, Role
+from infrastructure.auth.models import DEV_USER, CurrentUser, Role
 
 _bearer_scheme = HTTPBearer(auto_error=False)
 

@@ -9,157 +9,157 @@ from __future__ import annotations
 
 from typing import Any
 
-from infrastructure.config.settings import Settings, get_settings
+from application.commands.approve_runbook import ApproveRunbookUseCase
+from application.commands.assess_bp_consolidation import AssessBPConsolidationUseCase
+from application.commands.assess_universal_journal import AssessUniversalJournalUseCase
+from application.commands.create_infrastructure_plan import CreateInfrastructurePlanUseCase
+from application.commands.create_migration_plan import CreateMigrationPlanUseCase
+from application.commands.create_monitoring_dashboard import CreateMonitoringDashboardUseCase
+
+# Use cases
+from application.commands.create_programme import CreateProgrammeUseCase
+from application.commands.estimate_costs import EstimateCostsUseCase
+from application.commands.evaluate_gate import EvaluateGateUseCase
+from application.commands.execute_migration_step import ExecuteMigrationStepUseCase
+from application.commands.export_remediation_backlog import ExportRemediationBacklogUseCase
+from application.commands.export_test_scenarios import ExportTestScenariosUseCase
+from application.commands.generate_board_presentation import GenerateBoardPresentationUseCase
+from application.commands.generate_interface_tests import GenerateInterfaceTestsUseCase
+from application.commands.generate_lessons_learned import GenerateLessonsLearnedUseCase
+from application.commands.generate_runbook import GenerateRunbookUseCase
+from application.commands.generate_terraform import GenerateTerraformUseCase
+from application.commands.generate_test_scenarios import GenerateTestScenariosUseCase
+from application.commands.generate_transformation_rules import GenerateTransformationRulesUseCase
+from application.commands.log_hypercare_incident import LogHypercareIncidentUseCase
+from application.commands.run_abap_analysis import RunABAPAnalysisUseCase
+from application.commands.run_agent_task import RunAgentTaskUseCase
+from application.commands.run_data_profiling import RunDataProfilingUseCase
+from application.commands.run_migration_batch import RunMigrationBatchUseCase
+from application.commands.run_readiness_check import RunReadinessCheckUseCase
+from application.commands.start_cutover import StartCutoverUseCase
+from application.commands.start_discovery import StartDiscoveryUseCase
+from application.commands.start_hypercare import StartHypercareUseCase
+from application.commands.update_cutover_task import UpdateCutoverTaskUseCase
+from application.commands.upload_abap_source import UploadABAPSourceUseCase
+from application.commands.upload_data_export import UploadDataExportUseCase
+from application.queries.get_analysis_results import GetAnalysisResultsQuery
+from application.queries.get_audit_log import GetAuditLogQuery
+from application.queries.get_benchmark_estimate import GetBenchmarkEstimateQuery
+from application.queries.get_cutover_status import GetCutoverStatusQuery
+from application.queries.get_data_profiling_results import GetDataProfilingResultsQuery
+from application.queries.get_hypercare_status import GetHypercareStatusQuery
+from application.queries.get_infrastructure_plan import GetInfrastructurePlanQuery
+from application.queries.get_migration_status import GetMigrationStatusQuery
+
+# Queries
+from application.queries.get_programme import GetProgrammeQuery
+from application.queries.get_test_results import GetTestResultsQuery
+from application.queries.get_traceability_matrix import GetTraceabilityMatrixQuery
+from application.queries.list_programmes import ListProgrammesQuery
+from domain.services.agent_tool_registry import AgentToolRegistry
+from domain.services.anomaly_detection_service import AnomalyDetectionService
+from domain.services.benchmark_estimation_service import BenchmarkEstimationService
+from domain.services.bp_consolidation_service import BPConsolidationService
+from domain.services.data_quality_service import DataQualityService
+from domain.services.gate_evaluation_service import GateEvaluationService
+from domain.services.lessons_learned_service import LessonsLearnedService
+from domain.services.plan_validation_service import PlanValidationService
+from domain.services.runbook_generation_service import RunbookGenerationService
+from domain.services.sizing_service import SAPSizingService
+from domain.services.task_graph_service import TaskGraphService
+
+# --- Multi-tenancy ---
+from domain.services.tenant_access_service import TenantAccessService
+from domain.services.universal_journal_service import UniversalJournalService
+from infrastructure.adapters.ai_anomaly_detection_adapter import AIAnomalyDetectionAdapter
+from infrastructure.adapters.ai_runbook_generator import AIRunbookGeneratorAdapter
+from infrastructure.adapters.ai_transformation_adapter import AITransformationAdapter
+from infrastructure.adapters.claude_agent_executor import ClaudeAgentExecutor
+
+# Adapters
+from infrastructure.adapters.claude_analysis_adapter import ClaudeAnalysisAdapter
+from infrastructure.adapters.claude_migration_advisor import ClaudeMigrationAdvisor
+from infrastructure.adapters.claude_test_generator import ClaudeTestGeneratorAdapter
+from infrastructure.adapters.cloud_build_provisioning_adapter import CloudBuildProvisioningAdapter
+from infrastructure.adapters.cloud_monitoring_adapter import CloudMonitoringAdapter
+from infrastructure.adapters.data_profiling_adapter import LocalDataProfilingAdapter
+from infrastructure.adapters.gcs_storage_adapter import LocalFileStorageAdapter
+from infrastructure.adapters.migration_executor_adapter import StubMigrationExecutor
+from infrastructure.adapters.notification_adapter import LoggingNotificationAdapter
+from infrastructure.adapters.pubsub_event_bus_adapter import InMemoryEventBusAdapter
+from infrastructure.adapters.quick_sizer_parser import QuickSizerXMLParser
+
+# Remediation export
+from infrastructure.adapters.remediation_exporter_adapter import RemediationExporterAdapter
+from infrastructure.adapters.report_generator_adapter import SimpleReportGenerator
+
+# --- RISE with SAP ---
+from infrastructure.adapters.rise_connector_adapter import RISEConnectorAdapter
+from infrastructure.adapters.sap_rfc_adapter import SAPRFCAdapter
+from infrastructure.adapters.system_health_adapter import StubSystemHealthAdapter
+from infrastructure.adapters.test_exporter_adapter import TestExporterAdapter
+from infrastructure.adapters.ticketing_adapter import StubTicketingAdapter
 from infrastructure.auth.jwt_handler import JWTHandler
+from infrastructure.config.settings import Settings, get_settings
+from infrastructure.repositories.firestore_anomaly_repo import FirestoreAnomalyRepository
+from infrastructure.repositories.firestore_audit_repo import FirestoreAuditRepository
+from infrastructure.repositories.firestore_custom_object_repo import FirestoreCustomObjectRepository
+from infrastructure.repositories.firestore_cutover_execution_repo import FirestoreCutoverExecutionRepository
+from infrastructure.repositories.firestore_data_domain_repo import FirestoreDataDomainRepository
+from infrastructure.repositories.firestore_hypercare_repo import FirestoreHypercareRepository
+from infrastructure.repositories.firestore_infra_plan_repo import FirestoreInfrastructurePlanRepository
+from infrastructure.repositories.firestore_landscape_repo import FirestoreLandscapeRepository
+from infrastructure.repositories.firestore_migration_task_repo import FirestoreMigrationTaskRepository
+
+# Firestore repositories (production)
+from infrastructure.repositories.firestore_programme_repo import FirestoreProgrammeRepository
 
 # Repositories (in-memory for dev)
 from infrastructure.repositories.firestore_programme_repository import (
     InMemoryProgrammeRepository,
 )
-from infrastructure.repositories.in_memory_landscape_repository import (
-    InMemoryLandscapeRepository,
-)
-from infrastructure.repositories.in_memory_custom_object_repository import (
-    InMemoryCustomObjectRepository,
-)
-from infrastructure.repositories.in_memory_remediation_repository import (
-    InMemoryRemediationRepository,
-)
-
-# Firestore repositories (production)
-from infrastructure.repositories.firestore_programme_repo import FirestoreProgrammeRepository
-from infrastructure.repositories.firestore_landscape_repo import FirestoreLandscapeRepository
-from infrastructure.repositories.firestore_custom_object_repo import FirestoreCustomObjectRepository
 from infrastructure.repositories.firestore_remediation_repo import FirestoreRemediationRepository
-from infrastructure.repositories.firestore_data_domain_repo import FirestoreDataDomainRepository
+from infrastructure.repositories.firestore_runbook_repo import FirestoreRunbookRepository
 from infrastructure.repositories.firestore_test_repo import (
     FirestoreTestScenarioRepository,
     FirestoreTestSuiteRepository,
 )
-from infrastructure.repositories.firestore_infra_plan_repo import FirestoreInfrastructurePlanRepository
-from infrastructure.repositories.firestore_migration_task_repo import FirestoreMigrationTaskRepository
-from infrastructure.repositories.firestore_audit_repo import FirestoreAuditRepository
-from infrastructure.repositories.firestore_anomaly_repo import FirestoreAnomalyRepository
-from infrastructure.repositories.firestore_runbook_repo import FirestoreRunbookRepository
-from infrastructure.repositories.firestore_cutover_execution_repo import FirestoreCutoverExecutionRepository
-from infrastructure.repositories.firestore_hypercare_repo import FirestoreHypercareRepository
 
 # --- Agentic Execution ---
 from infrastructure.repositories.in_memory_agent_task_repository import InMemoryAgentTaskRepository
-from infrastructure.adapters.claude_agent_executor import ClaudeAgentExecutor
-from domain.services.agent_tool_registry import AgentToolRegistry
-from application.commands.run_agent_task import RunAgentTaskUseCase
-
-# --- RISE with SAP ---
-from infrastructure.adapters.rise_connector_adapter import RISEConnectorAdapter
-from application.commands.run_readiness_check import RunReadinessCheckUseCase
+from infrastructure.repositories.in_memory_anomaly_repository import InMemoryAnomalyRepository
+from infrastructure.repositories.in_memory_audit_repository import InMemoryAuditRepository
 
 # --- Migration Benchmarks ---
 from infrastructure.repositories.in_memory_benchmark_repository import InMemoryBenchmarkRepository
-from domain.services.benchmark_estimation_service import BenchmarkEstimationService
-from application.queries.get_benchmark_estimate import GetBenchmarkEstimateQuery
-
-# --- Multi-tenancy ---
-from domain.services.tenant_access_service import TenantAccessService
-
-# Adapters
-from infrastructure.adapters.claude_analysis_adapter import ClaudeAnalysisAdapter
-from infrastructure.adapters.claude_migration_advisor import ClaudeMigrationAdvisor
-from infrastructure.adapters.sap_rfc_adapter import SAPRFCAdapter
-from infrastructure.adapters.gcs_storage_adapter import LocalFileStorageAdapter
-from infrastructure.adapters.pubsub_event_bus_adapter import InMemoryEventBusAdapter
-from infrastructure.adapters.report_generator_adapter import SimpleReportGenerator
-
-# Remediation export
-from infrastructure.adapters.remediation_exporter_adapter import RemediationExporterAdapter
-from application.commands.export_remediation_backlog import ExportRemediationBacklogUseCase
-
-# Use cases
-from application.commands.create_programme import CreateProgrammeUseCase
-from application.commands.start_discovery import StartDiscoveryUseCase
-from application.commands.upload_abap_source import UploadABAPSourceUseCase
-from application.commands.run_abap_analysis import RunABAPAnalysisUseCase
-from application.commands.generate_board_presentation import GenerateBoardPresentationUseCase
-
-# Queries
-from application.queries.get_programme import GetProgrammeQuery
-from application.queries.list_programmes import ListProgrammesQuery
-from application.queries.get_analysis_results import GetAnalysisResultsQuery
+from infrastructure.repositories.in_memory_custom_object_repository import (
+    InMemoryCustomObjectRepository,
+)
+from infrastructure.repositories.in_memory_cutover_execution_repository import InMemoryCutoverExecutionRepository
 
 # --- Module 03: Data Readiness ---
 from infrastructure.repositories.in_memory_data_repository import InMemoryDataRepository
-from infrastructure.adapters.data_profiling_adapter import LocalDataProfilingAdapter
-from infrastructure.adapters.ai_transformation_adapter import AITransformationAdapter
-from domain.services.data_quality_service import DataQualityService
-from domain.services.bp_consolidation_service import BPConsolidationService
-from domain.services.universal_journal_service import UniversalJournalService
-from application.commands.upload_data_export import UploadDataExportUseCase
-from application.commands.run_data_profiling import RunDataProfilingUseCase
-from application.commands.assess_bp_consolidation import AssessBPConsolidationUseCase
-from application.commands.assess_universal_journal import AssessUniversalJournalUseCase
-from application.commands.generate_transformation_rules import GenerateTransformationRulesUseCase
-from application.queries.get_data_profiling_results import GetDataProfilingResultsQuery
+from infrastructure.repositories.in_memory_hypercare_repository import InMemoryHypercareRepository
+
+# --- Module 05: GCP Infrastructure ---
+from infrastructure.repositories.in_memory_infrastructure_repository import InMemoryInfrastructurePlanRepository
+from infrastructure.repositories.in_memory_landscape_repository import (
+    InMemoryLandscapeRepository,
+)
+
+# --- Module 06: Migration Orchestrator ---
+from infrastructure.repositories.in_memory_migration_task_repository import InMemoryMigrationTaskRepository
+from infrastructure.repositories.in_memory_remediation_repository import (
+    InMemoryRemediationRepository,
+)
+
+# --- Module 07: Cutover Commander ---
+from infrastructure.repositories.in_memory_runbook_repository import InMemoryRunbookRepository
 
 # --- Module 04: TestForge ---
 from infrastructure.repositories.in_memory_test_scenario_repository import InMemoryTestScenarioRepository
 from infrastructure.repositories.in_memory_test_suite_repository import InMemoryTestSuiteRepository
-from infrastructure.adapters.claude_test_generator import ClaudeTestGeneratorAdapter
-from infrastructure.adapters.test_exporter_adapter import TestExporterAdapter
-from application.commands.generate_test_scenarios import GenerateTestScenariosUseCase
-from application.commands.generate_interface_tests import GenerateInterfaceTestsUseCase
-from application.commands.export_test_scenarios import ExportTestScenariosUseCase
-from application.queries.get_test_results import GetTestResultsQuery
-from application.queries.get_traceability_matrix import GetTraceabilityMatrixQuery
-
-# --- Module 05: GCP Infrastructure ---
-from infrastructure.repositories.in_memory_infrastructure_repository import InMemoryInfrastructurePlanRepository
-from infrastructure.adapters.quick_sizer_parser import QuickSizerXMLParser
 from infrastructure.terraform.terraform_generator import TerraformHCLGenerator
-from infrastructure.adapters.cloud_build_provisioning_adapter import CloudBuildProvisioningAdapter
-from domain.services.sizing_service import SAPSizingService
-from domain.services.plan_validation_service import PlanValidationService
-from application.commands.create_infrastructure_plan import CreateInfrastructurePlanUseCase
-from application.commands.generate_terraform import GenerateTerraformUseCase
-from application.commands.estimate_costs import EstimateCostsUseCase
-from infrastructure.adapters.cloud_monitoring_adapter import CloudMonitoringAdapter
-from application.commands.create_monitoring_dashboard import CreateMonitoringDashboardUseCase
-from application.queries.get_infrastructure_plan import GetInfrastructurePlanQuery
-
-# --- Module 06: Migration Orchestrator ---
-from infrastructure.repositories.in_memory_migration_task_repository import InMemoryMigrationTaskRepository
-from infrastructure.repositories.in_memory_audit_repository import InMemoryAuditRepository
-from infrastructure.repositories.in_memory_anomaly_repository import InMemoryAnomalyRepository
-from infrastructure.adapters.migration_executor_adapter import StubMigrationExecutor
-from infrastructure.adapters.ai_anomaly_detection_adapter import AIAnomalyDetectionAdapter
-from domain.services.task_graph_service import TaskGraphService
-from domain.services.anomaly_detection_service import AnomalyDetectionService
-from application.commands.create_migration_plan import CreateMigrationPlanUseCase
-from application.commands.execute_migration_step import ExecuteMigrationStepUseCase
-from application.commands.run_migration_batch import RunMigrationBatchUseCase
-from application.queries.get_migration_status import GetMigrationStatusQuery
-from application.queries.get_audit_log import GetAuditLogQuery
-
-# --- Module 07: Cutover Commander ---
-from infrastructure.repositories.in_memory_runbook_repository import InMemoryRunbookRepository
-from infrastructure.repositories.in_memory_cutover_execution_repository import InMemoryCutoverExecutionRepository
-from infrastructure.repositories.in_memory_hypercare_repository import InMemoryHypercareRepository
-from infrastructure.adapters.ai_runbook_generator import AIRunbookGeneratorAdapter
-from infrastructure.adapters.system_health_adapter import StubSystemHealthAdapter
-from infrastructure.adapters.notification_adapter import LoggingNotificationAdapter
-from infrastructure.adapters.ticketing_adapter import StubTicketingAdapter
-from domain.services.runbook_generation_service import RunbookGenerationService
-from domain.services.gate_evaluation_service import GateEvaluationService
-from domain.services.lessons_learned_service import LessonsLearnedService
-from application.commands.generate_runbook import GenerateRunbookUseCase
-from application.commands.approve_runbook import ApproveRunbookUseCase
-from application.commands.start_cutover import StartCutoverUseCase
-from application.commands.evaluate_gate import EvaluateGateUseCase
-from application.commands.update_cutover_task import UpdateCutoverTaskUseCase
-from application.commands.start_hypercare import StartHypercareUseCase
-from application.commands.log_hypercare_incident import LogHypercareIncidentUseCase
-from application.commands.generate_lessons_learned import GenerateLessonsLearnedUseCase
-from application.queries.get_cutover_status import GetCutoverStatusQuery
-from application.queries.get_hypercare_status import GetHypercareStatusQuery
 
 
 class Container:
@@ -1006,7 +1006,7 @@ class Container:
         """
         type_name = key if isinstance(key, str) else key.__name__
 
-        _RESOLVER_MAP: dict[str, Any] = {
+        resolver_map: dict[str, Any] = {
             # --- Core / Auth ---
             "Settings": lambda: self._settings,
             "JWTHandler": self.jwt_handler,
@@ -1128,10 +1128,10 @@ class Container:
             "TenantAccessService": self.tenant_access_service,
         }
 
-        factory = _RESOLVER_MAP.get(type_name)
+        factory = resolver_map.get(type_name)
         if factory is None:
             raise KeyError(
                 f"No binding registered for '{type_name}'. "
-                f"Available: {', '.join(sorted(_RESOLVER_MAP.keys()))}"
+                f"Available: {', '.join(sorted(resolver_map.keys()))}"
             )
         return factory()

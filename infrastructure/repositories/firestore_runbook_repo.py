@@ -33,6 +33,7 @@ class FirestoreRunbookRepository(FirestoreBase):
     @staticmethod
     def _from_doc(data: dict) -> CutoverRunbook:
         from datetime import datetime
+
         from domain.value_objects.cutover_types import ApprovalStatus, RunbookStep, StepCategory
 
         if isinstance(data.get("created_at"), str):

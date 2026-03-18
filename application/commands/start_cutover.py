@@ -5,6 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
+from application.dtos.cutover_dto import CutoverExecutionResponse
 from domain.entities.cutover_execution import CutoverExecution
 from domain.events.cutover_events import CutoverStartedEvent
 from domain.ports.cutover_ports import (
@@ -13,8 +14,6 @@ from domain.ports.cutover_ports import (
 )
 from domain.ports.event_bus_ports import EventBusPort
 from domain.value_objects.cutover_types import ExecutionStatus, TaskExecution
-
-from application.dtos.cutover_dto import CutoverExecutionResponse
 
 
 class StartCutoverUseCase:

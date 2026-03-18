@@ -15,7 +15,6 @@ from domain.value_objects.migration_types import (
     AuditSeverity,
 )
 
-
 # ------------------------------------------------------------------
 # Default thresholds
 # ------------------------------------------------------------------

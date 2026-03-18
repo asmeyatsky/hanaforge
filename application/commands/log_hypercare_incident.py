@@ -5,12 +5,11 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
+from application.dtos.cutover_dto import HypercareResponse
 from domain.events.cutover_events import HypercareIncidentEvent
 from domain.ports.cutover_ports import HypercareRepositoryPort, TicketingPort
 from domain.ports.event_bus_ports import EventBusPort
 from domain.value_objects.cutover_types import HypercareIncident
-
-from application.dtos.cutover_dto import HypercareResponse
 
 
 class LogHypercareIncidentUseCase:

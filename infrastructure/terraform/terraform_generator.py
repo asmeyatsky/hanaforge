@@ -380,7 +380,7 @@ class TerraformHCLGenerator:
 
     def _generate_compute_hana(self, plan: InfrastructurePlan) -> str:
         hc = plan.hana_config
-        zones = [f"${{var.region}}-a", f"${{var.region}}-b"]
+        zones = ["${var.region}-a", "${var.region}-b"]
 
         instances_hcl = ""
         for idx, zone in enumerate(zones[:2] if plan.ha_enabled else zones[:1]):

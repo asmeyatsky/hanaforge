@@ -7,14 +7,13 @@ from datetime import datetime
 
 from domain.events.event_base import DomainEvent
 from domain.events.programme_events import (
+    AnalysisCompletedEvent,
+    AnalysisStartedEvent,
     DiscoveryCompletedEvent,
     DiscoveryStartedEvent,
-    AnalysisStartedEvent,
-    AnalysisCompletedEvent,
 )
 from domain.value_objects.complexity_score import ComplexityScore
 from domain.value_objects.object_type import ProgrammeStatus
-
 
 _VALID_TRANSITIONS: dict[ProgrammeStatus, tuple[ProgrammeStatus, ...]] = {
     ProgrammeStatus.CREATED: (ProgrammeStatus.DISCOVERY_IN_PROGRESS,),

@@ -6,7 +6,7 @@ import pytest
 
 from domain.entities.data_domain import DataDomain
 from domain.services.bp_consolidation_service import BPConsolidationService
-from domain.services.data_quality_service import DataQualityService, DataRiskEntry
+from domain.services.data_quality_service import DataQualityService
 from domain.services.universal_journal_service import UniversalJournalService
 from domain.value_objects.data_quality import (
     DataMigrationStatus,
@@ -15,7 +15,6 @@ from domain.value_objects.data_quality import (
     TransformationRule,
     TransformationRuleType,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

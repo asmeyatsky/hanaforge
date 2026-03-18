@@ -10,7 +10,6 @@ from application.dtos.programme_dto import (
     ProgrammeListResponse,
     ProgrammeResponse,
 )
-from application.queries.get_programme import GetProgrammeQuery
 from application.queries.list_programmes import ListProgrammesQuery
 from domain.services.tenant_access_service import TenantAccessService
 from presentation.api.middleware.auth import get_current_user

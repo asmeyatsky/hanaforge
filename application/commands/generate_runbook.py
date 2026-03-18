@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
+from application.dtos.cutover_dto import RunbookResponse
 from domain.events.cutover_events import RunbookGeneratedEvent
 from domain.ports.cutover_ports import RunbookRepositoryPort
 from domain.ports.event_bus_ports import EventBusPort
 from domain.services.runbook_generation_service import RunbookGenerationService
-
-from application.dtos.cutover_dto import RunbookResponse
 
 
 class GenerateRunbookUseCase:

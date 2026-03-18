@@ -221,7 +221,11 @@ class SimpleReportGenerator:
             "LOW": ("6-9 months", "Accelerated migration feasible with AI-assisted remediation."),
             "MEDIUM": ("9-14 months", "Standard migration timeline with proper planning and automated support."),
             "HIGH": ("14-20 months", "Extended timeline recommended with phased approach and senior ABAP resources."),
-            "CRITICAL": ("20-30 months", "Multi-phase programme required with extensive testing, dedicated remediation sprints, and executive oversight."),
+            "CRITICAL": (
+                "20-30 months",
+                "Multi-phase programme required with extensive testing, "
+                "dedicated remediation sprints, and executive oversight.",
+            ),
         }
         timeline_duration, timeline_note = timeline_map.get(
             complexity.risk_level, ("12-18 months", "Standard timeline.")
@@ -311,28 +315,42 @@ class SimpleReportGenerator:
 <title>Board Presentation — {programme.name}</title>
 <style>
   * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-  body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #2c3e50; background: #fff; padding: 40px 60px; line-height: 1.6; }}
-  .header {{ border-bottom: 3px solid #2c3e50; padding-bottom: 20px; margin-bottom: 30px; }}
+  body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2c3e50; background: #fff; padding: 40px 60px; line-height: 1.6; }}
+  .header {{ border-bottom: 3px solid #2c3e50; padding-bottom: 20px;
+    margin-bottom: 30px; }}
   .header h1 {{ font-size: 28px; color: #2c3e50; margin-bottom: 4px; }}
   .header .subtitle {{ font-size: 16px; color: #7f8c8d; }}
   .meta {{ font-size: 13px; color: #95a5a6; margin-top: 8px; }}
-  h2 {{ font-size: 20px; color: #2c3e50; margin: 30px 0 15px 0; padding-bottom: 8px; border-bottom: 1px solid #ecf0f1; }}
+  h2 {{ font-size: 20px; color: #2c3e50; margin: 30px 0 15px 0;
+    padding-bottom: 8px; border-bottom: 1px solid #ecf0f1; }}
   h2 .section-num {{ color: #3498db; margin-right: 8px; }}
-  .summary-box {{ background: #f8f9fa; border-left: 4px solid #3498db; padding: 20px 24px; margin: 15px 0; border-radius: 0 4px 4px 0; }}
-  .kpi-grid {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 20px 0; }}
-  .kpi {{ background: #f8f9fa; border-radius: 6px; padding: 16px 20px; text-align: center; }}
+  .summary-box {{ background: #f8f9fa; border-left: 4px solid #3498db;
+    padding: 20px 24px; margin: 15px 0; border-radius: 0 4px 4px 0; }}
+  .kpi-grid {{ display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin: 20px 0; }}
+  .kpi {{ background: #f8f9fa; border-radius: 6px;
+    padding: 16px 20px; text-align: center; }}
   .kpi .value {{ font-size: 28px; font-weight: 700; color: #2c3e50; }}
-  .kpi .label {{ font-size: 12px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }}
-  .risk-badge {{ display: inline-block; padding: 4px 16px; border-radius: 4px; color: #fff; font-weight: 600; font-size: 14px; }}
+  .kpi .label {{ font-size: 12px; color: #7f8c8d;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }}
+  .risk-badge {{ display: inline-block; padding: 4px 16px;
+    border-radius: 4px; color: #fff; font-weight: 600; font-size: 14px; }}
   table {{ width: 100%; border-collapse: collapse; margin: 12px 0; }}
-  th, td {{ padding: 10px 14px; text-align: left; border-bottom: 1px solid #ecf0f1; font-size: 14px; }}
+  th, td {{ padding: 10px 14px; text-align: left;
+    border-bottom: 1px solid #ecf0f1; font-size: 14px; }}
   th {{ background: #f8f9fa; font-weight: 600; color: #2c3e50; }}
-  .status-bar {{ width: 100%; border-radius: 4px; overflow: hidden; background: #ecf0f1; font-size: 0; margin: 8px 0; }}
+  .status-bar {{ width: 100%; border-radius: 4px; overflow: hidden;
+    background: #ecf0f1; font-size: 0; margin: 8px 0; }}
   .legend {{ font-size: 13px; color: #7f8c8d; margin-top: 6px; }}
   ul {{ margin: 8px 0 8px 24px; }}
   li {{ margin: 4px 0; font-size: 14px; }}
-  .placeholder {{ background: #fef9e7; border: 1px dashed #f39c12; border-radius: 4px; padding: 16px 20px; margin: 12px 0; font-size: 14px; color: #7f8c8d; }}
-  .footer {{ margin-top: 40px; padding-top: 16px; border-top: 1px solid #ecf0f1; font-size: 12px; color: #95a5a6; text-align: center; }}
+  .placeholder {{ background: #fef9e7; border: 1px dashed #f39c12;
+    border-radius: 4px; padding: 16px 20px; margin: 12px 0;
+    font-size: 14px; color: #7f8c8d; }}
+  .footer {{ margin-top: 40px; padding-top: 16px;
+    border-top: 1px solid #ecf0f1; font-size: 12px;
+    color: #95a5a6; text-align: center; }}
   @media print {{ body {{ padding: 20px 30px; }} }}
 </style>
 </head>
@@ -341,7 +359,8 @@ class SimpleReportGenerator:
 <div class="header">
   <h1>S/4HANA Migration — Board Scope Presentation</h1>
   <div class="subtitle">{programme.name} (Customer {programme.customer_id})</div>
-  <div class="meta">Programme ID: {programme.id} &bull; Generated: {generated} &bull; Status: {programme.status.value}</div>
+  <div class="meta">Programme ID: {programme.id} &bull;
+    Generated: {generated} &bull; Status: {programme.status.value}</div>
 </div>
 
 <!-- 1. Executive Summary -->
@@ -352,7 +371,8 @@ class SimpleReportGenerator:
   with a go-live target of <strong>{go_live_str}</strong>.</p>
   <p style="margin-top:10px;">Overall complexity is rated
   <span class="risk-badge" style="background:{risk_colour};">{complexity.risk_level}</span>
-  with a score of <strong>{complexity.score}/100</strong>{f' (percentile: {complexity.benchmark_percentile:.1f}%)' if complexity.benchmark_percentile is not None else ''}.</p>
+  with a score of <strong>{complexity.score}/100</strong>\
+{f' (percentile: {complexity.benchmark_percentile:.1f}%)' if complexity.benchmark_percentile is not None else ''}.</p>
 </div>
 
 <div class="kpi-grid">
@@ -373,7 +393,8 @@ class SimpleReportGenerator:
 <table>
   <tr><th>Metric</th><th>Value</th></tr>
   <tr><td>Overall Score</td><td><strong>{complexity.score}/100</strong></td></tr>
-  <tr><td>Risk Level</td><td><span class="risk-badge" style="background:{risk_colour};">{complexity.risk_level}</span></td></tr>
+  <tr><td>Risk Level</td><td><span class="risk-badge"
+    style="background:{risk_colour};">{complexity.risk_level}</span></td></tr>
   <tr><td>Custom Objects</td><td>{total_objects:,}</td></tr>
   <tr><td>Incompatible Objects</td><td style="color:#e74c3c;font-weight:600;">{incompatible}</td></tr>
   <tr><td>Integration Points</td><td>{len(all_integration_points)}</td></tr>
@@ -393,13 +414,17 @@ class SimpleReportGenerator:
 
 <!-- 5. Integration Point Summary -->
 <h2><span class="section-num">05</span>Integration Point Summary</h2>
-<p style="font-size:14px;color:#7f8c8d;margin-bottom:8px;">{len(all_integration_points)} integration point(s) across {len(landscapes)} system(s):</p>
+<p style="font-size:14px;color:#7f8c8d;margin-bottom:8px;">\
+{len(all_integration_points)} integration point(s) across \
+{len(landscapes)} system(s):</p>
 <ul>{integration_list}</ul>
 
 <!-- 6. Landscape Overview -->
 <h2><span class="section-num">06</span>Landscape Overview</h2>
 <table>
-  <tr><th>System ID</th><th>Role</th><th style="text-align:right">DB Size</th><th style="text-align:right">Users</th><th style="text-align:right">Custom Objects</th></tr>
+  <tr><th>System ID</th><th>Role</th><th style="text-align:right">DB Size</th>
+  <th style="text-align:right">Users</th>
+  <th style="text-align:right">Custom Objects</th></tr>
   {landscape_rows}
 </table>
 

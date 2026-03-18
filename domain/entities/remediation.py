@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from datetime import datetime
 
-from domain.events.event_base import DomainEvent
 from domain.events.analysis_events import RemediationReviewedEvent
 from domain.value_objects.object_type import ReviewStatus
 
