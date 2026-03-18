@@ -56,8 +56,7 @@ def create_migration_orchestrator_server(container: Container) -> Server:
                         "landscape_metadata": {
                             "type": "object",
                             "description": (
-                                "Optional landscape metadata: data_domains (list), "
-                                "db_size_gb (int), system_count (int)"
+                                "Optional landscape metadata: data_domains (list), db_size_gb (int), system_count (int)"
                             ),
                         },
                     },
@@ -102,9 +101,7 @@ def create_migration_orchestrator_server(container: Container) -> Server:
             ),
             Tool(
                 name="acknowledge_anomaly",
-                description=(
-                    "Acknowledge an anomaly alert, marking it as reviewed."
-                ),
+                description=("Acknowledge an anomaly alert, marking it as reviewed."),
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -124,9 +121,7 @@ def create_migration_orchestrator_server(container: Container) -> Server:
             from application.commands.create_migration_plan import CreateMigrationPlanUseCase
             from application.dtos.migration_dto import CreateMigrationPlanRequest
 
-            use_case: CreateMigrationPlanUseCase = container.resolve(
-                "CreateMigrationPlanUseCase"
-            )
+            use_case: CreateMigrationPlanUseCase = container.resolve("CreateMigrationPlanUseCase")
             request = CreateMigrationPlanRequest(
                 approach=arguments["approach"],
                 landscape_metadata=arguments.get("landscape_metadata", {}),
@@ -138,13 +133,11 @@ def create_migration_orchestrator_server(container: Container) -> Server:
             return [TextContent(type="text", text=result.model_dump_json(indent=2))]
 
         if name == "execute_step":
-
             use_case = container.resolve("ExecuteMigrationStepUseCase")
             result = await use_case.execute(task_id=arguments["task_id"])
             return [TextContent(type="text", text=result.model_dump_json(indent=2))]
 
         if name == "run_batch":
-
             use_case = container.resolve("RunMigrationBatchUseCase")
             result = await use_case.execute(programme_id=arguments["programme_id"])
             return [TextContent(type="text", text=result.model_dump_json(indent=2))]
@@ -218,9 +211,7 @@ def create_migration_orchestrator_server(container: Container) -> Server:
         if resource_type == "status":
             from application.queries.get_migration_status import GetMigrationStatusQuery
 
-            query: GetMigrationStatusQuery = container.resolve(
-                "GetMigrationStatusQuery"
-            )
+            query: GetMigrationStatusQuery = container.resolve("GetMigrationStatusQuery")
             result = await query.execute(programme_id=programme_id)
             return result.model_dump_json(indent=2)
 
@@ -229,13 +220,10 @@ def create_migration_orchestrator_server(container: Container) -> Server:
             tasks = await task_repo.list_by_programme(programme_id)
             from application.dtos.migration_dto import MigrationTaskResponse
 
-            task_data = [
-                MigrationTaskResponse.from_entity(t).model_dump() for t in tasks
-            ]
+            task_data = [MigrationTaskResponse.from_entity(t).model_dump() for t in tasks]
             return json.dumps(task_data, indent=2)
 
         if resource_type == "audit-log":
-
             query = container.resolve("GetAuditLogQuery")
             result = await query.execute(programme_id=programme_id)
             return result.model_dump_json(indent=2)
@@ -245,10 +233,7 @@ def create_migration_orchestrator_server(container: Container) -> Server:
             anomalies = await anomaly_repo.list_active(programme_id)
             from application.dtos.migration_dto import AnomalyAlertResponse
 
-            data = [
-                AnomalyAlertResponse.from_value_object(a).model_dump()
-                for a in anomalies
-            ]
+            data = [AnomalyAlertResponse.from_value_object(a).model_dump() for a in anomalies]
             return json.dumps(data, indent=2)
 
         return json.dumps({"error": f"Unknown resource type: {resource_type}"})

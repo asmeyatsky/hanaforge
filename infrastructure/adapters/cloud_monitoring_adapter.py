@@ -62,9 +62,7 @@ class CloudMonitoringAdapter:
 
         return dashboard_payload
 
-    async def create_alert_policies(
-        self, plan_ref: str, thresholds: dict[str, float]
-    ) -> list[dict]:
+    async def create_alert_policies(self, plan_ref: str, thresholds: dict[str, float]) -> list[dict]:
         """Generate Cloud Monitoring alert policy payloads for the given thresholds.
 
         Each threshold key maps to a metric type and generates a separate
@@ -80,9 +78,7 @@ class CloudMonitoringAdapter:
         policies: list[dict] = []
 
         for metric_key, threshold_value in thresholds.items():
-            metric_type = metric_type_map.get(
-                metric_key, f"custom.googleapis.com/sap/{metric_key}"
-            )
+            metric_type = metric_type_map.get(metric_key, f"custom.googleapis.com/sap/{metric_key}")
             policy_id = str(uuid.uuid4())
 
             policy: dict = {
@@ -90,8 +86,7 @@ class CloudMonitoringAdapter:
                 "displayName": f"HanaForge — {metric_key.replace('_', ' ').title()} Alert",
                 "documentation": {
                     "content": (
-                        f"Alert triggered when {metric_key} exceeds "
-                        f"threshold of {threshold_value} for plan {plan_ref}."
+                        f"Alert triggered when {metric_key} exceeds threshold of {threshold_value} for plan {plan_ref}."
                     ),
                     "mimeType": "text/markdown",
                 },
@@ -103,10 +98,7 @@ class CloudMonitoringAdapter:
                     {
                         "displayName": f"{metric_key} > {threshold_value}",
                         "conditionThreshold": {
-                            "filter": (
-                                f'metric.type="{metric_type}" '
-                                f'AND resource.type="gce_instance"'
-                            ),
+                            "filter": (f'metric.type="{metric_type}" AND resource.type="gce_instance"'),
                             "comparison": "COMPARISON_GT",
                             "thresholdValue": threshold_value,
                             "duration": "300s",
@@ -133,8 +125,7 @@ class CloudMonitoringAdapter:
     async def get_dashboard_url(self, dashboard_id: str) -> str:
         """Return the Cloud Console URL for a monitoring dashboard."""
         return (
-            f"https://console.cloud.google.com/monitoring/dashboards/custom/"
-            f"{dashboard_id}?project={self._project_id}"
+            f"https://console.cloud.google.com/monitoring/dashboards/custom/{dashboard_id}?project={self._project_id}"
         )
 
     # ------------------------------------------------------------------
@@ -281,9 +272,7 @@ class CloudMonitoringAdapter:
                         {
                             "timeSeriesQuery": {
                                 "timeSeriesFilter": {
-                                    "filter": (
-                                        f'metric.type="{metric["metric_type"]}"'
-                                    ),
+                                    "filter": (f'metric.type="{metric["metric_type"]}"'),
                                     "aggregation": {
                                         "alignmentPeriod": "60s",
                                         "perSeriesAligner": "ALIGN_MEAN",

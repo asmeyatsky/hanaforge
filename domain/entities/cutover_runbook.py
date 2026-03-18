@@ -42,9 +42,7 @@ class CutoverRunbook:
     def approve(self, approver: str) -> CutoverRunbook:
         """Mark the runbook as approved by the given approver."""
         if self.status != RunbookStatus.DRAFT:
-            raise ValueError(
-                f"Cannot approve runbook in status {self.status.value}; must be DRAFT"
-            )
+            raise ValueError(f"Cannot approve runbook in status {self.status.value}; must be DRAFT")
         now = datetime.now(timezone.utc)
         return replace(
             self,
@@ -56,9 +54,7 @@ class CutoverRunbook:
     def start_execution(self) -> CutoverRunbook:
         """Transition from APPROVED to IN_EXECUTION."""
         if self.status != RunbookStatus.APPROVED:
-            raise ValueError(
-                f"Cannot start execution from status {self.status.value}; must be APPROVED"
-            )
+            raise ValueError(f"Cannot start execution from status {self.status.value}; must be APPROVED")
         return replace(self, status=RunbookStatus.IN_EXECUTION)
 
     def increment_version(self) -> CutoverRunbook:
@@ -78,15 +74,11 @@ class CutoverRunbook:
     def complete(self) -> CutoverRunbook:
         """Mark runbook as completed."""
         if self.status != RunbookStatus.IN_EXECUTION:
-            raise ValueError(
-                f"Cannot complete runbook in status {self.status.value}; must be IN_EXECUTION"
-            )
+            raise ValueError(f"Cannot complete runbook in status {self.status.value}; must be IN_EXECUTION")
         return replace(self, status=RunbookStatus.COMPLETED)
 
     def abort(self) -> CutoverRunbook:
         """Mark runbook as aborted."""
         if self.status not in (RunbookStatus.IN_EXECUTION, RunbookStatus.APPROVED):
-            raise ValueError(
-                f"Cannot abort runbook in status {self.status.value}"
-            )
+            raise ValueError(f"Cannot abort runbook in status {self.status.value}")
         return replace(self, status=RunbookStatus.ABORTED)

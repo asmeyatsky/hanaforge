@@ -100,12 +100,16 @@ class TestLogIncident:
         now = datetime.now(timezone.utc)
 
         i1 = HypercareIncident(
-            id="INC-001", severity="LOW",
-            description="Slow report", reported_at=now,
+            id="INC-001",
+            severity="LOW",
+            description="Slow report",
+            reported_at=now,
         )
         i2 = HypercareIncident(
-            id="INC-002", severity="MEDIUM",
-            description="Batch job delayed", reported_at=now,
+            id="INC-002",
+            severity="MEDIUM",
+            description="Batch job delayed",
+            reported_at=now,
         )
 
         updated = session.log_incident(i1).log_incident(i2)
@@ -154,8 +158,10 @@ class TestResolveIncident:
         now = datetime.now(timezone.utc)
 
         incident = HypercareIncident(
-            id="INC-001", severity="HIGH",
-            description="Report failure", reported_at=now,
+            id="INC-001",
+            severity="HIGH",
+            description="Report failure",
+            reported_at=now,
         )
         with_incident = session.log_incident(incident)
 
@@ -169,8 +175,10 @@ class TestResolveIncident:
         now = datetime.now(timezone.utc)
 
         incident = HypercareIncident(
-            id="INC-001", severity="CRITICAL",
-            description="HANA down", reported_at=now,
+            id="INC-001",
+            severity="CRITICAL",
+            description="HANA down",
+            reported_at=now,
         )
         escalated = session.log_incident(incident)
         assert escalated.status == HypercareStatus.ESCALATED
@@ -281,9 +289,7 @@ class TestGenerateLessonsLearned:
 
         entries = service.generate_lessons_learned(execution, [])
 
-        summary = next(
-            (e for e in entries if e.category == "EXECUTIVE_SUMMARY"), None
-        )
+        summary = next((e for e in entries if e.category == "EXECUTIVE_SUMMARY"), None)
         assert summary is not None
         assert "variance" in summary.content.lower()
         assert "720" in summary.content or "Actual: 720" in summary.content
@@ -295,7 +301,8 @@ class TestGenerateLessonsLearned:
 
         incidents = [
             HypercareIncident(
-                id="INC-001", severity="LOW",
+                id="INC-001",
+                severity="LOW",
                 description="Minor display issue",
                 reported_at=now,
             ),
@@ -318,8 +325,10 @@ class TestSessionImmutability:
         now = datetime.now(timezone.utc)
 
         incident = HypercareIncident(
-            id="INC-001", severity="LOW",
-            description="Test", reported_at=now,
+            id="INC-001",
+            severity="LOW",
+            description="Test",
+            reported_at=now,
         )
         updated = original.log_incident(incident)
 

@@ -78,49 +78,37 @@ class TestErrorRateSpike:
 
 
 class TestPerformanceDegradation:
-    def test_detects_performance_degradation(
-        self, service: AnomalyDetectionService
-    ) -> None:
+    def test_detects_performance_degradation(self, service: AnomalyDetectionService) -> None:
         task = _make_task(task_type=MigrationTaskType.DMO_SUM_EXECUTION)
         # DMO_SUM_EXECUTION expected: 480min, threshold: 960min
         metrics = {"elapsed_minutes": 1000}
 
         alerts = service.detect_anomalies(task, metrics)
 
-        perf_alerts = [
-            a for a in alerts if a.alert_type == AnomalyType.PERFORMANCE_DEGRADATION
-        ]
+        perf_alerts = [a for a in alerts if a.alert_type == AnomalyType.PERFORMANCE_DEGRADATION]
         assert len(perf_alerts) == 1
         alert = perf_alerts[0]
         assert alert.severity == AuditSeverity.WARNING
         assert alert.actual_value == 1000.0
 
-    def test_no_alert_within_threshold(
-        self, service: AnomalyDetectionService
-    ) -> None:
+    def test_no_alert_within_threshold(self, service: AnomalyDetectionService) -> None:
         task = _make_task(task_type=MigrationTaskType.DMO_SUM_EXECUTION)
         # Within 2x the expected 480min
         metrics = {"elapsed_minutes": 500}
 
         alerts = service.detect_anomalies(task, metrics)
 
-        perf_alerts = [
-            a for a in alerts if a.alert_type == AnomalyType.PERFORMANCE_DEGRADATION
-        ]
+        perf_alerts = [a for a in alerts if a.alert_type == AnomalyType.PERFORMANCE_DEGRADATION]
         assert len(perf_alerts) == 0
 
-    def test_no_degradation_for_completed_task(
-        self, service: AnomalyDetectionService
-    ) -> None:
+    def test_no_degradation_for_completed_task(self, service: AnomalyDetectionService) -> None:
         """Performance degradation only triggers for IN_PROGRESS tasks."""
         task = _make_task(status=MigrationTaskStatus.COMPLETED)
         metrics = {"elapsed_minutes": 1000}
 
         alerts = service.detect_anomalies(task, metrics)
 
-        perf_alerts = [
-            a for a in alerts if a.alert_type == AnomalyType.PERFORMANCE_DEGRADATION
-        ]
+        perf_alerts = [a for a in alerts if a.alert_type == AnomalyType.PERFORMANCE_DEGRADATION]
         assert len(perf_alerts) == 0
 
 
@@ -148,9 +136,7 @@ class TestTaskStalled:
 
 
 class TestNormalExecution:
-    def test_no_anomaly_for_normal_execution(
-        self, service: AnomalyDetectionService
-    ) -> None:
+    def test_no_anomaly_for_normal_execution(self, service: AnomalyDetectionService) -> None:
         task = _make_task(task_type=MigrationTaskType.DMO_PRECHECK)
         metrics = {
             "error_count": 1,
@@ -176,9 +162,7 @@ class TestResourcePressure:
         assert len(disk_alerts) == 1
         assert disk_alerts[0].severity == AuditSeverity.WARNING
 
-    def test_detects_critical_disk_space(
-        self, service: AnomalyDetectionService
-    ) -> None:
+    def test_detects_critical_disk_space(self, service: AnomalyDetectionService) -> None:
         task = _make_task()
         metrics = {"disk_usage_pct": 97.0}
 
@@ -198,9 +182,7 @@ class TestResourcePressure:
         assert len(mem_alerts) == 1
         assert mem_alerts[0].severity == AuditSeverity.WARNING
 
-    def test_multiple_anomalies_at_once(
-        self, service: AnomalyDetectionService
-    ) -> None:
+    def test_multiple_anomalies_at_once(self, service: AnomalyDetectionService) -> None:
         """Multiple anomalies can be detected in a single pass."""
         task = _make_task()
         metrics = {

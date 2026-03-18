@@ -84,11 +84,7 @@ class InMemoryProgrammeRepository:
         return self._from_dict(data)
 
     async def list_by_customer(self, customer_id: str) -> list[Programme]:
-        return [
-            self._from_dict(data)
-            for data in self._store.values()
-            if data["customer_id"] == customer_id
-        ]
+        return [self._from_dict(data) for data in self._store.values() if data["customer_id"] == customer_id]
 
     async def list_all(self) -> list[Programme]:
         return [self._from_dict(data) for data in self._store.values()]

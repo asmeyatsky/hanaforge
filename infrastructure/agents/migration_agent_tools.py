@@ -283,13 +283,15 @@ class CheckMigrationStatusTool:
         for task in tasks:
             status_val = task.status.value
             status_counts[status_val] = status_counts.get(status_val, 0) + 1
-            task_summaries.append({
-                "id": task.id,
-                "task_name": task.task_name,
-                "task_type": task.task_type.value,
-                "status": status_val,
-                "error_message": task.error_message,
-            })
+            task_summaries.append(
+                {
+                    "id": task.id,
+                    "task_name": task.task_name,
+                    "task_type": task.task_type.value,
+                    "status": status_val,
+                    "error_message": task.error_message,
+                }
+            )
 
         return {
             "programme_id": programme_id,

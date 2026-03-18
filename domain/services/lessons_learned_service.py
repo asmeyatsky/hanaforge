@@ -44,9 +44,7 @@ class LessonsLearnedService:
     # Private analysis methods
     # ------------------------------------------------------------------
 
-    def _analyse_deviations(
-        self, execution: CutoverExecution, now: datetime
-    ) -> list[KnowledgeEntry]:
+    def _analyse_deviations(self, execution: CutoverExecution, now: datetime) -> list[KnowledgeEntry]:
         """Turn execution deviations into knowledge entries."""
         entries: list[KnowledgeEntry] = []
 
@@ -119,9 +117,7 @@ class LessonsLearnedService:
 
         return entries
 
-    def _analyse_issues(
-        self, execution: CutoverExecution, now: datetime
-    ) -> list[KnowledgeEntry]:
+    def _analyse_issues(self, execution: CutoverExecution, now: datetime) -> list[KnowledgeEntry]:
         """Turn cutover issues into knowledge entries."""
         entries: list[KnowledgeEntry] = []
 
@@ -154,9 +150,7 @@ class LessonsLearnedService:
 
         return entries
 
-    def _analyse_incidents(
-        self, incidents: list[HypercareIncident], now: datetime
-    ) -> list[KnowledgeEntry]:
+    def _analyse_incidents(self, incidents: list[HypercareIncident], now: datetime) -> list[KnowledgeEntry]:
         """Turn hypercare incidents into knowledge entries."""
         entries: list[KnowledgeEntry] = []
         if not incidents:
@@ -209,10 +203,7 @@ class LessonsLearnedService:
         total_incidents = len(incidents)
         was_aborted = execution.status.value == "ABORTED"
 
-        duration_info = (
-            f"Planned: {execution.planned_duration_minutes} min, "
-            f"Actual: {execution.elapsed_minutes} min"
-        )
+        duration_info = f"Planned: {execution.planned_duration_minutes} min, Actual: {execution.elapsed_minutes} min"
         variance = execution.elapsed_minutes - execution.planned_duration_minutes
         variance_pct = (
             round((variance / execution.planned_duration_minutes) * 100, 1)
@@ -239,21 +230,13 @@ class LessonsLearnedService:
         # Key recommendations
         lines.append("KEY RECOMMENDATIONS:")
         if variance_pct > 20:
-            lines.append(
-                "- Duration significantly exceeded plan. Review estimation methodology."
-            )
+            lines.append("- Duration significantly exceeded plan. Review estimation methodology.")
         if total_deviations > 5:
-            lines.append(
-                "- High deviation count suggests runbook needs refinement for next migration."
-            )
+            lines.append("- High deviation count suggests runbook needs refinement for next migration.")
         if any(i.severity == "CRITICAL" for i in execution.issues):
-            lines.append(
-                "- Critical issues occurred. Strengthen pre-cutover validation and testing."
-            )
+            lines.append("- Critical issues occurred. Strengthen pre-cutover validation and testing.")
         if total_incidents > 10:
-            lines.append(
-                "- High incident count in hypercare. Extend user training and support."
-            )
+            lines.append("- High incident count in hypercare. Extend user training and support.")
 
         categories = {e.category for e in entries}
         lines.append(f"\nCategories covered: {', '.join(sorted(categories))}")
@@ -275,13 +258,9 @@ class LessonsLearnedService:
     def _format_delay_content(devs: list) -> str:
         lines = ["Tasks that experienced delays during cutover:\n"]
         for d in devs:
-            lines.append(
-                f"- Task {d.task_id}: planned={d.planned_value}, "
-                f"actual={d.actual_value}, impact={d.impact}"
-            )
+            lines.append(f"- Task {d.task_id}: planned={d.planned_value}, actual={d.actual_value}, impact={d.impact}")
         lines.append(
-            "\nRecommendation: Review duration estimates for these task types "
-            "and add buffer time in future runbooks."
+            "\nRecommendation: Review duration estimates for these task types and add buffer time in future runbooks."
         )
         return "\n".join(lines)
 
@@ -289,10 +268,7 @@ class LessonsLearnedService:
     def _format_failure_content(devs: list) -> str:
         lines = ["Tasks that failed during cutover:\n"]
         for d in devs:
-            lines.append(
-                f"- Task {d.task_id}: expected={d.planned_value}, "
-                f"result={d.actual_value}, impact={d.impact}"
-            )
+            lines.append(f"- Task {d.task_id}: expected={d.planned_value}, result={d.actual_value}, impact={d.impact}")
         lines.append(
             "\nRecommendation: Strengthen pre-cutover testing for these task "
             "categories. Consider adding automated retry logic."
@@ -305,8 +281,7 @@ class LessonsLearnedService:
         for d in devs:
             lines.append(f"- Task {d.task_id}: reason={d.actual_value}, impact={d.impact}")
         lines.append(
-            "\nRecommendation: Evaluate whether skipped tasks should be "
-            "removed from the runbook or made conditional."
+            "\nRecommendation: Evaluate whether skipped tasks should be removed from the runbook or made conditional."
         )
         return "\n".join(lines)
 
@@ -314,14 +289,8 @@ class LessonsLearnedService:
     def _format_override_content(devs: list) -> str:
         lines = ["Manual overrides applied during cutover:\n"]
         for d in devs:
-            lines.append(
-                f"- Task {d.task_id}: override from={d.planned_value} "
-                f"to={d.actual_value}, impact={d.impact}"
-            )
-        lines.append(
-            "\nRecommendation: Review whether overrides indicate process "
-            "gaps or insufficient pre-planning."
-        )
+            lines.append(f"- Task {d.task_id}: override from={d.planned_value} to={d.actual_value}, impact={d.impact}")
+        lines.append("\nRecommendation: Review whether overrides indicate process gaps or insufficient pre-planning.")
         return "\n".join(lines)
 
     @staticmethod
@@ -329,13 +298,9 @@ class LessonsLearnedService:
         lines = ["Tasks reordered during cutover:\n"]
         for d in devs:
             lines.append(
-                f"- Task {d.task_id}: planned order={d.planned_value}, "
-                f"actual order={d.actual_value}, impact={d.impact}"
+                f"- Task {d.task_id}: planned order={d.planned_value}, actual order={d.actual_value}, impact={d.impact}"
             )
-        lines.append(
-            "\nRecommendation: Update runbook task dependencies to "
-            "reflect the actual execution order."
-        )
+        lines.append("\nRecommendation: Update runbook task dependencies to reflect the actual execution order.")
         return "\n".join(lines)
 
     @staticmethod
@@ -344,24 +309,18 @@ class LessonsLearnedService:
         for issue in issues:
             status = "RESOLVED" if issue.resolved_at else "OPEN"
             lines.append(
-                f"- [{issue.severity}] {issue.description} "
-                f"(task: {issue.affected_task_id or 'N/A'}, status: {status})"
+                f"- [{issue.severity}] {issue.description} (task: {issue.affected_task_id or 'N/A'}, status: {status})"
             )
             if issue.resolution:
                 lines.append(f"  Resolution: {issue.resolution}")
         return "\n".join(lines)
 
     @staticmethod
-    def _format_incident_content(
-        component: str, incidents: list[HypercareIncident]
-    ) -> str:
+    def _format_incident_content(component: str, incidents: list[HypercareIncident]) -> str:
         lines = [f"Incidents for SAP component {component}:\n"]
         for inc in incidents:
             status = "RESOLVED" if inc.resolved_at else "OPEN"
-            lines.append(
-                f"- [{inc.severity}] {inc.description} "
-                f"(ticket: {inc.ticket_id or 'N/A'}, status: {status})"
-            )
+            lines.append(f"- [{inc.severity}] {inc.description} (ticket: {inc.ticket_id or 'N/A'}, status: {status})")
             if inc.resolution:
                 lines.append(f"  Resolution: {inc.resolution}")
         return "\n".join(lines)
@@ -389,7 +348,6 @@ class LessonsLearnedService:
         for keyword, count in sorted_keywords:
             lines.append(f"- '{keyword}': appeared in {count} incidents")
         lines.append(
-            "\nRecommendation: Investigate root causes related to these "
-            "recurring themes to prevent future incidents."
+            "\nRecommendation: Investigate root causes related to these recurring themes to prevent future incidents."
         )
         return "\n".join(lines)

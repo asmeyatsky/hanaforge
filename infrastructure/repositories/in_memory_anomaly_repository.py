@@ -64,8 +64,7 @@ class InMemoryAnomalyRepository:
         return [
             self._from_dict(data)
             for data in self._store.values()
-            if data["programme_id"] == programme_id
-            and not data["acknowledged"]
+            if data["programme_id"] == programme_id and not data["acknowledged"]
         ]
 
     async def acknowledge(self, alert_id: str) -> None:

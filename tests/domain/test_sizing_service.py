@@ -79,9 +79,9 @@ class TestRecommendHANAConfig:
         config = service.recommend_hana_config(sizing)
 
         assert config.hana_data_disk_gb == 3000  # 2000 * 1.5
-        assert config.hana_log_disk_gb == 1000   # 2000 * 0.5
+        assert config.hana_log_disk_gb == 1000  # 2000 * 0.5
         assert config.hana_shared_disk_gb == 1024
-        assert config.backup_disk_gb == 4000     # 2000 * 2.0
+        assert config.backup_disk_gb == 4000  # 2000 * 2.0
 
     def test_disk_sizing_enforces_minimums(self) -> None:
         service = SAPSizingService()
@@ -100,9 +100,7 @@ class TestRecommendAppServerConfig:
     def test_app_server_sizing_production(self) -> None:
         service = SAPSizingService()
 
-        config = service.recommend_app_server_config(
-            saps=30_000, users=1_000, landscape_type=SystemRole.PRD
-        )
+        config = service.recommend_app_server_config(saps=30_000, users=1_000, landscape_type=SystemRole.PRD)
 
         # 30k SAPS / 1k users maps to C3_STANDARD_44 (30k < 60k threshold)
         assert config.instance_type == GCPMachineType.C3_STANDARD_44
@@ -114,9 +112,7 @@ class TestRecommendAppServerConfig:
     def test_app_server_sizing_dev(self) -> None:
         service = SAPSizingService()
 
-        config = service.recommend_app_server_config(
-            saps=5_000, users=50, landscape_type=SystemRole.DEV
-        )
+        config = service.recommend_app_server_config(saps=5_000, users=50, landscape_type=SystemRole.DEV)
 
         assert config.instance_count == 1
         assert config.auto_scaling is False
@@ -124,9 +120,7 @@ class TestRecommendAppServerConfig:
     def test_app_server_sizing_qas(self) -> None:
         service = SAPSizingService()
 
-        config = service.recommend_app_server_config(
-            saps=20_000, users=500, landscape_type=SystemRole.QAS
-        )
+        config = service.recommend_app_server_config(saps=20_000, users=500, landscape_type=SystemRole.QAS)
 
         assert config.auto_scaling is True
         assert config.min_instances >= 1
@@ -134,9 +128,7 @@ class TestRecommendAppServerConfig:
     def test_large_app_server_sizing(self) -> None:
         service = SAPSizingService()
 
-        config = service.recommend_app_server_config(
-            saps=100_000, users=10_000, landscape_type=SystemRole.PRD
-        )
+        config = service.recommend_app_server_config(saps=100_000, users=10_000, landscape_type=SystemRole.PRD)
 
         assert config.instance_type == GCPMachineType.C3_HIGHMEM_22
         assert config.instance_count >= 4
@@ -149,13 +141,14 @@ class TestCostEstimate:
         service = SAPSizingService()
         sizing = _make_sizing()
         hana = service.recommend_hana_config(sizing)
-        app = service.recommend_app_server_config(
-            sizing.saps_rating, sizing.concurrent_users, sizing.landscape_type
-        )
+        app = service.recommend_app_server_config(sizing.saps_rating, sizing.concurrent_users, sizing.landscape_type)
 
         cost = service.calculate_cost_estimate(
-            hana=hana, app=app, region=GCPRegion.US_CENTRAL1,
-            ha_enabled=True, dr_enabled=False,
+            hana=hana,
+            app=app,
+            region=GCPRegion.US_CENTRAL1,
+            ha_enabled=True,
+            dr_enabled=False,
         )
 
         assert cost.hana_monthly > 0
@@ -170,13 +163,14 @@ class TestCostEstimate:
         service = SAPSizingService()
         sizing = _make_sizing(memory_gb=3000)
         hana = service.recommend_hana_config(sizing)
-        app = service.recommend_app_server_config(
-            sizing.saps_rating, sizing.concurrent_users, sizing.landscape_type
-        )
+        app = service.recommend_app_server_config(sizing.saps_rating, sizing.concurrent_users, sizing.landscape_type)
 
         cost = service.calculate_cost_estimate(
-            hana=hana, app=app, region=GCPRegion.US_CENTRAL1,
-            ha_enabled=True, dr_enabled=False,
+            hana=hana,
+            app=app,
+            region=GCPRegion.US_CENTRAL1,
+            ha_enabled=True,
+            dr_enabled=False,
         )
 
         # Large HANA instance should get 37% CUD
@@ -187,17 +181,21 @@ class TestCostEstimate:
         service = SAPSizingService()
         sizing = _make_sizing()
         hana = service.recommend_hana_config(sizing)
-        app = service.recommend_app_server_config(
-            sizing.saps_rating, sizing.concurrent_users, sizing.landscape_type
-        )
+        app = service.recommend_app_server_config(sizing.saps_rating, sizing.concurrent_users, sizing.landscape_type)
 
         cost_no_ha = service.calculate_cost_estimate(
-            hana=hana, app=app, region=GCPRegion.US_CENTRAL1,
-            ha_enabled=False, dr_enabled=False,
+            hana=hana,
+            app=app,
+            region=GCPRegion.US_CENTRAL1,
+            ha_enabled=False,
+            dr_enabled=False,
         )
         cost_ha = service.calculate_cost_estimate(
-            hana=hana, app=app, region=GCPRegion.US_CENTRAL1,
-            ha_enabled=True, dr_enabled=False,
+            hana=hana,
+            app=app,
+            region=GCPRegion.US_CENTRAL1,
+            ha_enabled=True,
+            dr_enabled=False,
         )
 
         assert cost_ha.hana_monthly > cost_no_ha.hana_monthly
@@ -206,17 +204,21 @@ class TestCostEstimate:
         service = SAPSizingService()
         sizing = _make_sizing()
         hana = service.recommend_hana_config(sizing)
-        app = service.recommend_app_server_config(
-            sizing.saps_rating, sizing.concurrent_users, sizing.landscape_type
-        )
+        app = service.recommend_app_server_config(sizing.saps_rating, sizing.concurrent_users, sizing.landscape_type)
 
         cost_us = service.calculate_cost_estimate(
-            hana=hana, app=app, region=GCPRegion.US_CENTRAL1,
-            ha_enabled=False, dr_enabled=False,
+            hana=hana,
+            app=app,
+            region=GCPRegion.US_CENTRAL1,
+            ha_enabled=False,
+            dr_enabled=False,
         )
         cost_eu = service.calculate_cost_estimate(
-            hana=hana, app=app, region=GCPRegion.EUROPE_WEST3,
-            ha_enabled=False, dr_enabled=False,
+            hana=hana,
+            app=app,
+            region=GCPRegion.EUROPE_WEST3,
+            ha_enabled=False,
+            dr_enabled=False,
         )
 
         # Europe should be more expensive
@@ -226,13 +228,14 @@ class TestCostEstimate:
         service = SAPSizingService()
         sizing = _make_sizing()
         hana = service.recommend_hana_config(sizing)
-        app = service.recommend_app_server_config(
-            sizing.saps_rating, sizing.concurrent_users, sizing.landscape_type
-        )
+        app = service.recommend_app_server_config(sizing.saps_rating, sizing.concurrent_users, sizing.landscape_type)
 
         cost = service.calculate_cost_estimate(
-            hana=hana, app=app, region=GCPRegion.US_CENTRAL1,
-            ha_enabled=False, dr_enabled=False,
+            hana=hana,
+            app=app,
+            region=GCPRegion.US_CENTRAL1,
+            ha_enabled=False,
+            dr_enabled=False,
         )
 
         assert abs(cost.total_annual - cost.total_monthly * 12) < 0.01
@@ -253,12 +256,13 @@ class TestValidationViaService:
         service = SAPSizingService()
         sizing = _make_sizing(landscape=SystemRole.PRD)
         hana = service.recommend_hana_config(sizing)
-        app = service.recommend_app_server_config(
-            sizing.saps_rating, sizing.concurrent_users, sizing.landscape_type
-        )
+        app = service.recommend_app_server_config(sizing.saps_rating, sizing.concurrent_users, sizing.landscape_type)
         cost = service.calculate_cost_estimate(
-            hana=hana, app=app, region=GCPRegion.US_CENTRAL1,
-            ha_enabled=False, dr_enabled=False,
+            hana=hana,
+            app=app,
+            region=GCPRegion.US_CENTRAL1,
+            ha_enabled=False,
+            dr_enabled=False,
         )
 
         plan = InfrastructurePlan.create(

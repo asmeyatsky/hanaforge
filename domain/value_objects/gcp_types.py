@@ -18,6 +18,7 @@ from domain.value_objects.object_type import SystemRole
 # GCP Region — key SAP-certified regions
 # ---------------------------------------------------------------------------
 
+
 class GCPRegion(Enum):
     US_CENTRAL1 = "us-central1"
     US_EAST1 = "us-east1"
@@ -33,6 +34,7 @@ class GCPRegion(Enum):
 # ---------------------------------------------------------------------------
 # GCP Machine Types — SAP-certified HANA and app server instances
 # ---------------------------------------------------------------------------
+
 
 class GCPMachineType(Enum):
     # M3 Ultra — memory-optimised for HANA (up to 30.5 TB)
@@ -72,6 +74,7 @@ class GCPMachineType(Enum):
 # HANA Configuration
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class HANAConfig:
     """HANA database instance sizing — disk sizes in GB."""
@@ -88,6 +91,7 @@ class HANAConfig:
 # App Server Configuration
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class AppServerConfig:
     """SAP application server sizing with optional auto-scaling."""
@@ -102,6 +106,7 @@ class AppServerConfig:
 # ---------------------------------------------------------------------------
 # Network Configuration
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class NetworkConfig:
@@ -120,6 +125,7 @@ class NetworkConfig:
 # Security Configuration
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class SecurityConfig:
     """Security controls for SAP landing zone."""
@@ -134,6 +140,7 @@ class SecurityConfig:
 # ---------------------------------------------------------------------------
 # Cost Estimate
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class CostEstimate:
@@ -171,6 +178,7 @@ class CostEstimate:
 # Validation
 # ---------------------------------------------------------------------------
 
+
 class ValidationStatus(Enum):
     NOT_VALIDATED = "NOT_VALIDATED"
     VALIDATING = "VALIDATING"
@@ -193,6 +201,7 @@ class ValidationResult:
 # ---------------------------------------------------------------------------
 # Sizing Input — from SAP Quick Sizer or manual entry
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class SizingInput:

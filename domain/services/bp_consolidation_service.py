@@ -50,10 +50,7 @@ class BPConsolidationService:
                 matched_vendor_ids.add(vendor_id)
 
         # Pass 2: Name + address similarity for unmatched vendors
-        unmatched_vendors = [
-            v for v in vendor_records
-            if v.get("id", v.get("vendor_id", "")) not in matched_vendor_ids
-        ]
+        unmatched_vendors = [v for v in vendor_records if v.get("id", v.get("vendor_id", "")) not in matched_vendor_ids]
 
         for customer in customer_records:
             cust_name = self._normalise_name(customer.get("name", ""))

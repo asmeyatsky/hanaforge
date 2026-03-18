@@ -113,9 +113,7 @@ class FirestoreDataDomainRepository(FirestoreBase):
 
     async def get_by_table_name(self, landscape_id: str, table_name: str) -> DataDomain | None:
         query = (
-            self._collection(COLLECTION)
-            .where("landscape_id", "==", landscape_id)
-            .where("table_name", "==", table_name)
+            self._collection(COLLECTION).where("landscape_id", "==", landscape_id).where("table_name", "==", table_name)
         )
         async for doc in query.stream():
             return self._from_dict(doc.to_dict())

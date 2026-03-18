@@ -24,9 +24,7 @@ class InMemoryCutoverExecutionRepository:
             if ex.programme_id == programme_id and ex.status in active_statuses:
                 return ex
         # Fallback: return the most recent execution for the programme
-        matches = [
-            ex for ex in self._store.values() if ex.programme_id == programme_id
-        ]
+        matches = [ex for ex in self._store.values() if ex.programme_id == programme_id]
         if matches:
             return max(matches, key=lambda ex: ex.started_at)
         return None

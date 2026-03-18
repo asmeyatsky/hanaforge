@@ -539,9 +539,7 @@ class Container:
                 "InfrastructurePlanRepositoryPort",
                 lambda: FirestoreInfrastructurePlanRepository(**self._firestore_kwargs()),
             )
-        return self._get_or_create(
-            "InfrastructurePlanRepositoryPort", InMemoryInfrastructurePlanRepository
-        )
+        return self._get_or_create("InfrastructurePlanRepositoryPort", InMemoryInfrastructurePlanRepository)
 
     def quick_sizer_parser(self) -> QuickSizerXMLParser:
         return self._get_or_create("QuickSizerParserPort", QuickSizerXMLParser)
@@ -658,9 +656,7 @@ class Container:
         )
 
     def ai_anomaly_detection(self) -> AIAnomalyDetectionAdapter:
-        return self._get_or_create(
-            "AnomalyDetectionPort", AIAnomalyDetectionAdapter
-        )
+        return self._get_or_create("AnomalyDetectionPort", AIAnomalyDetectionAdapter)
 
     def task_graph_service(self) -> TaskGraphService:
         return self._get_or_create("TaskGraphService", TaskGraphService)
@@ -763,32 +759,22 @@ class Container:
         )
 
     def system_health_adapter(self) -> StubSystemHealthAdapter:
-        return self._get_or_create(
-            "SystemHealthCheckPort", StubSystemHealthAdapter
-        )
+        return self._get_or_create("SystemHealthCheckPort", StubSystemHealthAdapter)
 
     def notification_adapter(self) -> LoggingNotificationAdapter:
-        return self._get_or_create(
-            "NotificationPort", LoggingNotificationAdapter
-        )
+        return self._get_or_create("NotificationPort", LoggingNotificationAdapter)
 
     def ticketing_adapter(self) -> StubTicketingAdapter:
         return self._get_or_create("TicketingPort", StubTicketingAdapter)
 
     def runbook_generation_service(self) -> RunbookGenerationService:
-        return self._get_or_create(
-            "RunbookGenerationService", RunbookGenerationService
-        )
+        return self._get_or_create("RunbookGenerationService", RunbookGenerationService)
 
     def gate_evaluation_service(self) -> GateEvaluationService:
-        return self._get_or_create(
-            "GateEvaluationService", GateEvaluationService
-        )
+        return self._get_or_create("GateEvaluationService", GateEvaluationService)
 
     def lessons_learned_service(self) -> LessonsLearnedService:
-        return self._get_or_create(
-            "LessonsLearnedService", LessonsLearnedService
-        )
+        return self._get_or_create("LessonsLearnedService", LessonsLearnedService)
 
     # Module 07: Use cases
 
@@ -1131,7 +1117,6 @@ class Container:
         factory = resolver_map.get(type_name)
         if factory is None:
             raise KeyError(
-                f"No binding registered for '{type_name}'. "
-                f"Available: {', '.join(sorted(resolver_map.keys()))}"
+                f"No binding registered for '{type_name}'. Available: {', '.join(sorted(resolver_map.keys()))}"
             )
         return factory()

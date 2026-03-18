@@ -61,9 +61,7 @@ def create_discovery_server(container: Container) -> Server:
             ),
             Tool(
                 name="get_discovery_status",
-                description=(
-                    "Check the current status of a discovery run for a programme."
-                ),
+                description=("Check the current status of a discovery run for a programme."),
                 inputSchema={
                     "type": "object",
                     "properties": {

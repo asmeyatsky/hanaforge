@@ -172,10 +172,7 @@ class TestBenchmarkEstimationService:
         service = BenchmarkEstimationService()
         programme = _make_programme()
 
-        benchmarks = [
-            _make_benchmark(id=f"b{i}", duration_days=100 + i * 30)
-            for i in range(8)
-        ]
+        benchmarks = [_make_benchmark(id=f"b{i}", duration_days=100 + i * 30) for i in range(8)]
 
         result = service.estimate_duration(
             programme,
@@ -237,10 +234,7 @@ class TestBenchmarkEstimationService:
         programme = _make_programme()
 
         # Majority of benchmarks are failures
-        benchmarks = [
-            _make_benchmark(id=f"b{i}", success=(i < 2))
-            for i in range(6)
-        ]
+        benchmarks = [_make_benchmark(id=f"b{i}", success=(i < 2)) for i in range(6)]
 
         result = service.estimate_duration(
             programme,
@@ -255,22 +249,37 @@ class TestBenchmarkEstimationService:
         service = BenchmarkEstimationService()
 
         # Exact version match should produce higher similarity
-        assert service._version_similarity(
-            "ECC 6.0 EHP8", "S/4HANA 2023",
-            "ECC 6.0 EHP8", "S/4HANA 2023",
-        ) == 1.0
+        assert (
+            service._version_similarity(
+                "ECC 6.0 EHP8",
+                "S/4HANA 2023",
+                "ECC 6.0 EHP8",
+                "S/4HANA 2023",
+            )
+            == 1.0
+        )
 
         # Partial match (target only)
-        assert service._version_similarity(
-            "ECC 6.0 EHP8", "S/4HANA 2023",
-            "ECC 6.0 EHP7", "S/4HANA 2023",
-        ) == 0.5
+        assert (
+            service._version_similarity(
+                "ECC 6.0 EHP8",
+                "S/4HANA 2023",
+                "ECC 6.0 EHP7",
+                "S/4HANA 2023",
+            )
+            == 0.5
+        )
 
         # No match
-        assert service._version_similarity(
-            "ECC 6.0 EHP8", "S/4HANA 2023",
-            "ECC 6.0 EHP6", "S/4HANA 2021",
-        ) == 0.0
+        assert (
+            service._version_similarity(
+                "ECC 6.0 EHP8",
+                "S/4HANA 2023",
+                "ECC 6.0 EHP6",
+                "S/4HANA 2021",
+            )
+            == 0.0
+        )
 
     def test_numeric_similarity_scoring(self) -> None:
         service = BenchmarkEstimationService()
@@ -333,10 +342,7 @@ class TestBenchmarkEstimationService:
         service = BenchmarkEstimationService()
         programme = _make_programme()
 
-        benchmarks = [
-            _make_benchmark(id=f"b{i}", duration_days=100 + i * 25)
-            for i in range(15)
-        ]
+        benchmarks = [_make_benchmark(id=f"b{i}", duration_days=100 + i * 25) for i in range(15)]
 
         result = service.estimate_duration(
             programme,

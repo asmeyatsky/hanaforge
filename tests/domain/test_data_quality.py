@@ -200,11 +200,13 @@ class TestRiskRegisterPrioritisation:
 
         domains = [
             _make_data_domain(
-                table_name="BKPF", quality_score=good_quality,
+                table_name="BKPF",
+                quality_score=good_quality,
                 migration_status=DataMigrationStatus.PROFILED,
             ),
             _make_data_domain(
-                table_name="BSEG", quality_score=bad_quality,
+                table_name="BSEG",
+                quality_score=bad_quality,
                 migration_status=DataMigrationStatus.PROFILED,
             ),
         ]
@@ -257,12 +259,10 @@ class TestBPConsolidationDetection:
         service = BPConsolidationService()
         # Create many matching pairs (>20% ratio)
         customers = [
-            {"id": f"C{i:03d}", "name": f"Company {i}", "tax_id": f"DE{i:09d}", "address": "Berlin"}
-            for i in range(10)
+            {"id": f"C{i:03d}", "name": f"Company {i}", "tax_id": f"DE{i:09d}", "address": "Berlin"} for i in range(10)
         ]
         vendors = [
-            {"id": f"V{i:03d}", "name": f"Company {i}", "tax_id": f"DE{i:09d}", "address": "Berlin"}
-            for i in range(10)
+            {"id": f"V{i:03d}", "name": f"Company {i}", "tax_id": f"DE{i:09d}", "address": "Berlin"} for i in range(10)
         ]
 
         result = service.assess_consolidation(customers, vendors)
@@ -344,8 +344,13 @@ class TestUniversalJournalAssessment:
         service = UniversalJournalService()
         fi_config = {
             "coding_blocks": [
-                "BUKRS", "ZCUST1", "ZCUST2", "ZCUST3",
-                "ZCUST4", "ZCUST5", "ZCUST6",
+                "BUKRS",
+                "ZCUST1",
+                "ZCUST2",
+                "ZCUST3",
+                "ZCUST4",
+                "ZCUST5",
+                "ZCUST6",
             ],
             "profit_centres": [f"PC{i:04d}" for i in range(500)],
             "segment_reporting": [f"SEG{i}" for i in range(15)],

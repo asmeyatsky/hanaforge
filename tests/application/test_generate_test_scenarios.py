@@ -114,10 +114,7 @@ class TestGenerateTestScenarios:
         # Should have called the generator for all 5 areas
         assert mock_test_generator.generate_test_scenarios.await_count == 5
 
-        called_areas = {
-            c.kwargs["process_area"]
-            for c in mock_test_generator.generate_test_scenarios.call_args_list
-        }
+        called_areas = {c.kwargs["process_area"] for c in mock_test_generator.generate_test_scenarios.call_args_list}
         assert called_areas == {
             ProcessArea.ORDER_TO_CASH,
             ProcessArea.PROCURE_TO_PAY,
@@ -146,9 +143,7 @@ class TestGenerateTestScenarios:
         # One suite per process area
         assert mock_suite_repo.save.await_count == 5
 
-        saved_suites = [
-            c.args[0] for c in mock_suite_repo.save.call_args_list
-        ]
+        saved_suites = [c.args[0] for c in mock_suite_repo.save.call_args_list]
         saved_areas = {s.process_area for s in saved_suites}
         assert saved_areas == {
             ProcessArea.ORDER_TO_CASH,

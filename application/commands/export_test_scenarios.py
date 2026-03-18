@@ -24,9 +24,7 @@ class ExportTestScenariosUseCase:
         process_area: ProcessArea | None = None,
     ) -> bytes:
         if process_area is not None:
-            scenarios = await self._scenario_repo.list_by_process_area(
-                programme_id, process_area
-            )
+            scenarios = await self._scenario_repo.list_by_process_area(programme_id, process_area)
         else:
             scenarios = await self._scenario_repo.list_by_programme(programme_id)
 

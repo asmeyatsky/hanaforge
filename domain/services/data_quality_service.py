@@ -36,9 +36,7 @@ class DataQualityService:
         """
         # Completeness: average non-null percentage across all fields
         if data_domain.null_rates:
-            avg_null_pct = sum(
-                nr.null_percentage for nr in data_domain.null_rates
-            ) / len(data_domain.null_rates)
+            avg_null_pct = sum(nr.null_percentage for nr in data_domain.null_rates) / len(data_domain.null_rates)
             completeness = max(0.0, min(1.0, 1.0 - (avg_null_pct / 100.0)))
         else:
             completeness = 1.0
@@ -65,9 +63,7 @@ class DataQualityService:
             accuracy=round(accuracy, 4),
         )
 
-    def generate_risk_register(
-        self, domains: list[DataDomain]
-    ) -> list[DataRiskEntry]:
+    def generate_risk_register(self, domains: list[DataDomain]) -> list[DataRiskEntry]:
         """Generate a prioritised risk register across all data domains."""
         entries: list[DataRiskEntry] = []
 
@@ -93,10 +89,7 @@ class DataQualityService:
                         table_name=domain.table_name,
                         risk_level="HIGH",
                         risk_category="DATA_COMPLETENESS",
-                        description=(
-                            f"Table {domain.table_name} has low completeness "
-                            f"({quality.completeness:.0%})"
-                        ),
+                        description=(f"Table {domain.table_name} has low completeness ({quality.completeness:.0%})"),
                         recommended_action=(
                             "Investigate null fields and apply default value rules "
                             "or flag mandatory fields for cleansing"
@@ -115,12 +108,9 @@ class DataQualityService:
                         risk_level=severity,
                         risk_category="DUPLICATE_KEYS",
                         description=(
-                            f"Table {domain.table_name} has "
-                            f"{domain.duplicate_key_count} duplicate key records"
+                            f"Table {domain.table_name} has {domain.duplicate_key_count} duplicate key records"
                         ),
-                        recommended_action=(
-                            "De-duplicate records or define merge strategy before migration"
-                        ),
+                        recommended_action=("De-duplicate records or define merge strategy before migration"),
                         priority=prio,
                     )
                 )
@@ -133,12 +123,9 @@ class DataQualityService:
                         risk_level="HIGH",
                         risk_category="REFERENTIAL_INTEGRITY",
                         description=(
-                            f"Table {domain.table_name} has low referential integrity "
-                            f"({quality.consistency:.0%})"
+                            f"Table {domain.table_name} has low referential integrity ({quality.consistency:.0%})"
                         ),
-                        recommended_action=(
-                            "Validate foreign key references and repair orphaned records"
-                        ),
+                        recommended_action=("Validate foreign key references and repair orphaned records"),
                         priority=2,
                     )
                 )
@@ -150,13 +137,8 @@ class DataQualityService:
                         table_name=domain.table_name,
                         risk_level="MEDIUM",
                         risk_category="ENCODING",
-                        description=(
-                            f"Table {domain.table_name} has "
-                            f"{len(domain.encoding_issues)} encoding issues"
-                        ),
-                        recommended_action=(
-                            "Convert affected fields to UTF-8 encoding before load"
-                        ),
+                        description=(f"Table {domain.table_name} has {len(domain.encoding_issues)} encoding issues"),
+                        recommended_action=("Convert affected fields to UTF-8 encoding before load"),
                         priority=3,
                     )
                 )
@@ -173,8 +155,7 @@ class DataQualityService:
                             f"quality score ({quality.overall:.0%})"
                         ),
                         recommended_action=(
-                            "Comprehensive data cleansing required before migration; "
-                            "consider phased migration approach"
+                            "Comprehensive data cleansing required before migration; consider phased migration approach"
                         ),
                         priority=1,
                     )

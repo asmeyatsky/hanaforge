@@ -210,15 +210,12 @@ class StubMigrationExecutor:
 
         # Determine success or failure
         if self._force_failure:
-            raise RuntimeError(
-                f"Simulated failure for task '{task.task_name}' ({task.task_type.value})"
-            )
+            raise RuntimeError(f"Simulated failure for task '{task.task_name}' ({task.task_type.value})")
 
         if not self._force_success:
             if random.random() > profile["success_rate"]:
                 raise RuntimeError(
-                    f"Simulated random failure for task '{task.task_name}' "
-                    f"(success_rate={profile['success_rate']})"
+                    f"Simulated random failure for task '{task.task_name}' (success_rate={profile['success_rate']})"
                 )
 
         # Build result

@@ -82,9 +82,7 @@ class TestGenerationService:
             TestStep(
                 step_number=3,
                 action=f"Validate {interface_type.value} response / status update",
-                expected_result=interface_config.get(
-                    "expected_response", "Success status returned"
-                ),
+                expected_result=interface_config.get("expected_response", "Success status returned"),
             ),
         )
 
@@ -97,10 +95,15 @@ class TestGenerationService:
                 "description",
                 f"Integration test for {interface_type.value} interface '{interface_name}'",
             ),
-            preconditions=tuple(interface_config.get("preconditions", [
-                f"{interface_type.value} interface '{interface_name}' is active",
-                "Test data is prepared in source system",
-            ])),
+            preconditions=tuple(
+                interface_config.get(
+                    "preconditions",
+                    [
+                        f"{interface_type.value} interface '{interface_name}' is active",
+                        "Test data is prepared in source system",
+                    ],
+                )
+            ),
             steps=steps,
             expected_outcome=interface_config.get(
                 "expected_outcome",
@@ -143,11 +146,7 @@ class TestGenerationService:
 
             if matched:
                 for scenario in matched:
-                    defect_ids = tuple(
-                        tag.replace("defect:", "")
-                        for tag in scenario.tags
-                        if tag.startswith("defect:")
-                    )
+                    defect_ids = tuple(tag.replace("defect:", "") for tag in scenario.tags if tag.startswith("defect:"))
                     entries.append(
                         TraceabilityEntry(
                             process_id=process_id,

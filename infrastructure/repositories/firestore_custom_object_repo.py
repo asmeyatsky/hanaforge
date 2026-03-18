@@ -85,9 +85,7 @@ class FirestoreCustomObjectRepository(FirestoreBase):
     async def list_by_landscape(self, landscape_id: str) -> list[CustomObject]:
         return await self.get_by_landscape(landscape_id)
 
-    async def count_by_status(
-        self, landscape_id: str, status: CompatibilityStatus
-    ) -> int:
+    async def count_by_status(self, landscape_id: str, status: CompatibilityStatus) -> int:
         query = (
             self._collection(COLLECTION)
             .where("landscape_id", "==", landscape_id)

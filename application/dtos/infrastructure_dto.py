@@ -10,6 +10,7 @@ from domain.entities.infrastructure_plan import InfrastructurePlan
 # Request models
 # ---------------------------------------------------------------------------
 
+
 class SizingInputRequest(BaseModel):
     """Manual sizing parameters when Quick Sizer XML is not available."""
 
@@ -34,6 +35,7 @@ class CreateInfrastructurePlanRequest(BaseModel):
 # ---------------------------------------------------------------------------
 # Response models
 # ---------------------------------------------------------------------------
+
 
 class HANAConfigResponse(BaseModel):
     """HANA instance configuration details."""

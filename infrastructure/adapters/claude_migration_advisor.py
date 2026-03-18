@@ -54,9 +54,7 @@ class ClaudeMigrationAdvisor:
         self._client = anthropic.AsyncAnthropic(api_key=api_key)
         self._model = model
 
-    async def recommend_approach(
-        self, landscape_summary: dict
-    ) -> MigrationRecommendation:
+    async def recommend_approach(self, landscape_summary: dict) -> MigrationRecommendation:
         user_message = (
             "Based on the following SAP landscape summary, recommend the optimal "
             "migration approach to S/4HANA.\n\n"

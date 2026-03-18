@@ -60,16 +60,13 @@ class RunMigrationBatchUseCase:
         while not has_failure:
             # Get all tasks for the programme
             all_tasks = await self._task_repo.list_by_programme(programme_id)
-            completed_ids = {
-                t.id for t in all_tasks if t.status == MigrationTaskStatus.COMPLETED
-            }
+            completed_ids = {t.id for t in all_tasks if t.status == MigrationTaskStatus.COMPLETED}
 
             # Find ready tasks — PENDING with all dependencies satisfied
             ready_tasks = [
                 t
                 for t in all_tasks
-                if t.status == MigrationTaskStatus.PENDING
-                and all(dep_id in completed_ids for dep_id in t.depends_on)
+                if t.status == MigrationTaskStatus.PENDING and all(dep_id in completed_ids for dep_id in t.depends_on)
             ]
 
             if not ready_tasks:

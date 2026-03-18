@@ -24,9 +24,7 @@ class RemediationSuggestion:
 
     def __post_init__(self) -> None:
         if not (0.0 <= self.confidence_score <= 1.0):
-            raise ValueError(
-                f"confidence_score must be between 0 and 1, got {self.confidence_score}"
-            )
+            raise ValueError(f"confidence_score must be between 0 and 1, got {self.confidence_score}")
 
     def approve(self, reviewer: str) -> RemediationSuggestion:
         if self.status != ReviewStatus.PENDING:

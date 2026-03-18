@@ -66,10 +66,7 @@ def create_testforge_server(container: Container) -> Server:
             ),
             Tool(
                 name="generate_interface_tests",
-                description=(
-                    "Generate test cases for SAP interface types: "
-                    "IDoc, RFC, BAPI, REST API, OData."
-                ),
+                description=("Generate test cases for SAP interface types: IDoc, RFC, BAPI, REST API, OData."),
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -79,9 +76,7 @@ def create_testforge_server(container: Container) -> Server:
                         },
                         "interfaces": {
                             "type": "array",
-                            "description": (
-                                "List of interface definitions with type, name, and config"
-                            ),
+                            "description": ("List of interface definitions with type, name, and config"),
                             "items": {"type": "object"},
                         },
                     },

@@ -50,9 +50,7 @@ class FirestoreAnomalyRepository(FirestoreBase):
 
     async def list_active(self, programme_id: str) -> list[AnomalyAlert]:
         query = (
-            self._collection(COLLECTION)
-            .where("programme_id", "==", programme_id)
-            .where("acknowledged", "==", False)
+            self._collection(COLLECTION).where("programme_id", "==", programme_id).where("acknowledged", "==", False)
         )
         return [self._from_dict(doc.to_dict()) async for doc in query.stream()]
 

@@ -23,23 +23,10 @@ class InMemoryTestScenarioRepository:
         return self._store.get(id)
 
     async def list_by_programme(self, programme_id: str) -> list[TestScenario]:
-        return [
-            s for s in self._store.values()
-            if s.programme_id == programme_id
-        ]
+        return [s for s in self._store.values() if s.programme_id == programme_id]
 
-    async def list_by_process_area(
-        self, programme_id: str, process_area: ProcessArea
-    ) -> list[TestScenario]:
-        return [
-            s for s in self._store.values()
-            if s.programme_id == programme_id and s.process_area == process_area
-        ]
+    async def list_by_process_area(self, programme_id: str, process_area: ProcessArea) -> list[TestScenario]:
+        return [s for s in self._store.values() if s.programme_id == programme_id and s.process_area == process_area]
 
-    async def count_by_status(
-        self, programme_id: str, status: TestStatus
-    ) -> int:
-        return sum(
-            1 for s in self._store.values()
-            if s.programme_id == programme_id and s.status == status
-        )
+    async def count_by_status(self, programme_id: str, status: TestStatus) -> int:
+        return sum(1 for s in self._store.values() if s.programme_id == programme_id and s.status == status)

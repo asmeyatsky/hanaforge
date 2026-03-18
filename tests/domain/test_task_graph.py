@@ -92,9 +92,7 @@ class TestBrownfieldTaskGraph:
 
 
 class TestSDTTaskGraph:
-    def test_sdt_task_graph_with_parallel_data_loads(
-        self, service: TaskGraphService
-    ) -> None:
+    def test_sdt_task_graph_with_parallel_data_loads(self, service: TaskGraphService) -> None:
         data_domains = ["FI", "CO", "MM", "SD", "PP"]
         tasks = service.build_task_graph(
             programme_id="prog-002",
@@ -105,15 +103,11 @@ class TestSDTTaskGraph:
         assert len(tasks) > 0
 
         # Should have SDT_SHELL_CREATION
-        shell = next(
-            t for t in tasks if t.task_type == MigrationTaskType.SDT_SHELL_CREATION
-        )
+        shell = next(t for t in tasks if t.task_type == MigrationTaskType.SDT_SHELL_CREATION)
         assert shell.depends_on == ()
 
         # Should have parallel data loads — one per domain
-        data_loads = [
-            t for t in tasks if t.task_type == MigrationTaskType.SDT_DATA_LOAD
-        ]
+        data_loads = [t for t in tasks if t.task_type == MigrationTaskType.SDT_DATA_LOAD]
         assert len(data_loads) == len(data_domains)
 
         # Each data load depends on shell creation
@@ -121,9 +115,7 @@ class TestSDTTaskGraph:
             assert shell.id in dl.depends_on
 
         # Reconciliation depends on ALL data loads
-        recon = next(
-            t for t in tasks if t.task_type == MigrationTaskType.SDT_RECONCILIATION
-        )
+        recon = next(t for t in tasks if t.task_type == MigrationTaskType.SDT_RECONCILIATION)
         for dl in data_loads:
             assert dl.id in recon.depends_on
 
@@ -134,9 +126,7 @@ class TestSDTTaskGraph:
             landscape_metadata={},
         )
 
-        data_loads = [
-            t for t in tasks if t.task_type == MigrationTaskType.SDT_DATA_LOAD
-        ]
+        data_loads = [t for t in tasks if t.task_type == MigrationTaskType.SDT_DATA_LOAD]
         # Default domains: FI, CO, MM, SD
         assert len(data_loads) == 4
 
@@ -188,8 +178,7 @@ class TestTaskDependencies:
             for task in tasks:
                 for dep_id in task.depends_on:
                     assert dep_id in task_ids, (
-                        f"Task '{task.task_name}' depends on unknown task "
-                        f"'{dep_id}' in {approach.value} graph"
+                        f"Task '{task.task_name}' depends on unknown task '{dep_id}' in {approach.value} graph"
                     )
 
 
@@ -217,9 +206,7 @@ class TestCriticalPath:
         # Critical tasks should have zero slack
         slack_map = dict(cp.slack_per_task)
         for ct_id in cp.critical_tasks:
-            assert slack_map[ct_id] == 0, (
-                f"Critical task {ct_id} should have zero slack"
-            )
+            assert slack_map[ct_id] == 0, f"Critical task {ct_id} should have zero slack"
 
         # Non-critical tasks should have slack >= 0
         for task_id, slack in cp.slack_per_task:
@@ -238,9 +225,7 @@ class TestCriticalPath:
         # Greenfield is a linear chain — all tasks should be critical
         assert len(cp.critical_tasks) == len(tasks)
 
-    def test_critical_path_with_parallel_branches(
-        self, service: TaskGraphService
-    ) -> None:
+    def test_critical_path_with_parallel_branches(self, service: TaskGraphService) -> None:
         """SDT graph has parallel data loads — critical path includes parallel tasks
         that all have the same estimated duration (zero slack among equals)."""
         tasks = service.build_task_graph(
@@ -254,12 +239,8 @@ class TestCriticalPath:
         # All parallel data loads have the same estimated duration, so all
         # have zero slack and are on the critical path. The total duration
         # equals the single-branch duration (not the sum of all branches).
-        data_loads = [
-            t for t in tasks if t.task_type == MigrationTaskType.SDT_DATA_LOAD
-        ]
-        critical_data_loads = [
-            dl for dl in data_loads if dl.id in cp.critical_tasks
-        ]
+        data_loads = [t for t in tasks if t.task_type == MigrationTaskType.SDT_DATA_LOAD]
+        critical_data_loads = [dl for dl in data_loads if dl.id in cp.critical_tasks]
         assert len(critical_data_loads) == len(data_loads)
 
         # All data load tasks should have zero slack (equal parallel branches)
@@ -364,9 +345,7 @@ class TestMigrationHealth:
         assert health.tasks_failed == 0
         assert health.active_anomalies == 0
 
-    def test_migration_health_red_on_failures(
-        self, service: TaskGraphService
-    ) -> None:
+    def test_migration_health_red_on_failures(self, service: TaskGraphService) -> None:
         tasks = [
             self._make_completed_task("t-1"),
             self._make_failed_task("t-2"),
@@ -379,9 +358,7 @@ class TestMigrationHealth:
         assert health.overall_status == "RED"
         assert health.tasks_failed == 1
 
-    def test_migration_health_amber_on_anomalies(
-        self, service: TaskGraphService
-    ) -> None:
+    def test_migration_health_amber_on_anomalies(self, service: TaskGraphService) -> None:
         tasks = [
             self._make_completed_task("t-1"),
             self._make_pending_task("t-2"),
@@ -404,9 +381,7 @@ class TestMigrationHealth:
         assert health.overall_status == "AMBER"
         assert health.active_anomalies == 1
 
-    def test_migration_health_red_on_many_anomalies(
-        self, service: TaskGraphService
-    ) -> None:
+    def test_migration_health_red_on_many_anomalies(self, service: TaskGraphService) -> None:
         tasks = [self._make_pending_task("t-1")]
         anomalies = [
             AnomalyAlert(

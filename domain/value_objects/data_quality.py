@@ -39,9 +39,7 @@ class FieldNullRate:
         if self.total_count < 0:
             raise ValueError(f"total_count cannot be negative, got {self.total_count}")
         if self.null_count > self.total_count:
-            raise ValueError(
-                f"null_count ({self.null_count}) cannot exceed total_count ({self.total_count})"
-            )
+            raise ValueError(f"null_count ({self.null_count}) cannot exceed total_count ({self.total_count})")
 
     @property
     def null_percentage(self) -> float:
@@ -108,8 +106,7 @@ class BPConsolidationResult:
     def __post_init__(self) -> None:
         if self.consolidation_complexity not in ("LOW", "MEDIUM", "HIGH"):
             raise ValueError(
-                f"consolidation_complexity must be LOW, MEDIUM, or HIGH, "
-                f"got {self.consolidation_complexity}"
+                f"consolidation_complexity must be LOW, MEDIUM, or HIGH, got {self.consolidation_complexity}"
             )
 
 
@@ -125,7 +122,4 @@ class UniversalJournalAssessment:
 
     def __post_init__(self) -> None:
         if self.migration_complexity not in ("LOW", "MEDIUM", "HIGH"):
-            raise ValueError(
-                f"migration_complexity must be LOW, MEDIUM, or HIGH, "
-                f"got {self.migration_complexity}"
-            )
+            raise ValueError(f"migration_complexity must be LOW, MEDIUM, or HIGH, got {self.migration_complexity}")

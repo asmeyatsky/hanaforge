@@ -52,6 +52,4 @@ class ExportRemediationBacklogUseCase:
         remediations_sorted = sorted(remediations, key=_sort_key)
 
         # 5. Export
-        return await self._exporter.export_remediations(
-            remediations_sorted, objects, format
-        )
+        return await self._exporter.export_remediations(remediations_sorted, objects, format)

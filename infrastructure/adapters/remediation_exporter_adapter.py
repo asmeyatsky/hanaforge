@@ -86,30 +86,32 @@ class RemediationExporterAdapter:
             # Use "Bug" for deprecated API issues, "Story" for others
             issue_type = "Bug" if r.deprecated_api else "Story"
 
-            issues.append({
-                "fields": {
-                    "project": {"key": "HANA"},
-                    "issuetype": {"name": issue_type},
-                    "summary": f"[{obj_type}] {obj_name}: {r.issue_type}",
-                    "description": (
-                        f"*Deprecated API:* {r.deprecated_api}\n"
-                        f"*Suggested Replacement:* {r.suggested_replacement}\n\n"
-                        f"*Generated Code:*\n{{code:java}}\n{r.generated_code}\n{{code}}\n\n"
-                        f"*Confidence Score:* {r.confidence_score:.0%}\n"
-                        f"*Review Status:* {r.status.value}\n"
-                        f"*Business Domain:* {domain}"
-                    ),
-                    "priority": {"name": _EFFORT_TO_JIRA_PRIORITY.get(effort, "Medium")},
-                    "labels": [
-                        "hanaforge",
-                        f"domain-{domain.lower()}",
-                        f"effort-{effort}",
-                    ],
-                },
-                "remediation_id": r.id,
-                "object_id": r.object_id,
-                "effort_points": effort,
-            })
+            issues.append(
+                {
+                    "fields": {
+                        "project": {"key": "HANA"},
+                        "issuetype": {"name": issue_type},
+                        "summary": f"[{obj_type}] {obj_name}: {r.issue_type}",
+                        "description": (
+                            f"*Deprecated API:* {r.deprecated_api}\n"
+                            f"*Suggested Replacement:* {r.suggested_replacement}\n\n"
+                            f"*Generated Code:*\n{{code:java}}\n{r.generated_code}\n{{code}}\n\n"
+                            f"*Confidence Score:* {r.confidence_score:.0%}\n"
+                            f"*Review Status:* {r.status.value}\n"
+                            f"*Business Domain:* {domain}"
+                        ),
+                        "priority": {"name": _EFFORT_TO_JIRA_PRIORITY.get(effort, "Medium")},
+                        "labels": [
+                            "hanaforge",
+                            f"domain-{domain.lower()}",
+                            f"effort-{effort}",
+                        ],
+                    },
+                    "remediation_id": r.id,
+                    "object_id": r.object_id,
+                    "effort_points": effort,
+                }
+            )
 
         payload = {"issues": issues}
         return json.dumps(payload, indent=2).encode("utf-8")
@@ -127,10 +129,16 @@ class RemediationExporterAdapter:
         obj_lookup = cls._build_object_lookup(objects)
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow([
-            "Work Item Type", "Title", "Description", "Priority",
-            "State", "Tags",
-        ])
+        writer.writerow(
+            [
+                "Work Item Type",
+                "Title",
+                "Description",
+                "Priority",
+                "State",
+                "Tags",
+            ]
+        )
 
         for r in remediations:
             obj = obj_lookup.get(r.object_id)
@@ -151,16 +159,24 @@ class RemediationExporterAdapter:
             )
             priority = _EFFORT_TO_ADO_PRIORITY.get(effort, 2)
             state = "New"
-            tags = ";".join([
-                "hanaforge",
-                f"domain-{domain.lower()}",
-                f"effort-{effort}",
-            ])
+            tags = ";".join(
+                [
+                    "hanaforge",
+                    f"domain-{domain.lower()}",
+                    f"effort-{effort}",
+                ]
+            )
 
-            writer.writerow([
-                work_item_type, title, description, priority,
-                state, tags,
-            ])
+            writer.writerow(
+                [
+                    work_item_type,
+                    title,
+                    description,
+                    priority,
+                    state,
+                    tags,
+                ]
+            )
 
         return output.getvalue().encode("utf-8")
 
@@ -177,12 +193,24 @@ class RemediationExporterAdapter:
         obj_lookup = cls._build_object_lookup(objects)
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow([
-            "Remediation ID", "Object ID", "Object Name", "Object Type",
-            "Business Domain", "Issue Type", "Deprecated API",
-            "Suggested Replacement", "Generated Code", "Confidence Score",
-            "Effort Points", "Review Status", "Reviewed By", "Created At",
-        ])
+        writer.writerow(
+            [
+                "Remediation ID",
+                "Object ID",
+                "Object Name",
+                "Object Type",
+                "Business Domain",
+                "Issue Type",
+                "Deprecated API",
+                "Suggested Replacement",
+                "Generated Code",
+                "Confidence Score",
+                "Effort Points",
+                "Review Status",
+                "Reviewed By",
+                "Created At",
+            ]
+        )
 
         for r in remediations:
             obj = obj_lookup.get(r.object_id)
@@ -191,21 +219,23 @@ class RemediationExporterAdapter:
             obj_type = obj.object_type.value if obj else "UNKNOWN"
             domain = obj.domain.value if obj else "UNKNOWN"
 
-            writer.writerow([
-                r.id,
-                r.object_id,
-                obj_name,
-                obj_type,
-                domain,
-                r.issue_type,
-                r.deprecated_api,
-                r.suggested_replacement,
-                r.generated_code,
-                f"{r.confidence_score:.2f}",
-                effort,
-                r.status.value,
-                r.reviewed_by or "",
-                r.created_at.isoformat(),
-            ])
+            writer.writerow(
+                [
+                    r.id,
+                    r.object_id,
+                    obj_name,
+                    obj_type,
+                    domain,
+                    r.issue_type,
+                    r.deprecated_api,
+                    r.suggested_replacement,
+                    r.generated_code,
+                    f"{r.confidence_score:.2f}",
+                    effort,
+                    r.status.value,
+                    r.reviewed_by or "",
+                    r.created_at.isoformat(),
+                ]
+            )
 
         return output.getvalue().encode("utf-8")

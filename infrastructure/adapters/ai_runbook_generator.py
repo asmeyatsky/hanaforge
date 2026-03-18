@@ -43,9 +43,7 @@ class AIRunbookGeneratorAdapter:
             "recommendations": {
                 "estimated_total_hours": max(
                     24,
-                    len(migration_tasks) * 2
-                    + len(integration_inventory) * 0.5
-                    + len(data_sequences) * 1.5,
+                    len(migration_tasks) * 2 + len(integration_inventory) * 0.5 + len(data_sequences) * 1.5,
                 ),
                 "risk_areas": [
                     "Data migration volume may require extended window",

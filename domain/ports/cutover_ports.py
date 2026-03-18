@@ -51,18 +51,12 @@ class RunbookAIGeneratorPort(Protocol):
 class NotificationPort(Protocol):
     """Adapter boundary for alert and notification delivery."""
 
-    async def send_alert(
-        self, channels: list[str], message: str, severity: str
-    ) -> bool: ...
+    async def send_alert(self, channels: list[str], message: str, severity: str) -> bool: ...
 
 
 class TicketingPort(Protocol):
     """Adapter boundary for support ticket system integration."""
 
-    async def create_ticket(
-        self, title: str, description: str, severity: str, component: str
-    ) -> str: ...
+    async def create_ticket(self, title: str, description: str, severity: str, component: str) -> str: ...
 
-    async def update_ticket(
-        self, ticket_id: str, status: str, resolution: str
-    ) -> bool: ...
+    async def update_ticket(self, ticket_id: str, status: str, resolution: str) -> bool: ...

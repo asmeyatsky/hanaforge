@@ -66,9 +66,7 @@ class GetBenchmarkEstimateQuery:
             benchmarks = await self._benchmark_repo.list_all()
 
         # 5. Compute estimation
-        complexity_score = (
-            programme.complexity_score.score if programme.complexity_score else None
-        )
+        complexity_score = programme.complexity_score.score if programme.complexity_score else None
         estimation = self._estimation_service.estimate_duration(
             programme=programme,
             benchmarks=benchmarks,

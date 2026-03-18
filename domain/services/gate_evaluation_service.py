@@ -28,9 +28,7 @@ class GateEvaluationService:
     health check, and returns an updated gate with pass/fail determinations.
     """
 
-    def evaluate_gate(
-        self, gate: GoNoGoGate, system_checks: dict
-    ) -> GoNoGoGate:
+    def evaluate_gate(self, gate: GoNoGoGate, system_checks: dict) -> GoNoGoGate:
         """Evaluate all health checks for a gate and determine overall status.
 
         Args:
@@ -91,9 +89,7 @@ class GateEvaluationService:
 
         return replace(check, actual_value=str(actual_value), passed=passed)
 
-    def _resolve_actual_value(
-        self, check: HealthCheck, system_checks: dict
-    ) -> str | None:
+    def _resolve_actual_value(self, check: HealthCheck, system_checks: dict) -> str | None:
         """Look up the actual value for a check in the system_checks dict.
 
         Supports multiple lookup strategies:
@@ -198,41 +194,53 @@ class GateEvaluationService:
     # Gate-type-specific evaluation
     # ------------------------------------------------------------------
 
-    def _evaluate_system_health_check(
-        self, check: HealthCheck, actual: str
-    ) -> bool:
+    def _evaluate_system_health_check(self, check: HealthCheck, actual: str) -> bool:
         """SYSTEM_HEALTH gate: HANA availability, app server status, OS checks."""
         positive_indicators = {
-            "AVAILABLE", "RUNNING", "HEALTHY", "OK", "UP",
-            "ONLINE", "ACTIVE", "ZERO_SESSIONS", "ALL_SUSPENDED",
-            "BACKUP_COMPLETE", "FREEZE_ACTIVE",
+            "AVAILABLE",
+            "RUNNING",
+            "HEALTHY",
+            "OK",
+            "UP",
+            "ONLINE",
+            "ACTIVE",
+            "ZERO_SESSIONS",
+            "ALL_SUSPENDED",
+            "BACKUP_COMPLETE",
+            "FREEZE_ACTIVE",
         }
         return actual.upper() in positive_indicators
 
-    def _evaluate_data_recon_check(
-        self, check: HealthCheck, actual: str
-    ) -> bool:
+    def _evaluate_data_recon_check(self, check: HealthCheck, actual: str) -> bool:
         """DATA_RECONCILIATION gate: record counts, checksums, balances."""
         positive_indicators = {
-            "COUNTS_MATCH", "CHECKSUMS_MATCH", "BALANCES_MATCH",
-            "MATCH", "RECONCILED", "OK", "PASSED", "VALID",
+            "COUNTS_MATCH",
+            "CHECKSUMS_MATCH",
+            "BALANCES_MATCH",
+            "MATCH",
+            "RECONCILED",
+            "OK",
+            "PASSED",
+            "VALID",
             "ZERO_VARIANCE",
         }
         return actual.upper() in positive_indicators
 
-    def _evaluate_interface_check(
-        self, check: HealthCheck, actual: str
-    ) -> bool:
+    def _evaluate_interface_check(self, check: HealthCheck, actual: str) -> bool:
         """INTERFACE_CONNECTIVITY gate: RFC, IDoc, API health."""
         positive_indicators = {
-            "ALL_CONNECTED", "PROCESSING_OK", "ALL_HEALTHY",
-            "CONNECTED", "HEALTHY", "OK", "ACTIVE", "UP",
+            "ALL_CONNECTED",
+            "PROCESSING_OK",
+            "ALL_HEALTHY",
+            "CONNECTED",
+            "HEALTHY",
+            "OK",
+            "ACTIVE",
+            "UP",
         }
         return actual.upper() in positive_indicators
 
-    def _evaluate_performance_check(
-        self, check: HealthCheck, actual: str
-    ) -> bool:
+    def _evaluate_performance_check(self, check: HealthCheck, actual: str) -> bool:
         """PERFORMANCE_BASELINE gate: response times, throughput, memory."""
         # Try threshold evaluation first
         target = check.target_value
@@ -240,8 +248,12 @@ class GateEvaluationService:
             return self._evaluate_threshold(target, actual)
 
         positive_indicators = {
-            "WITHIN_THRESHOLD", "OK", "HEALTHY", "PASSED",
-            "ACCEPTABLE", "NORMAL",
+            "WITHIN_THRESHOLD",
+            "OK",
+            "HEALTHY",
+            "PASSED",
+            "ACCEPTABLE",
+            "NORMAL",
         }
         return actual.upper() in positive_indicators
 
@@ -260,6 +272,7 @@ class GateEvaluationService:
 
         Returns True if actual satisfies the threshold condition.
         """
+
         # Extract numeric parts
         def extract_number(s: str) -> float | None:
             cleaned = ""

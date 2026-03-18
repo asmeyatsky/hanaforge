@@ -9,13 +9,30 @@ from __future__ import annotations
 from domain.value_objects.data_quality import UniversalJournalAssessment
 
 # Standard SAP coding block fields that do NOT count as custom
-_STANDARD_CODING_BLOCKS = frozenset({
-    "BUKRS", "BELNR", "GJAHR", "BUZEI",
-    "KOSTL", "PRCTR", "SEGMENT", "PROFIT_CTR",
-    "HKONT", "KSTAR", "AUFNR", "PS_POSID",
-    "ANLN1", "ANLN2", "VBELN", "VBEL2",
-    "KOKRS", "WERKS", "GSBER", "FKBER",
-})
+_STANDARD_CODING_BLOCKS = frozenset(
+    {
+        "BUKRS",
+        "BELNR",
+        "GJAHR",
+        "BUZEI",
+        "KOSTL",
+        "PRCTR",
+        "SEGMENT",
+        "PROFIT_CTR",
+        "HKONT",
+        "KSTAR",
+        "AUFNR",
+        "PS_POSID",
+        "ANLN1",
+        "ANLN2",
+        "VBELN",
+        "VBEL2",
+        "KOKRS",
+        "WERKS",
+        "GSBER",
+        "FKBER",
+    }
+)
 
 
 class UniversalJournalService:
@@ -36,10 +53,7 @@ class UniversalJournalService:
         """
         # Detect custom coding blocks
         coding_blocks = fi_config.get("coding_blocks", [])
-        custom_blocks = tuple(
-            block for block in coding_blocks
-            if block.upper() not in _STANDARD_CODING_BLOCKS
-        )
+        custom_blocks = tuple(block for block in coding_blocks if block.upper() not in _STANDARD_CODING_BLOCKS)
 
         # Count profit centre assignments
         fi_profit_centres = fi_config.get("profit_centres", [])
@@ -62,20 +76,11 @@ class UniversalJournalService:
                 "to Universal Journal; all special ledger data must be mapped to ACDOCA"
             )
         elif has_classic_gl:
-            fi_gl_impact = (
-                "MEDIUM — Classic G/L requires migration to new G/L architecture "
-                "before ACDOCA conversion"
-            )
+            fi_gl_impact = "MEDIUM — Classic G/L requires migration to new G/L architecture before ACDOCA conversion"
         elif has_special_ledgers:
-            fi_gl_impact = (
-                "MEDIUM — New G/L active but special ledgers require mapping "
-                "to extension ledgers in S/4HANA"
-            )
+            fi_gl_impact = "MEDIUM — New G/L active but special ledgers require mapping to extension ledgers in S/4HANA"
         else:
-            fi_gl_impact = (
-                "LOW — New G/L already active without special ledgers; "
-                "straightforward ACDOCA migration"
-            )
+            fi_gl_impact = "LOW — New G/L already active without special ledgers; straightforward ACDOCA migration"
 
         # Determine overall migration complexity
         complexity_score = 0

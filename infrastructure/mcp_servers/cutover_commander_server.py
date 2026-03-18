@@ -46,8 +46,7 @@ def create_cutover_commander_server(container: Container) -> Server:
                         "artefacts": {
                             "type": "object",
                             "description": (
-                                "Programme artefacts "
-                                "(migration_tasks, integration_inventory, data_sequences)"
+                                "Programme artefacts (migration_tasks, integration_inventory, data_sequences)"
                             ),
                             "properties": {
                                 "migration_tasks": {
@@ -161,10 +160,7 @@ def create_cutover_commander_server(container: Container) -> Server:
             ),
             Tool(
                 name="start_hypercare",
-                description=(
-                    "Start a hypercare monitoring session for a programme. "
-                    "Default duration is 90 days."
-                ),
+                description=("Start a hypercare monitoring session for a programme. Default duration is 90 days."),
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -211,8 +207,7 @@ def create_cutover_commander_server(container: Container) -> Server:
             Tool(
                 name="generate_lessons_learned",
                 description=(
-                    "Analyse cutover execution and hypercare incidents to "
-                    "generate lessons-learned documentation."
+                    "Analyse cutover execution and hypercare incidents to generate lessons-learned documentation."
                 ),
                 inputSchema={
                     "type": "object",

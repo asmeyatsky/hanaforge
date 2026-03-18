@@ -85,9 +85,7 @@ class BenchmarkEstimationService:
         if total_weight == 0:
             return self._empty_estimate()
 
-        weighted_duration = sum(
-            s.entry.duration_days * s.similarity for s in relevant
-        ) / total_weight
+        weighted_duration = sum(s.entry.duration_days * s.similarity for s in relevant) / total_weight
 
         # Compute confidence from sample size and similarity quality
         avg_similarity = total_weight / len(relevant)
@@ -142,14 +140,10 @@ class BenchmarkEstimationService:
             entry.target_version,
         )
         db_sim = self._numeric_similarity(db_size_gb, entry.db_size_gb)
-        obj_sim = self._numeric_similarity(
-            float(custom_object_count), float(entry.custom_object_count)
-        )
+        obj_sim = self._numeric_similarity(float(custom_object_count), float(entry.custom_object_count))
 
         prog_complexity = complexity_score if complexity_score is not None else 50
-        complexity_sim = self._numeric_similarity(
-            float(prog_complexity), float(entry.complexity_score)
-        )
+        complexity_sim = self._numeric_similarity(float(prog_complexity), float(entry.complexity_score))
 
         return (
             version_sim * self._W_VERSION_MATCH
@@ -159,9 +153,7 @@ class BenchmarkEstimationService:
         )
 
     @staticmethod
-    def _version_similarity(
-        src_a: str, tgt_a: str, src_b: str, tgt_b: str
-    ) -> float:
+    def _version_similarity(src_a: str, tgt_a: str, src_b: str, tgt_b: str) -> float:
         score = 0.0
         if src_a == src_b:
             score += 0.5
@@ -211,9 +203,7 @@ class BenchmarkEstimationService:
         if benchmarks:
             failure_rate = sum(1 for b in benchmarks if not b.success) / len(benchmarks)
             if failure_rate > 0.3:
-                risks.append(
-                    f"High failure rate ({failure_rate:.0%}) in comparable migrations"
-                )
+                risks.append(f"High failure rate ({failure_rate:.0%}) in comparable migrations")
 
         # Large database
         if db_size_gb > 5000:
@@ -221,9 +211,7 @@ class BenchmarkEstimationService:
 
         # High custom object count
         if custom_object_count > 3000:
-            risks.append(
-                f"High custom object count ({custom_object_count}) requires extensive testing"
-            )
+            risks.append(f"High custom object count ({custom_object_count}) requires extensive testing")
 
         # Version jump
         if programme.sap_source_version and programme.target_version:

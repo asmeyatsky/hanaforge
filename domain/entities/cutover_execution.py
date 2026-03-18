@@ -93,10 +93,7 @@ class CutoverExecution:
     def complete(self) -> CutoverExecution:
         """Mark the cutover execution as completed."""
         if self.status != ExecutionStatus.IN_PROGRESS:
-            raise ValueError(
-                f"Cannot complete execution in status {self.status.value}; "
-                "must be IN_PROGRESS"
-            )
+            raise ValueError(f"Cannot complete execution in status {self.status.value}; must be IN_PROGRESS")
         now = datetime.now(timezone.utc)
         elapsed = int((now - self.started_at).total_seconds() / 60)
         return replace(
@@ -109,9 +106,7 @@ class CutoverExecution:
     def abort(self, reason: str) -> CutoverExecution:
         """Abort the cutover execution with a reason."""
         if self.status not in (ExecutionStatus.IN_PROGRESS, ExecutionStatus.PAUSED):
-            raise ValueError(
-                f"Cannot abort execution in status {self.status.value}"
-            )
+            raise ValueError(f"Cannot abort execution in status {self.status.value}")
         now = datetime.now(timezone.utc)
         elapsed = int((now - self.started_at).total_seconds() / 60)
         issue = CutoverIssue(
@@ -131,8 +126,5 @@ class CutoverExecution:
     def start(self) -> CutoverExecution:
         """Transition from NOT_STARTED to IN_PROGRESS."""
         if self.status != ExecutionStatus.NOT_STARTED:
-            raise ValueError(
-                f"Cannot start execution in status {self.status.value}; "
-                "must be NOT_STARTED"
-            )
+            raise ValueError(f"Cannot start execution in status {self.status.value}; must be NOT_STARTED")
         return replace(self, status=ExecutionStatus.IN_PROGRESS)

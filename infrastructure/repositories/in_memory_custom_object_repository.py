@@ -86,21 +86,14 @@ class InMemoryCustomObjectRepository:
         return self._from_dict(data)
 
     async def get_by_landscape(self, landscape_id: str) -> list[CustomObject]:
-        return [
-            self._from_dict(data)
-            for data in self._store.values()
-            if data["landscape_id"] == landscape_id
-        ]
+        return [self._from_dict(data) for data in self._store.values() if data["landscape_id"] == landscape_id]
 
     async def list_by_landscape(self, landscape_id: str) -> list[CustomObject]:
         return await self.get_by_landscape(landscape_id)
 
-    async def count_by_status(
-        self, landscape_id: str, status: CompatibilityStatus
-    ) -> int:
+    async def count_by_status(self, landscape_id: str, status: CompatibilityStatus) -> int:
         return sum(
             1
             for data in self._store.values()
-            if data["landscape_id"] == landscape_id
-            and data["compatibility_status"] == status.value
+            if data["landscape_id"] == landscape_id and data["compatibility_status"] == status.value
         )

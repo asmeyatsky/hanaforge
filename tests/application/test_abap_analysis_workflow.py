@@ -175,9 +175,7 @@ class TestRunABAPAnalysisUseCase:
         self,
         use_case: RunABAPAnalysisUseCase,
     ) -> None:
-        result = await use_case.execute(
-            landscape_id="land-001", programme_id="prog-001"
-        )
+        result = await use_case.execute(landscape_id="land-001", programme_id="prog-001")
 
         assert result.total_objects == 3
         assert result.compatible_count == 1

@@ -46,9 +46,7 @@ class Programme:
     def update_status(self, new_status: ProgrammeStatus) -> Programme:
         allowed = _VALID_TRANSITIONS.get(self.status, ())
         if new_status not in allowed:
-            raise ValueError(
-                f"Invalid status transition from {self.status.value} to {new_status.value}"
-            )
+            raise ValueError(f"Invalid status transition from {self.status.value} to {new_status.value}")
         return replace(self, status=new_status)
 
     def start_discovery(self) -> Programme:
@@ -58,9 +56,7 @@ class Programme:
 
     def complete_discovery(self, score: ComplexityScore) -> Programme:
         updated = self.update_status(ProgrammeStatus.DISCOVERY_COMPLETE)
-        event = DiscoveryCompletedEvent(
-            aggregate_id=self.id, complexity_score=score.score
-        )
+        event = DiscoveryCompletedEvent(aggregate_id=self.id, complexity_score=score.score)
         return replace(
             updated,
             complexity_score=score,
@@ -74,7 +70,5 @@ class Programme:
 
     def complete_analysis(self) -> Programme:
         updated = self.update_status(ProgrammeStatus.ANALYSIS_COMPLETE)
-        event = AnalysisCompletedEvent(
-            aggregate_id=self.id, compatible_count=0, incompatible_count=0
-        )
+        event = AnalysisCompletedEvent(aggregate_id=self.id, compatible_count=0, incompatible_count=0)
         return replace(updated, domain_events=(*updated.domain_events, event))

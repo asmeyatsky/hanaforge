@@ -38,9 +38,7 @@ class SimpleReportGenerator:
         lines.append(f"Source Version:    {programme.sap_source_version}")
         lines.append(f"Target Version:   {programme.target_version}")
         lines.append(f"Status:           {programme.status.value}")
-        lines.append(
-            f"Generated:        {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
-        )
+        lines.append(f"Generated:        {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
         lines.append("")
 
         # Complexity score
@@ -51,9 +49,7 @@ class SimpleReportGenerator:
             lines.append(f"  Score:      {programme.complexity_score.score}/100")
             lines.append(f"  Risk Level: {programme.complexity_score.risk_level}")
             if programme.complexity_score.benchmark_percentile is not None:
-                lines.append(
-                    f"  Percentile: {programme.complexity_score.benchmark_percentile:.1f}%"
-                )
+                lines.append(f"  Percentile: {programme.complexity_score.benchmark_percentile:.1f}%")
             lines.append("")
 
         # Landscape summary
@@ -82,19 +78,13 @@ class SimpleReportGenerator:
         lines.append("-" * 72)
         total = len(objects)
         compatible = sum(
-            1
-            for o in objects
-            if getattr(o, "compatibility_status", None) == CompatibilityStatus.COMPATIBLE
+            1 for o in objects if getattr(o, "compatibility_status", None) == CompatibilityStatus.COMPATIBLE
         )
         incompatible = sum(
-            1
-            for o in objects
-            if getattr(o, "compatibility_status", None) == CompatibilityStatus.INCOMPATIBLE
+            1 for o in objects if getattr(o, "compatibility_status", None) == CompatibilityStatus.INCOMPATIBLE
         )
         needs_review = sum(
-            1
-            for o in objects
-            if getattr(o, "compatibility_status", None) == CompatibilityStatus.NEEDS_REVIEW
+            1 for o in objects if getattr(o, "compatibility_status", None) == CompatibilityStatus.NEEDS_REVIEW
         )
         unknown = total - compatible - incompatible - needs_review
 
@@ -158,28 +148,18 @@ class SimpleReportGenerator:
     ) -> bytes:
         """Generate a board-presentation scope document as portable HTML bytes."""
         generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-        go_live_str = (
-            programme.go_live_date.strftime("%Y-%m-%d")
-            if programme.go_live_date
-            else "Not set"
-        )
+        go_live_str = programme.go_live_date.strftime("%Y-%m-%d") if programme.go_live_date else "Not set"
 
         # --- Compute statistics ---
         total_objects = len(objects)
         compatible = sum(
-            1
-            for o in objects
-            if getattr(o, "compatibility_status", None) == CompatibilityStatus.COMPATIBLE
+            1 for o in objects if getattr(o, "compatibility_status", None) == CompatibilityStatus.COMPATIBLE
         )
         incompatible = sum(
-            1
-            for o in objects
-            if getattr(o, "compatibility_status", None) == CompatibilityStatus.INCOMPATIBLE
+            1 for o in objects if getattr(o, "compatibility_status", None) == CompatibilityStatus.INCOMPATIBLE
         )
         needs_review = sum(
-            1
-            for o in objects
-            if getattr(o, "compatibility_status", None) == CompatibilityStatus.NEEDS_REVIEW
+            1 for o in objects if getattr(o, "compatibility_status", None) == CompatibilityStatus.NEEDS_REVIEW
         )
         unknown = total_objects - compatible - incompatible - needs_review
 
@@ -270,9 +250,11 @@ class SimpleReportGenerator:
             for ls in landscapes
         )
 
-        integration_list = "\n".join(
-            f"<li>{ip}</li>" for ip in sorted(set(all_integration_points))
-        ) if all_integration_points else "<li>No integration points discovered</li>"
+        integration_list = (
+            "\n".join(f"<li>{ip}</li>" for ip in sorted(set(all_integration_points)))
+            if all_integration_points
+            else "<li>No integration points discovered</li>"
+        )
 
         risk_items = []
         if incompatible > 0:
@@ -372,7 +354,7 @@ class SimpleReportGenerator:
   <p style="margin-top:10px;">Overall complexity is rated
   <span class="risk-badge" style="background:{risk_colour};">{complexity.risk_level}</span>
   with a score of <strong>{complexity.score}/100</strong>\
-{f' (percentile: {complexity.benchmark_percentile:.1f}%)' if complexity.benchmark_percentile is not None else ''}.</p>
+{f" (percentile: {complexity.benchmark_percentile:.1f}%)" if complexity.benchmark_percentile is not None else ""}.</p>
 </div>
 
 <div class="kpi-grid">
@@ -475,11 +457,7 @@ class SimpleReportGenerator:
         complexity: ComplexityScore,
     ) -> str:
         """Generate a concise executive summary string."""
-        go_live_str = (
-            programme.go_live_date.strftime("%Y-%m-%d")
-            if programme.go_live_date
-            else "Not set"
-        )
+        go_live_str = programme.go_live_date.strftime("%Y-%m-%d") if programme.go_live_date else "Not set"
 
         summary = (
             f"Executive Summary: {programme.name}\n"
@@ -495,8 +473,7 @@ class SimpleReportGenerator:
 
         if complexity.benchmark_percentile is not None:
             summary += (
-                f"  Benchmark Percentile: {complexity.benchmark_percentile:.1f}% "
-                f"(compared to similar migrations)\n"
+                f"  Benchmark Percentile: {complexity.benchmark_percentile:.1f}% (compared to similar migrations)\n"
             )
 
         if complexity.risk_level == "CRITICAL":

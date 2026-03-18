@@ -69,9 +69,7 @@ async def execute_migration_step(
 ) -> MigrationTaskResponse:
     """Execute a single migration task after validating its dependencies are complete."""
     container = request.app.state.container
-    use_case: ExecuteMigrationStepUseCase = container.resolve(
-        ExecuteMigrationStepUseCase
-    )
+    use_case: ExecuteMigrationStepUseCase = container.resolve(ExecuteMigrationStepUseCase)
     try:
         return await use_case.execute(task_id=task_id)
     except ValueError as exc:

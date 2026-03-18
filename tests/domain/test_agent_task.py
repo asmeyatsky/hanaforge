@@ -74,7 +74,11 @@ def _make_task(
 class TestAgentStatus:
     def test_all_statuses_defined(self) -> None:
         assert set(s.value for s in AgentStatus) == {
-            "PENDING", "RUNNING", "COMPLETED", "FAILED", "CANCELLED",
+            "PENDING",
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
         }
 
     def test_enum_round_trip(self) -> None:

@@ -45,9 +45,7 @@ class GenerateTerraformUseCase:
         # 2. Generate HCL and validate concurrently
         hcl, domain_validation = await asyncio.gather(
             self._terraform.generate_plan(plan),
-            asyncio.to_thread(
-                self._validation.validate_sap_certification, plan
-            ),
+            asyncio.to_thread(self._validation.validate_sap_certification, plan),
         )
 
         # 3. Validate the generated HCL itself
@@ -55,9 +53,7 @@ class GenerateTerraformUseCase:
 
         # 4. Use the stricter of the two validation results
         final_validation = (
-            hcl_validation
-            if hcl_validation.checks_failed > domain_validation.checks_failed
-            else domain_validation
+            hcl_validation if hcl_validation.checks_failed > domain_validation.checks_failed else domain_validation
         )
 
         # 5. Store Terraform reference and update plan

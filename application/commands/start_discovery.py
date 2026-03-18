@@ -65,8 +65,7 @@ class StartDiscoveryUseCase:
             number_of_users=discovery_result.get("number_of_users", 0),
             custom_object_count=len(custom_objects),
             integration_points=tuple(
-                ip.get("name", str(ip)) if isinstance(ip, dict) else str(ip)
-                for ip in integration_points
+                ip.get("name", str(ip)) if isinstance(ip, dict) else str(ip) for ip in integration_points
             ),
             created_at=datetime.now(timezone.utc),
         )

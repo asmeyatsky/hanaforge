@@ -18,14 +18,10 @@ class InMemoryRunbookRepository:
         return self._store.get(id)
 
     async def get_latest_by_programme(self, programme_id: str) -> CutoverRunbook | None:
-        matches = [
-            rb for rb in self._store.values() if rb.programme_id == programme_id
-        ]
+        matches = [rb for rb in self._store.values() if rb.programme_id == programme_id]
         if not matches:
             return None
         return max(matches, key=lambda rb: rb.version)
 
     async def list_by_programme(self, programme_id: str) -> list[CutoverRunbook]:
-        return [
-            rb for rb in self._store.values() if rb.programme_id == programme_id
-        ]
+        return [rb for rb in self._store.values() if rb.programme_id == programme_id]

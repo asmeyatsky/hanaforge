@@ -35,25 +35,11 @@ class StartHypercareUseCase:
 
         config = MonitoringConfig(
             alert_channels=tuple(
-                monitoring_config.get("alert_channels", ["email", "slack"])
-                if monitoring_config
-                else ["email", "slack"]
+                monitoring_config.get("alert_channels", ["email", "slack"]) if monitoring_config else ["email", "slack"]
             ),
-            check_interval_minutes=(
-                monitoring_config.get("check_interval_minutes", 15)
-                if monitoring_config
-                else 15
-            ),
-            escalation_contacts=tuple(
-                monitoring_config.get("escalation_contacts", [])
-                if monitoring_config
-                else []
-            ),
-            sla_response_minutes=(
-                monitoring_config.get("sla_response_minutes", 30)
-                if monitoring_config
-                else 30
-            ),
+            check_interval_minutes=(monitoring_config.get("check_interval_minutes", 15) if monitoring_config else 15),
+            escalation_contacts=tuple(monitoring_config.get("escalation_contacts", []) if monitoring_config else []),
+            sla_response_minutes=(monitoring_config.get("sla_response_minutes", 30) if monitoring_config else 30),
         )
 
         session_id = str(uuid.uuid4())

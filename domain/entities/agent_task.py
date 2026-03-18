@@ -33,25 +33,19 @@ class AgentTask:
     def start(self) -> AgentTask:
         """Transition to RUNNING status."""
         if self.status != AgentStatus.PENDING:
-            raise ValueError(
-                f"Cannot start agent task in status {self.status.value}"
-            )
+            raise ValueError(f"Cannot start agent task in status {self.status.value}")
         return replace(self, status=AgentStatus.RUNNING)
 
     def record_step(self, step: AgentStep) -> AgentTask:
         """Append a step to the execution trace."""
         if self.status != AgentStatus.RUNNING:
-            raise ValueError(
-                f"Cannot record step for task in status {self.status.value}"
-            )
+            raise ValueError(f"Cannot record step for task in status {self.status.value}")
         return replace(self, steps_taken=(*self.steps_taken, step))
 
     def complete(self, result: AgentResult) -> AgentTask:
         """Mark the task as successfully completed with a result."""
         if self.status != AgentStatus.RUNNING:
-            raise ValueError(
-                f"Cannot complete task in status {self.status.value}"
-            )
+            raise ValueError(f"Cannot complete task in status {self.status.value}")
         return replace(
             self,
             status=AgentStatus.COMPLETED,
@@ -61,9 +55,7 @@ class AgentTask:
     def fail(self, error_message: str) -> AgentTask:
         """Mark the task as failed with an error description."""
         if self.status != AgentStatus.RUNNING:
-            raise ValueError(
-                f"Cannot fail task in status {self.status.value}"
-            )
+            raise ValueError(f"Cannot fail task in status {self.status.value}")
         return replace(
             self,
             status=AgentStatus.FAILED,
@@ -73,7 +65,5 @@ class AgentTask:
     def cancel(self) -> AgentTask:
         """Cancel the task if it is pending or running."""
         if self.status not in (AgentStatus.PENDING, AgentStatus.RUNNING):
-            raise ValueError(
-                f"Cannot cancel task in status {self.status.value}"
-            )
+            raise ValueError(f"Cannot cancel task in status {self.status.value}")
         return replace(self, status=AgentStatus.CANCELLED)

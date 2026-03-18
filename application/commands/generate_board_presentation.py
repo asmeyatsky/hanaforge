@@ -46,11 +46,7 @@ class GenerateBoardPresentationUseCase:
 
         # 4. Load remediations
         object_ids = [o.id for o in objects]
-        remediations = (
-            await self._remediation_repo.get_by_object_ids(object_ids)
-            if object_ids
-            else []
-        )
+        remediations = await self._remediation_repo.get_by_object_ids(object_ids) if object_ids else []
 
         # 5. Compute or reuse complexity score
         if programme.complexity_score is not None:
@@ -61,8 +57,7 @@ class GenerateBoardPresentationUseCase:
             incompatible = sum(
                 1
                 for o in objects
-                if getattr(o, "compatibility_status", None)
-                and o.compatibility_status.value == "INCOMPATIBLE"
+                if getattr(o, "compatibility_status", None) and o.compatibility_status.value == "INCOMPATIBLE"
             )
             score = min(100, max(1, int(30 + (incompatible / max(total, 1)) * 70)))
             complexity = ComplexityScore(score=score)

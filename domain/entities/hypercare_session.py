@@ -58,9 +58,7 @@ class HypercareSession:
             raise ValueError("Session is already closed")
         return replace(self, status=HypercareStatus.CLOSED)
 
-    def resolve_incident(
-        self, incident_id: str, resolution: str
-    ) -> HypercareSession:
+    def resolve_incident(self, incident_id: str, resolution: str) -> HypercareSession:
         """Mark an incident as resolved."""
         now = datetime.now(timezone.utc)
         updated: list[HypercareIncident] = []
@@ -88,10 +86,7 @@ class HypercareSession:
         # De-escalate if no open critical incidents remain
         new_status = self.status
         if self.status == HypercareStatus.ESCALATED:
-            open_critical = any(
-                i.severity == "CRITICAL" and i.resolved_at is None
-                for i in updated
-            )
+            open_critical = any(i.severity == "CRITICAL" and i.resolved_at is None for i in updated)
             if not open_critical:
                 new_status = HypercareStatus.ACTIVE
 

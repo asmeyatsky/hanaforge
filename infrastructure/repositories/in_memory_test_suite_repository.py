@@ -18,7 +18,4 @@ class InMemoryTestSuiteRepository:
         return self._store.get(id)
 
     async def list_by_programme(self, programme_id: str) -> list[TestSuite]:
-        return [
-            s for s in self._store.values()
-            if s.programme_id == programme_id
-        ]
+        return [s for s in self._store.values() if s.programme_id == programme_id]

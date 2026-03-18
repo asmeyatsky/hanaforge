@@ -35,9 +35,7 @@ class TestScenario:
     def mark_as_reviewed(self) -> TestScenario:
         """Transition scenario to REVIEWED status."""
         if self.status != TestStatus.DRAFT:
-            raise ValueError(
-                f"Cannot review scenario in status {self.status.value}; must be DRAFT"
-            )
+            raise ValueError(f"Cannot review scenario in status {self.status.value}; must be DRAFT")
         return replace(self, status=TestStatus.REVIEWED)
 
     def link_to_defect(self, defect_id: str) -> TestScenario:

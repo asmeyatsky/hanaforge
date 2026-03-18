@@ -40,7 +40,8 @@ async def start_discovery(
     tenant_svc: TenantAccessService = container.resolve(TenantAccessService)
     try:
         await tenant_svc.validate_programme_access(
-            programme_id=programme_id, customer_id=tenant.customer_id,
+            programme_id=programme_id,
+            customer_id=tenant.customer_id,
         )
     except ValueError:
         raise HTTPException(
@@ -79,7 +80,8 @@ async def get_discovery_results(
     tenant_svc: TenantAccessService = container.resolve(TenantAccessService)
     try:
         await tenant_svc.validate_programme_access(
-            programme_id=programme_id, customer_id=tenant.customer_id,
+            programme_id=programme_id,
+            customer_id=tenant.customer_id,
         )
     except ValueError:
         raise HTTPException(
@@ -118,7 +120,8 @@ async def generate_board_presentation(
     tenant_svc: TenantAccessService = container.resolve(TenantAccessService)
     try:
         await tenant_svc.validate_programme_access(
-            programme_id=programme_id, customer_id=tenant.customer_id,
+            programme_id=programme_id,
+            customer_id=tenant.customer_id,
         )
     except ValueError:
         raise HTTPException(
@@ -126,9 +129,7 @@ async def generate_board_presentation(
             detail=f"Programme {programme_id!r} not found",
         )
 
-    use_case: GenerateBoardPresentationUseCase = container.resolve(
-        GenerateBoardPresentationUseCase
-    )
+    use_case: GenerateBoardPresentationUseCase = container.resolve(GenerateBoardPresentationUseCase)
     try:
         html_bytes = await use_case.execute(programme_id=programme_id)
     except ValueError as exc:
@@ -141,8 +142,6 @@ async def generate_board_presentation(
         content=html_bytes,
         media_type="text/html",
         headers={
-            "Content-Disposition": (
-                f'attachment; filename="board-presentation-{programme_id}.html"'
-            ),
+            "Content-Disposition": (f'attachment; filename="board-presentation-{programme_id}.html"'),
         },
     )

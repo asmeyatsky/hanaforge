@@ -30,9 +30,7 @@ class GetCutoverStatusQuery:
         execution = await self._execution_repo.get_active(programme_id)
 
         runbook_resp = RunbookResponse.from_entity(runbook) if runbook else None
-        execution_resp = (
-            CutoverExecutionResponse.from_entity(execution) if execution else None
-        )
+        execution_resp = CutoverExecutionResponse.from_entity(execution) if execution else None
 
         gates: list[GoNoGoGateResponse] = []
         if runbook:

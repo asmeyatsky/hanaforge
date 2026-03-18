@@ -133,10 +133,7 @@ class LocalDataProfilingAdapter:
         """Calculate null/empty rates for each field."""
         null_rates: list[FieldNullRate] = []
         for field in fields:
-            null_count = sum(
-                1 for row in rows
-                if row.get(field) is None or str(row.get(field, "")).strip() == ""
-            )
+            null_count = sum(1 for row in rows if row.get(field) is None or str(row.get(field, "")).strip() == "")
             null_rates.append(
                 FieldNullRate(
                     field_name=field,

@@ -130,19 +130,10 @@ class InMemoryDataRepository:
         return self._from_dict(data)
 
     async def list_by_landscape(self, landscape_id: str) -> list[DataDomain]:
-        return [
-            self._from_dict(data)
-            for data in self._store.values()
-            if data["landscape_id"] == landscape_id
-        ]
+        return [self._from_dict(data) for data in self._store.values() if data["landscape_id"] == landscape_id]
 
-    async def get_by_table_name(
-        self, landscape_id: str, table_name: str
-    ) -> DataDomain | None:
+    async def get_by_table_name(self, landscape_id: str, table_name: str) -> DataDomain | None:
         for data in self._store.values():
-            if (
-                data["landscape_id"] == landscape_id
-                and data["table_name"] == table_name
-            ):
+            if data["landscape_id"] == landscape_id and data["table_name"] == table_name:
                 return self._from_dict(data)
         return None

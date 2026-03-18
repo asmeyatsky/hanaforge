@@ -43,9 +43,7 @@ class UploadDataExportUseCase:
         # 2. Validate format
         supported_formats = ("csv", "xlsx", "xml")
         if format.lower() not in supported_formats:
-            raise ValueError(
-                f"Unsupported format {format!r}; must be one of {supported_formats}"
-            )
+            raise ValueError(f"Unsupported format {format!r}; must be one of {supported_formats}")
 
         # 3. Upload to file storage
         storage_key = f"data-exports/{landscape_id}/{filename}"

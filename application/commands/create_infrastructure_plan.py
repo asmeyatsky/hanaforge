@@ -62,9 +62,7 @@ class CreateInfrastructurePlanUseCase:
 
         # 3. HANA and app server sizing (independent — fan out)
         hana_config, app_config = await asyncio.gather(
-            asyncio.to_thread(
-                self._sizing.recommend_hana_config, sizing
-            ),
+            asyncio.to_thread(self._sizing.recommend_hana_config, sizing),
             asyncio.to_thread(
                 self._sizing.recommend_app_server_config,
                 sizing.saps_rating,
@@ -133,9 +131,7 @@ class CreateInfrastructurePlanUseCase:
     # Private helpers
     # ------------------------------------------------------------------
 
-    async def _resolve_sizing(
-        self, request: CreateInfrastructurePlanRequest
-    ) -> SizingInput:
+    async def _resolve_sizing(self, request: CreateInfrastructurePlanRequest) -> SizingInput:
         if request.quick_sizer_xml_base64 is not None:
             xml_bytes = base64.b64decode(request.quick_sizer_xml_base64)
             return await self._quick_sizer_parser.parse_quick_sizer_xml(xml_bytes)
@@ -149,9 +145,7 @@ class CreateInfrastructurePlanUseCase:
                 landscape_type=SystemRole(request.sizing_input.landscape_type),
             )
 
-        raise ValueError(
-            "Either sizing_input or quick_sizer_xml_base64 must be provided."
-        )
+        raise ValueError("Either sizing_input or quick_sizer_xml_base64 must be provided.")
 
     @staticmethod
     def _resolve_region(region_str: str) -> GCPRegion:
@@ -162,7 +156,4 @@ class CreateInfrastructurePlanUseCase:
             try:
                 return GCPRegion[region_str.upper()]
             except KeyError:
-                raise ValueError(
-                    f"Unsupported GCP region: {region_str!r}. "
-                    f"Supported: {[r.value for r in GCPRegion]}"
-                )
+                raise ValueError(f"Unsupported GCP region: {region_str!r}. Supported: {[r.value for r in GCPRegion]}")

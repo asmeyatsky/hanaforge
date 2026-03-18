@@ -41,10 +41,7 @@ class AgentToolRegistry:
         """Look up a tool by name, raising KeyError if not found."""
         tool = self._tools.get(name)
         if tool is None:
-            raise KeyError(
-                f"Agent tool '{name}' not registered. "
-                f"Available: {', '.join(sorted(self._tools.keys()))}"
-            )
+            raise KeyError(f"Agent tool '{name}' not registered. Available: {', '.join(sorted(self._tools.keys()))}")
         return tool
 
     def list_names(self) -> list[str]:
@@ -57,11 +54,7 @@ class AgentToolRegistry:
         If *names* is provided, only include the specified subset.
         Otherwise return schemas for all registered tools.
         """
-        tools_to_include = (
-            {n: t for n, t in self._tools.items() if n in names}
-            if names is not None
-            else self._tools
-        )
+        tools_to_include = {n: t for n, t in self._tools.items() if n in names} if names is not None else self._tools
         return [
             AgentTool(
                 name=tool.name,

@@ -110,9 +110,7 @@ class TaskGraphService:
     # Brownfield (DMO) graph
     # ------------------------------------------------------------------
 
-    def _build_brownfield_graph(
-        self, programme_id: str, metadata: dict
-    ) -> list[MigrationTask]:
+    def _build_brownfield_graph(self, programme_id: str, metadata: dict) -> list[MigrationTask]:
         tasks: list[MigrationTask] = []
 
         # Phase 1: DMO Pre-checks
@@ -199,9 +197,7 @@ class TaskGraphService:
     # Selective Data Transition graph
     # ------------------------------------------------------------------
 
-    def _build_sdt_graph(
-        self, programme_id: str, metadata: dict
-    ) -> list[MigrationTask]:
+    def _build_sdt_graph(self, programme_id: str, metadata: dict) -> list[MigrationTask]:
         tasks: list[MigrationTask] = []
 
         # Phase 1: Shell system creation
@@ -266,9 +262,7 @@ class TaskGraphService:
         tasks.append(reconciliation)
 
         # Phase 4: PCA tasks
-        pca_tasks = self._build_pca_tasks(
-            programme_id, depends_on=(reconciliation.id,)
-        )
+        pca_tasks = self._build_pca_tasks(programme_id, depends_on=(reconciliation.id,))
         tasks.extend(pca_tasks)
 
         # Phase 5: Final validation and checkpoint
@@ -282,9 +276,7 @@ class TaskGraphService:
     # Greenfield graph
     # ------------------------------------------------------------------
 
-    def _build_greenfield_graph(
-        self, programme_id: str, metadata: dict
-    ) -> list[MigrationTask]:
+    def _build_greenfield_graph(self, programme_id: str, metadata: dict) -> list[MigrationTask]:
         tasks: list[MigrationTask] = []
 
         # Phase 1: Client copy — initial system preparation
@@ -352,9 +344,7 @@ class TaskGraphService:
         tasks.append(data_val)
 
         # Phase 5: Final tasks
-        final_tasks = self._build_final_tasks(
-            programme_id, depends_on=(data_val.id,)
-        )
+        final_tasks = self._build_final_tasks(programme_id, depends_on=(data_val.id,))
         tasks.extend(final_tasks)
 
         return tasks
@@ -363,9 +353,7 @@ class TaskGraphService:
     # Shared sub-graphs
     # ------------------------------------------------------------------
 
-    def _build_pca_tasks(
-        self, programme_id: str, depends_on: tuple[str, ...]
-    ) -> list[MigrationTask]:
+    def _build_pca_tasks(self, programme_id: str, depends_on: tuple[str, ...]) -> list[MigrationTask]:
         """Post-copy automation task chain."""
         tasks: list[MigrationTask] = []
 
@@ -374,8 +362,7 @@ class TaskGraphService:
             module="migration-orchestrator",
             task_name="PCA Client Deletion",
             description=(
-                "Delete obsolete clients from target system (SCC5). "
-                "Remove test/sandbox clients to free resources."
+                "Delete obsolete clients from target system (SCC5). Remove test/sandbox clients to free resources."
             ),
             task_type=MigrationTaskType.PCA_CLIENT_DELETION,
             depends_on=depends_on,
@@ -433,9 +420,7 @@ class TaskGraphService:
 
         return tasks
 
-    def _build_final_tasks(
-        self, programme_id: str, depends_on: tuple[str, ...]
-    ) -> list[MigrationTask]:
+    def _build_final_tasks(self, programme_id: str, depends_on: tuple[str, ...]) -> list[MigrationTask]:
         """Final health check and manual checkpoint — common to all approaches."""
         tasks: list[MigrationTask] = []
 
@@ -472,9 +457,7 @@ class TaskGraphService:
     # Critical path analysis — forward/backward pass algorithm
     # ------------------------------------------------------------------
 
-    def calculate_critical_path(
-        self, tasks: list[MigrationTask]
-    ) -> CriticalPathInfo:
+    def calculate_critical_path(self, tasks: list[MigrationTask]) -> CriticalPathInfo:
         """Compute critical path using proper forward/backward pass algorithm.
 
         For completed tasks, uses actual duration_minutes.
@@ -569,21 +552,10 @@ class TaskGraphService:
         """Compute overall migration health based on task statuses and anomalies."""
         from datetime import datetime, timezone
 
-        completed = sum(
-            1 for t in tasks if t.status == MigrationTaskStatus.COMPLETED
-        )
-        in_progress = sum(
-            1 for t in tasks if t.status == MigrationTaskStatus.IN_PROGRESS
-        )
-        pending = sum(
-            1
-            for t in tasks
-            if t.status
-            in (MigrationTaskStatus.PENDING, MigrationTaskStatus.QUEUED)
-        )
-        failed = sum(
-            1 for t in tasks if t.status == MigrationTaskStatus.FAILED
-        )
+        completed = sum(1 for t in tasks if t.status == MigrationTaskStatus.COMPLETED)
+        in_progress = sum(1 for t in tasks if t.status == MigrationTaskStatus.IN_PROGRESS)
+        pending = sum(1 for t in tasks if t.status in (MigrationTaskStatus.PENDING, MigrationTaskStatus.QUEUED))
+        failed = sum(1 for t in tasks if t.status == MigrationTaskStatus.FAILED)
         active = sum(1 for a in anomalies if not a.acknowledged)
 
         # Calculate deviation from critical path
@@ -594,9 +566,7 @@ class TaskGraphService:
                 actual_elapsed += t.duration_minutes
         # Simplified deviation — compare actual vs planned for completed tasks
         planned_for_completed = sum(
-            _DEFAULT_DURATIONS.get(t.task_type, 60)
-            for t in tasks
-            if t.status == MigrationTaskStatus.COMPLETED
+            _DEFAULT_DURATIONS.get(t.task_type, 60) for t in tasks if t.status == MigrationTaskStatus.COMPLETED
         )
         deviation = actual_elapsed - planned_for_completed if planned_for_completed > 0 else 0
 

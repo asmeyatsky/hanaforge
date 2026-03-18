@@ -40,11 +40,7 @@ def _make_objects(
 ) -> list[CustomObject]:
     objects: list[CustomObject] = []
     for i in range(count):
-        status = (
-            CompatibilityStatus.INCOMPATIBLE
-            if i < incompatible_count
-            else CompatibilityStatus.COMPATIBLE
-        )
+        status = CompatibilityStatus.INCOMPATIBLE if i < incompatible_count else CompatibilityStatus.COMPATIBLE
         objects.append(
             CustomObject(
                 id=f"obj-{i:04d}",
@@ -125,7 +121,5 @@ class TestComplexityScoringService:
             number_of_users=100_000,
         )
         all_incompatible = _make_objects(100, incompatible_count=100)
-        score_max = service.calculate_landscape_complexity(
-            landscape_max, all_incompatible
-        )
+        score_max = service.calculate_landscape_complexity(landscape_max, all_incompatible)
         assert score_max.score <= 100

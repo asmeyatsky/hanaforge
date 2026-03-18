@@ -57,9 +57,7 @@ async def generate_test_scenarios(
 ) -> TestGenerationResponse:
     """Generate end-to-end test scenarios for the specified programme and process area."""
     container = request.app.state.container
-    use_case: GenerateTestScenariosUseCase = container.resolve(
-        GenerateTestScenariosUseCase
-    )
+    use_case: GenerateTestScenariosUseCase = container.resolve(GenerateTestScenariosUseCase)
     area = ProcessArea(body.process_area) if body.process_area else None
     return await use_case.execute(
         programme_id=programme_id,
@@ -83,9 +81,7 @@ async def generate_interface_tests(
 ) -> TestGenerationResponse:
     """Generate test cases for each IDoc, RFC, BAPI, REST, or OData interface."""
     container = request.app.state.container
-    use_case: GenerateInterfaceTestsUseCase = container.resolve(
-        GenerateInterfaceTestsUseCase
-    )
+    use_case: GenerateInterfaceTestsUseCase = container.resolve(GenerateInterfaceTestsUseCase)
     return await use_case.execute(
         programme_id=programme_id,
         interfaces=body.interfaces,
@@ -138,9 +134,7 @@ async def export_test_scenarios(
 ) -> Response:
     """Export tests to HP ALM, Tricentis Tosca, Azure DevOps, Jira Xray, or CSV."""
     container = request.app.state.container
-    use_case: ExportTestScenariosUseCase = container.resolve(
-        ExportTestScenariosUseCase
-    )
+    use_case: ExportTestScenariosUseCase = container.resolve(ExportTestScenariosUseCase)
     export_format = TestExportFormat(body.format)
     area = ProcessArea(body.process_area) if body.process_area else None
 

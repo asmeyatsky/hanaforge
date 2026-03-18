@@ -85,7 +85,9 @@ class ClaudeAgentExecutor:
         for step_num in range(1, max_steps + 1):
             logger.info(
                 "Agent step %d/%d for task %s",
-                step_num, max_steps, task.id,
+                step_num,
+                max_steps,
+                task.id,
             )
 
             # Call Claude
@@ -114,7 +116,8 @@ class ClaudeAgentExecutor:
                 steps.append(step)
                 logger.info(
                     "Agent completed for task %s after %d steps",
-                    task.id, step_num,
+                    task.id,
+                    step_num,
                 )
                 return AgentResult(
                     success=True,
@@ -139,9 +142,7 @@ class ClaudeAgentExecutor:
                 # Execute each tool call and collect results
                 tool_results = []
                 for tool_block in tool_use_blocks:
-                    tool_output = await self._execute_tool(
-                        tool_block.name, tool_block.input
-                    )
+                    tool_output = await self._execute_tool(tool_block.name, tool_block.input)
                     tool_output_str = json.dumps(tool_output, default=str)
 
                     step = AgentStep(
@@ -155,14 +156,18 @@ class ClaudeAgentExecutor:
 
                     logger.info(
                         "Agent tool call: %s (task %s, step %d)",
-                        tool_block.name, task.id, step_num,
+                        tool_block.name,
+                        task.id,
+                        step_num,
                     )
 
-                    tool_results.append({
-                        "type": "tool_result",
-                        "tool_use_id": tool_block.id,
-                        "content": tool_output_str,
-                    })
+                    tool_results.append(
+                        {
+                            "type": "tool_result",
+                            "tool_use_id": tool_block.id,
+                            "content": tool_output_str,
+                        }
+                    )
 
                 # Feed tool results back to the conversation
                 messages.append({"role": "user", "content": tool_results})
@@ -185,9 +190,7 @@ class ClaudeAgentExecutor:
                 )
 
         # Exhausted max_steps
-        logger.warning(
-            "Agent hit max_steps (%d) for task %s", max_steps, task.id
-        )
+        logger.warning("Agent hit max_steps (%d) for task %s", max_steps, task.id)
         return AgentResult(
             success=False,
             output=f"Agent reached the maximum of {max_steps} steps without completing.",
@@ -203,9 +206,7 @@ class ClaudeAgentExecutor:
         """Build the initial user message from the task objective and context."""
         parts = [f"## Objective\n{task.objective}"]
         if task.context:
-            parts.append(
-                f"\n## Context\n```json\n{json.dumps(task.context, indent=2, default=str)}\n```"
-            )
+            parts.append(f"\n## Context\n```json\n{json.dumps(task.context, indent=2, default=str)}\n```")
         return "\n".join(parts)
 
     @staticmethod

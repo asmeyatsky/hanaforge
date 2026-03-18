@@ -160,20 +160,10 @@ class InMemoryInfrastructurePlanRepository:
         return self._from_dict(data)
 
     async def list_by_programme(self, programme_id: str) -> list[InfrastructurePlan]:
-        return [
-            self._from_dict(data)
-            for data in self._store.values()
-            if data["programme_id"] == programme_id
-        ]
+        return [self._from_dict(data) for data in self._store.values() if data["programme_id"] == programme_id]
 
-    async def get_latest_by_programme(
-        self, programme_id: str
-    ) -> InfrastructurePlan | None:
-        plans = [
-            data
-            for data in self._store.values()
-            if data["programme_id"] == programme_id
-        ]
+    async def get_latest_by_programme(self, programme_id: str) -> InfrastructurePlan | None:
+        plans = [data for data in self._store.values() if data["programme_id"] == programme_id]
         if not plans:
             return None
         latest = max(plans, key=lambda d: d["created_at"])

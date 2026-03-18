@@ -63,19 +63,11 @@ class InMemoryRemediationRepository:
         self._store[suggestion.id] = self._to_dict(suggestion)
 
     async def get_by_object(self, object_id: str) -> list[RemediationSuggestion]:
-        return [
-            self._from_dict(data)
-            for data in self._store.values()
-            if data["object_id"] == object_id
-        ]
+        return [self._from_dict(data) for data in self._store.values() if data["object_id"] == object_id]
 
     async def get_by_object_ids(self, object_ids: list[str]) -> list[RemediationSuggestion]:
         id_set = set(object_ids)
-        return [
-            self._from_dict(data)
-            for data in self._store.values()
-            if data["object_id"] in id_set
-        ]
+        return [self._from_dict(data) for data in self._store.values() if data["object_id"] in id_set]
 
     async def list_by_programme(self, programme_id: str) -> list[RemediationSuggestion]:
         """Return all remediation suggestions across the programme.

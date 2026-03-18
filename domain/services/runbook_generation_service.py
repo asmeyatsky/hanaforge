@@ -52,9 +52,7 @@ class RunbookGenerationService:
         # -----------------------------------------------------------------
         # Phase 2: SYSTEM_LOCKDOWN  (T-24h to T-12h)
         # -----------------------------------------------------------------
-        lockdown_tasks = self._generate_lockdown_tasks(
-            order, integration_inventory, last_prep_id=prep_tasks[-1].id
-        )
+        lockdown_tasks = self._generate_lockdown_tasks(order, integration_inventory, last_prep_id=prep_tasks[-1].id)
         tasks.extend(lockdown_tasks)
         order += len(lockdown_tasks)
 
@@ -70,18 +68,14 @@ class RunbookGenerationService:
         # -----------------------------------------------------------------
         # Phase 4: TECHNICAL_CUTOVER  (T-4h to T-1h)
         # -----------------------------------------------------------------
-        tech_tasks = self._generate_technical_cutover_tasks(
-            order, last_migration_id=migration_data_tasks[-1].id
-        )
+        tech_tasks = self._generate_technical_cutover_tasks(order, last_migration_id=migration_data_tasks[-1].id)
         tasks.extend(tech_tasks)
         order += len(tech_tasks)
 
         # -----------------------------------------------------------------
         # Phase 5: VALIDATION  (T-1h to T+0)
         # -----------------------------------------------------------------
-        validation_tasks = self._generate_validation_tasks(
-            order, last_tech_id=tech_tasks[-1].id
-        )
+        validation_tasks = self._generate_validation_tasks(order, last_tech_id=tech_tasks[-1].id)
         tasks.extend(validation_tasks)
         order += len(validation_tasks)
 
@@ -97,9 +91,7 @@ class RunbookGenerationService:
         # -----------------------------------------------------------------
         # Phase 7: POST_GO_LIVE  (T+0 to T+4h)
         # -----------------------------------------------------------------
-        post_tasks = self._generate_post_go_live_tasks(
-            order, last_golive_id=golive_tasks[-1].id
-        )
+        post_tasks = self._generate_post_go_live_tasks(order, last_golive_id=golive_tasks[-1].id)
         tasks.extend(post_tasks)
 
         # -----------------------------------------------------------------
@@ -397,9 +389,7 @@ class RunbookGenerationService:
         )
         return tasks
 
-    def _generate_technical_cutover_tasks(
-        self, start_order: int, last_migration_id: str
-    ) -> list[CutoverTask]:
+    def _generate_technical_cutover_tasks(self, start_order: int, last_migration_id: str) -> list[CutoverTask]:
         """T-4h to T-1h: system conversion, config activation."""
         base = start_order
         prefix = "TECH"
@@ -468,9 +458,7 @@ class RunbookGenerationService:
             ),
         ]
 
-    def _generate_validation_tasks(
-        self, start_order: int, last_tech_id: str
-    ) -> list[CutoverTask]:
+    def _generate_validation_tasks(self, start_order: int, last_tech_id: str) -> list[CutoverTask]:
         """T-1h to T+0: smoke tests, health checks."""
         base = start_order
         prefix = "VAL"
@@ -600,9 +588,7 @@ class RunbookGenerationService:
         ]
         return tasks
 
-    def _generate_post_go_live_tasks(
-        self, start_order: int, last_golive_id: str
-    ) -> list[CutoverTask]:
+    def _generate_post_go_live_tasks(self, start_order: int, last_golive_id: str) -> list[CutoverTask]:
         """T+0 to T+4h: monitoring ramp-up, issue triage."""
         base = start_order
         prefix = "POST"

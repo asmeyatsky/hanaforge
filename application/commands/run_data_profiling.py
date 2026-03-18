@@ -61,9 +61,7 @@ class RunDataProfilingUseCase:
                 _storage_key = f"data-exports/{landscape_id}/{domain_entity.table_name}"
                 try:
                     file_bytes = b""  # Profiling port receives the raw data
-                    profile = await self._profiling_port.profile_table(
-                        file_bytes, "csv"
-                    )
+                    profile = await self._profiling_port.profile_table(file_bytes, "csv")
                 except Exception:
                     return domain_entity
 
@@ -112,9 +110,9 @@ class RunDataProfilingUseCase:
                     "risk_level": domain_entity.quality_score.risk_level,
                 }
             if domain_entity.null_rates:
-                null_rate_summary = sum(
-                    nr.null_percentage for nr in domain_entity.null_rates
-                ) / len(domain_entity.null_rates)
+                null_rate_summary = sum(nr.null_percentage for nr in domain_entity.null_rates) / len(
+                    domain_entity.null_rates
+                )
 
             response_domains.append(
                 DataDomainResponse(
@@ -130,13 +128,9 @@ class RunDataProfilingUseCase:
             )
 
         # 5. Calculate overall quality
-        profiled_with_quality = [
-            d for d in final_domains if d.quality_score is not None
-        ]
+        profiled_with_quality = [d for d in final_domains if d.quality_score is not None]
         if profiled_with_quality:
-            overall_quality = sum(
-                d.quality_score.overall for d in profiled_with_quality
-            ) / len(profiled_with_quality)
+            overall_quality = sum(d.quality_score.overall for d in profiled_with_quality) / len(profiled_with_quality)
         else:
             overall_quality = 0.0
 

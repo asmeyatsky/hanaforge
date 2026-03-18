@@ -49,9 +49,7 @@ class MigrationTask:
     def start(self) -> MigrationTask:
         """Transition task to IN_PROGRESS, recording the start time."""
         if self.status not in (MigrationTaskStatus.PENDING, MigrationTaskStatus.QUEUED):
-            raise ValueError(
-                f"Cannot start task in status {self.status.value}"
-            )
+            raise ValueError(f"Cannot start task in status {self.status.value}")
         now = datetime.now(timezone.utc)
         event = MigrationTaskStartedEvent(
             aggregate_id=self.programme_id,
@@ -69,9 +67,7 @@ class MigrationTask:
     def complete(self, duration_minutes: int) -> MigrationTask:
         """Mark task as successfully completed with its execution duration."""
         if self.status != MigrationTaskStatus.IN_PROGRESS:
-            raise ValueError(
-                f"Cannot complete task in status {self.status.value}"
-            )
+            raise ValueError(f"Cannot complete task in status {self.status.value}")
         now = datetime.now(timezone.utc)
         event = MigrationTaskCompletedEvent(
             aggregate_id=self.programme_id,
@@ -90,9 +86,7 @@ class MigrationTask:
     def fail(self, error_message: str) -> MigrationTask:
         """Mark task as failed with an error message."""
         if self.status != MigrationTaskStatus.IN_PROGRESS:
-            raise ValueError(
-                f"Cannot fail task in status {self.status.value}"
-            )
+            raise ValueError(f"Cannot fail task in status {self.status.value}")
         now = datetime.now(timezone.utc)
         event = MigrationTaskFailedEvent(
             aggregate_id=self.programme_id,
@@ -111,13 +105,9 @@ class MigrationTask:
     def retry(self) -> MigrationTask:
         """Reset task for retry — increments retry_count and resets to PENDING."""
         if self.status != MigrationTaskStatus.FAILED:
-            raise ValueError(
-                f"Cannot retry task in status {self.status.value}"
-            )
+            raise ValueError(f"Cannot retry task in status {self.status.value}")
         if self.retry_count >= self.max_retries:
-            raise ValueError(
-                f"Task has exhausted all {self.max_retries} retries"
-            )
+            raise ValueError(f"Task has exhausted all {self.max_retries} retries")
         return replace(
             self,
             status=MigrationTaskStatus.PENDING,
@@ -133,9 +123,7 @@ class MigrationTask:
             MigrationTaskStatus.PENDING,
             MigrationTaskStatus.QUEUED,
         ):
-            raise ValueError(
-                f"Cannot block task in status {self.status.value}"
-            )
+            raise ValueError(f"Cannot block task in status {self.status.value}")
         return replace(
             self,
             status=MigrationTaskStatus.BLOCKED,

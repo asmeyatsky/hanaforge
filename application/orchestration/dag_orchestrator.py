@@ -44,15 +44,11 @@ class DAGOrchestrator:
         for name, step in self._steps_by_name.items():
             for dep in step.depends_on:
                 if dep not in self._steps_by_name:
-                    raise ValueError(
-                        f"Step '{name}' depends on unknown step '{dep}'"
-                    )
+                    raise ValueError(f"Step '{name}' depends on unknown step '{dep}'")
                 adjacency[dep].append(name)
                 in_degree[name] += 1
 
-        queue: deque[str] = deque(
-            name for name, degree in in_degree.items() if degree == 0
-        )
+        queue: deque[str] = deque(name for name, degree in in_degree.items() if degree == 0)
         visited = 0
 
         while queue:
@@ -64,9 +60,7 @@ class DAGOrchestrator:
                     queue.append(neighbour)
 
         if visited != len(self._steps_by_name):
-            raise CycleDetectedError(
-                "Workflow DAG contains a cycle — execution order cannot be determined"
-            )
+            raise CycleDetectedError("Workflow DAG contains a cycle — execution order cannot be determined")
 
     # ------------------------------------------------------------------
     # Execution
@@ -94,9 +88,7 @@ class DAGOrchestrator:
                 in_degree[name] += 1
 
         # Start with root steps (no dependencies)
-        ready: set[str] = {
-            name for name, degree in in_degree.items() if degree == 0
-        }
+        ready: set[str] = {name for name, degree in in_degree.items() if degree == 0}
 
         while ready:
             # Launch all ready steps in parallel
@@ -105,9 +97,7 @@ class DAGOrchestrator:
                 result = await step.execute(results=results, context=context)
                 return step_name, result
 
-            batch_results = await asyncio.gather(
-                *[_run_step(name) for name in ready]
-            )
+            batch_results = await asyncio.gather(*[_run_step(name) for name in ready])
 
             next_ready: set[str] = set()
             for step_name, result in batch_results:

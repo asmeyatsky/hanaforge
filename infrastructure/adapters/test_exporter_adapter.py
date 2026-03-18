@@ -76,10 +76,19 @@ class TestExporterAdapter:
     def _export_to_azure_devops(scenarios: list[TestScenario]) -> bytes:
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow([
-            "ID", "Work Item Type", "Title", "Description", "Priority",
-            "State", "Steps", "Area Path", "Tags",
-        ])
+        writer.writerow(
+            [
+                "ID",
+                "Work Item Type",
+                "Title",
+                "Description",
+                "Priority",
+                "State",
+                "Steps",
+                "Area Path",
+                "Tags",
+            ]
+        )
         for s in scenarios:
             steps_xml = "".join(
                 f"<step id='{step.step_number}' type='ActionStep'>"
@@ -88,17 +97,19 @@ class TestExporterAdapter:
                 f"</step>"
                 for step in s.steps
             )
-            writer.writerow([
-                s.id,
-                "Test Case",
-                s.scenario_name,
-                s.description,
-                s.priority.value,
-                s.status.value,
-                f"<steps>{steps_xml}</steps>",
-                s.process_area.value,
-                ";".join(s.tags),
-            ])
+            writer.writerow(
+                [
+                    s.id,
+                    "Test Case",
+                    s.scenario_name,
+                    s.description,
+                    s.priority.value,
+                    s.status.value,
+                    f"<steps>{steps_xml}</steps>",
+                    s.process_area.value,
+                    ";".join(s.tags),
+                ]
+            )
         return output.getvalue().encode("utf-8")
 
     # ------------------------------------------------------------------
@@ -166,25 +177,38 @@ class TestExporterAdapter:
     def _export_to_csv(scenarios: list[TestScenario]) -> bytes:
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow([
-            "Scenario ID", "Scenario Name", "Process Area", "Description",
-            "Priority", "Status", "SAP Transaction", "Fiori App ID",
-            "Step #", "Step Action", "Expected Result", "Tags",
-        ])
+        writer.writerow(
+            [
+                "Scenario ID",
+                "Scenario Name",
+                "Process Area",
+                "Description",
+                "Priority",
+                "Status",
+                "SAP Transaction",
+                "Fiori App ID",
+                "Step #",
+                "Step Action",
+                "Expected Result",
+                "Tags",
+            ]
+        )
         for s in scenarios:
             for step in s.steps:
-                writer.writerow([
-                    s.id,
-                    s.scenario_name,
-                    s.process_area.value,
-                    s.description,
-                    s.priority.value,
-                    s.status.value,
-                    s.sap_transaction or "",
-                    s.fiori_app_id or "",
-                    step.step_number,
-                    step.action,
-                    step.expected_result,
-                    ";".join(s.tags),
-                ])
+                writer.writerow(
+                    [
+                        s.id,
+                        s.scenario_name,
+                        s.process_area.value,
+                        s.description,
+                        s.priority.value,
+                        s.status.value,
+                        s.sap_transaction or "",
+                        s.fiori_app_id or "",
+                        step.step_number,
+                        step.action,
+                        step.expected_result,
+                        ";".join(s.tags),
+                    ]
+                )
         return output.getvalue().encode("utf-8")

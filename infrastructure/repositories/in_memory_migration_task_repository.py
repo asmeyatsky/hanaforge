@@ -52,30 +52,16 @@ class InMemoryMigrationTaskRepository:
             owner=data["owner"],
             status=MigrationTaskStatus(data["status"]),
             depends_on=tuple(data["depends_on"]),
-            planned_start=(
-                datetime.fromisoformat(data["planned_start"])
-                if data["planned_start"]
-                else None
-            ),
-            actual_start=(
-                datetime.fromisoformat(data["actual_start"])
-                if data["actual_start"]
-                else None
-            ),
-            actual_end=(
-                datetime.fromisoformat(data["actual_end"])
-                if data["actual_end"]
-                else None
-            ),
+            planned_start=(datetime.fromisoformat(data["planned_start"]) if data["planned_start"] else None),
+            actual_start=(datetime.fromisoformat(data["actual_start"]) if data["actual_start"] else None),
+            actual_end=(datetime.fromisoformat(data["actual_end"]) if data["actual_end"] else None),
             duration_minutes=data["duration_minutes"],
             error_message=data["error_message"],
             retry_count=data["retry_count"],
             max_retries=data["max_retries"],
             task_type=MigrationTaskType(data["task_type"]),
             execution_params=(
-                tuple(tuple(pair) for pair in data["execution_params"])
-                if data["execution_params"]
-                else None
+                tuple(tuple(pair) for pair in data["execution_params"]) if data["execution_params"] else None
             ),
             created_at=datetime.fromisoformat(data["created_at"]),
         )
@@ -98,23 +84,16 @@ class InMemoryMigrationTaskRepository:
         return self._from_dict(data)
 
     async def list_by_programme(self, programme_id: str) -> list[MigrationTask]:
-        return [
-            self._from_dict(data)
-            for data in self._store.values()
-            if data["programme_id"] == programme_id
-        ]
+        return [self._from_dict(data) for data in self._store.values() if data["programme_id"] == programme_id]
 
     async def get_pending_tasks(self, programme_id: str) -> list[MigrationTask]:
         return [
             self._from_dict(data)
             for data in self._store.values()
-            if data["programme_id"] == programme_id
-            and data["status"] == MigrationTaskStatus.PENDING.value
+            if data["programme_id"] == programme_id and data["status"] == MigrationTaskStatus.PENDING.value
         ]
 
-    async def update_status(
-        self, task_id: str, status: MigrationTaskStatus
-    ) -> None:
+    async def update_status(self, task_id: str, status: MigrationTaskStatus) -> None:
         data = self._store.get(task_id)
         if data is not None:
             data["status"] = status.value

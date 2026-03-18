@@ -23,6 +23,7 @@ from domain.value_objects.object_type import (
 # Lightweight ABAP ZIP parser
 # ---------------------------------------------------------------------------
 
+
 def _parse_abap_zip(file_bytes: bytes) -> list[dict]:
     """Extract ABAP file names and source code from a ZIP archive.
 

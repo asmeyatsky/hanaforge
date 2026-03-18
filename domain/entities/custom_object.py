@@ -45,16 +45,12 @@ class CustomObject:
 
     def start_remediation(self) -> CustomObject:
         if self.compatibility_status != CompatibilityStatus.INCOMPATIBLE:
-            raise ValueError(
-                f"Cannot start remediation for object with status {self.compatibility_status.value}"
-            )
+            raise ValueError(f"Cannot start remediation for object with status {self.compatibility_status.value}")
         return replace(self, remediation_status=RemediationStatus.IN_PROGRESS)
 
     def complete_remediation(self) -> CustomObject:
         if self.remediation_status != RemediationStatus.IN_PROGRESS:
-            raise ValueError(
-                f"Cannot complete remediation from status {self.remediation_status.value}"
-            )
+            raise ValueError(f"Cannot complete remediation from status {self.remediation_status.value}")
         return replace(self, remediation_status=RemediationStatus.REMEDIATED)
 
     def score_complexity(self, points: EffortPoints) -> CustomObject:

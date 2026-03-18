@@ -27,9 +27,7 @@ class AnalysisResult:
 
     def __post_init__(self) -> None:
         if not (0.0 <= self.confidence <= 1.0):
-            raise ValueError(
-                f"confidence must be between 0 and 1, got {self.confidence}"
-            )
+            raise ValueError(f"confidence must be between 0 and 1, got {self.confidence}")
 
 
 class ABAPAnalysisPort(Protocol):
@@ -43,6 +41,4 @@ class ABAPAnalysisPort(Protocol):
 
 
 class MigrationAdvisorPort(Protocol):
-    async def recommend_approach(
-        self, landscape_summary: dict
-    ) -> MigrationRecommendation: ...
+    async def recommend_approach(self, landscape_summary: dict) -> MigrationRecommendation: ...

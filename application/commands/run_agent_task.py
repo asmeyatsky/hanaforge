@@ -117,7 +117,10 @@ class RunAgentTaskUseCase:
 
             logger.info(
                 "Agent task %s completed (success=%s, steps=%d, tokens=%d)",
-                task.id, result.success, len(result.steps), result.tokens_used,
+                task.id,
+                result.success,
+                len(result.steps),
+                result.tokens_used,
             )
         except asyncio.CancelledError:
             task = task.fail("Agent task was cancelled.")

@@ -9,7 +9,6 @@ from domain.value_objects.object_type import CompatibilityStatus
 
 
 class ComplexityScoringService:
-
     _WEIGHT_CUSTOM_OBJECTS = 0.30
     _WEIGHT_INCOMPATIBLE_RATIO = 0.35
     _WEIGHT_DB_SIZE = 0.20
@@ -31,10 +30,7 @@ class ComplexityScoringService:
         # Estimate integration complexity as a proxy for incompatible ratio
         integration_score = min(100.0, integration_count * 8.0) if integration_count else 10.0
 
-        weighted = (
-            object_score * 0.45
-            + integration_score * 0.55
-        )
+        weighted = object_score * 0.45 + integration_score * 0.55
 
         final = max(1, min(100, round(weighted)))
         return ComplexityScore(score=final)
@@ -75,9 +71,7 @@ class ComplexityScoringService:
     def _score_incompatible_ratio(objects: list[CustomObject]) -> float:
         if not objects:
             return 10.0
-        incompatible = sum(
-            1 for o in objects if o.compatibility_status == CompatibilityStatus.INCOMPATIBLE
-        )
+        incompatible = sum(1 for o in objects if o.compatibility_status == CompatibilityStatus.INCOMPATIBLE)
         ratio = incompatible / len(objects)
         return max(1.0, min(100.0, ratio * 100))
 

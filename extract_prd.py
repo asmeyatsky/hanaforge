@@ -13,6 +13,7 @@ def extract_text(file_path):
     except Exception as e:
         return f"Error: {e}"
 
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python extract_prd.py <file_path>")

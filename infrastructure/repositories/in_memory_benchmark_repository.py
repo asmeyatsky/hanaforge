@@ -405,24 +405,14 @@ class InMemoryBenchmarkRepository:
     async def list_all(self) -> list[BenchmarkEntry]:
         return list(self._store.values())
 
-    async def find_similar(
-        self, criteria: BenchmarkCriteria, limit: int = 10
-    ) -> list[BenchmarkEntry]:
-        results = [
-            entry
-            for entry in self._store.values()
-            if self._matches_criteria(entry, criteria)
-        ]
+    async def find_similar(self, criteria: BenchmarkCriteria, limit: int = 10) -> list[BenchmarkEntry]:
+        results = [entry for entry in self._store.values() if self._matches_criteria(entry, criteria)]
         # Sort by recency (newest first)
         results.sort(key=lambda e: e.created_at, reverse=True)
         return results[:limit]
 
     async def get_statistics(self, criteria: BenchmarkCriteria) -> BenchmarkStatistics:
-        entries = [
-            entry
-            for entry in self._store.values()
-            if self._matches_criteria(entry, criteria)
-        ]
+        entries = [entry for entry in self._store.values() if self._matches_criteria(entry, criteria)]
 
         if not entries:
             return BenchmarkStatistics(

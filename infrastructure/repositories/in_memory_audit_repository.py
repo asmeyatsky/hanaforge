@@ -55,24 +55,15 @@ class InMemoryAuditRepository:
     async def save(self, entry: AuditEntry) -> None:
         self._store[entry.id] = self._to_dict(entry)
 
-    async def list_by_programme(
-        self, programme_id: str, limit: int = 100
-    ) -> list[AuditEntry]:
-        entries = [
-            self._from_dict(data)
-            for data in self._store.values()
-            if data["programme_id"] == programme_id
-        ]
+    async def list_by_programme(self, programme_id: str, limit: int = 100) -> list[AuditEntry]:
+        entries = [self._from_dict(data) for data in self._store.values() if data["programme_id"] == programme_id]
         # Sort newest first
         entries.sort(key=lambda e: e.timestamp, reverse=True)
         return entries[:limit]
 
-    async def list_by_resource(
-        self, resource_type: str, resource_id: str
-    ) -> list[AuditEntry]:
+    async def list_by_resource(self, resource_type: str, resource_id: str) -> list[AuditEntry]:
         return [
             self._from_dict(data)
             for data in self._store.values()
-            if data["resource_type"] == resource_type
-            and data["resource_id"] == resource_id
+            if data["resource_type"] == resource_type and data["resource_id"] == resource_id
         ]

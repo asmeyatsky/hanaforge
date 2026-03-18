@@ -52,9 +52,7 @@ class GetTraceabilityMatrixQuery:
         total = len(processes)
         coverage_pct = round((covered / total) * 100.0, 2) if total > 0 else 0.0
 
-        untested = [
-            e.process_name for e in entries if e.coverage_status == "NOT_COVERED"
-        ]
+        untested = [e.process_name for e in entries if e.coverage_status == "NOT_COVERED"]
 
         return TraceabilityMatrixResponse(
             programme_id=programme_id,

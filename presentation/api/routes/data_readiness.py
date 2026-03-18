@@ -179,9 +179,7 @@ async def generate_transformation_rules(
 ) -> list[dict]:
     """Generate LTMC-compatible data transformation rules using AI."""
     container = request.app.state.container
-    use_case: GenerateTransformationRulesUseCase = container.resolve(
-        GenerateTransformationRulesUseCase
-    )
+    use_case: GenerateTransformationRulesUseCase = container.resolve(GenerateTransformationRulesUseCase)
 
     try:
         rules = await use_case.execute(

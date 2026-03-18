@@ -162,9 +162,7 @@ def create_gcp_provisioner_server(container: Container) -> Server:
                 dr_region=arguments.get("dr_region"),
             )
 
-            use_case: CreateInfrastructurePlanUseCase = container.resolve(
-                "CreateInfrastructurePlanUseCase"
-            )
+            use_case: CreateInfrastructurePlanUseCase = container.resolve("CreateInfrastructurePlanUseCase")
             result = await use_case.execute(
                 programme_id=arguments["programme_id"],
                 request=request,
@@ -172,17 +170,13 @@ def create_gcp_provisioner_server(container: Container) -> Server:
             return [TextContent(type="text", text=result.model_dump_json(indent=2))]
 
         if name == "generate_terraform":
-
             use_case = container.resolve("GenerateTerraformUseCase")
             result = await use_case.execute(plan_id=arguments["plan_id"])
             return [TextContent(type="text", text=result.model_dump_json(indent=2))]
 
         if name == "estimate_costs":
-
             use_case = container.resolve("EstimateCostsUseCase")
-            result = await use_case.execute(
-                programme_id=arguments["programme_id"]
-            )
+            result = await use_case.execute(programme_id=arguments["programme_id"])
             return [TextContent(type="text", text=result.model_dump_json(indent=2))]
 
         if name == "validate_plan":
@@ -266,9 +260,7 @@ def create_gcp_provisioner_server(container: Container) -> Server:
                 GetInfrastructurePlanQuery,
             )
 
-            query: GetInfrastructurePlanQuery = container.resolve(
-                "GetInfrastructurePlanQuery"
-            )
+            query: GetInfrastructurePlanQuery = container.resolve("GetInfrastructurePlanQuery")
             result = await query.execute(programme_id=programme_id)
             if result is None:
                 return json.dumps({"error": "No plan found for this programme"})
@@ -278,9 +270,7 @@ def create_gcp_provisioner_server(container: Container) -> Server:
             repo = container.resolve("InfrastructurePlanRepositoryPort")
             plan = await repo.get_latest_by_programme(programme_id)
             if plan is None or plan.terraform_plan_ref is None:
-                return json.dumps(
-                    {"error": "No Terraform plan generated for this programme"}
-                )
+                return json.dumps({"error": "No Terraform plan generated for this programme"})
             return json.dumps(
                 {
                     "plan_ref": plan.terraform_plan_ref,
@@ -294,9 +284,7 @@ def create_gcp_provisioner_server(container: Container) -> Server:
             from application.commands.estimate_costs import EstimateCostsUseCase
 
             try:
-                use_case: EstimateCostsUseCase = container.resolve(
-                    "EstimateCostsUseCase"
-                )
+                use_case: EstimateCostsUseCase = container.resolve("EstimateCostsUseCase")
                 result = await use_case.execute(programme_id=programme_id)
                 return result.model_dump_json(indent=2)
             except ValueError as exc:

@@ -26,9 +26,7 @@ class EstimateCostsUseCase:
     async def execute(self, programme_id: str) -> CostEstimateResponse:
         plan = await self._repository.get_latest_by_programme(programme_id)
         if plan is None:
-            raise ValueError(
-                f"No infrastructure plan found for programme {programme_id!r}."
-            )
+            raise ValueError(f"No infrastructure plan found for programme {programme_id!r}.")
 
         # Recalculate cost from current plan state
         try:

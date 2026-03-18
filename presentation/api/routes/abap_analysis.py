@@ -71,7 +71,8 @@ async def run_abap_analysis(
     tenant_svc: TenantAccessService = container.resolve(TenantAccessService)
     try:
         await tenant_svc.validate_programme_access(
-            programme_id=programme_id, customer_id=tenant.customer_id,
+            programme_id=programme_id,
+            customer_id=tenant.customer_id,
         )
     except ValueError:
         raise HTTPException(
@@ -101,7 +102,8 @@ async def get_analysis_results(
     tenant_svc: TenantAccessService = container.resolve(TenantAccessService)
     try:
         await tenant_svc.validate_programme_access(
-            programme_id=programme_id, customer_id=tenant.customer_id,
+            programme_id=programme_id,
+            customer_id=tenant.customer_id,
         )
     except ValueError:
         raise HTTPException(
@@ -114,10 +116,7 @@ async def get_analysis_results(
     if result is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=(
-                f"Analysis results not found for programme {programme_id!r} "
-                f"and landscape {landscape_id!r}"
-            ),
+            detail=(f"Analysis results not found for programme {programme_id!r} and landscape {landscape_id!r}"),
         )
     return result
 
@@ -159,9 +158,7 @@ async def export_remediation_backlog(
         )
 
     container = request.app.state.container
-    use_case: ExportRemediationBacklogUseCase = container.resolve(
-        ExportRemediationBacklogUseCase
-    )
+    use_case: ExportRemediationBacklogUseCase = container.resolve(ExportRemediationBacklogUseCase)
     data = await use_case.execute(landscape_id=landscape_id, format=export_format)
 
     content_type, filename = _FORMAT_CONTENT_TYPES[export_format]

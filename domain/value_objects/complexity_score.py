@@ -14,9 +14,7 @@ class ComplexityScore:
         if not (1 <= self.score <= 100):
             raise ValueError(f"score must be between 1 and 100, got {self.score}")
         if self.benchmark_percentile is not None and not (0.0 <= self.benchmark_percentile <= 100.0):
-            raise ValueError(
-                f"benchmark_percentile must be between 0 and 100, got {self.benchmark_percentile}"
-            )
+            raise ValueError(f"benchmark_percentile must be between 0 and 100, got {self.benchmark_percentile}")
 
     @property
     def risk_level(self) -> str:

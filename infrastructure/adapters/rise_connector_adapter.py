@@ -123,9 +123,7 @@ class RISEConnectorAdapter:
             ),
         ]
 
-    async def execute_transport(
-        self, connection: RISEConnection, transport_id: str
-    ) -> TransportResult:
+    async def execute_transport(self, connection: RISEConnection, transport_id: str) -> TransportResult:
         """Execute (import) a transport request into the target system.
 
         TODO: Real implementation:

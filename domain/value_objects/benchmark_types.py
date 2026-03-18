@@ -21,17 +21,13 @@ class BenchmarkCriteria:
             if lo < 0 or hi < 0:
                 raise ValueError("db_size_range values must be non-negative")
             if lo > hi:
-                raise ValueError(
-                    f"db_size_range lower bound ({lo}) must not exceed upper bound ({hi})"
-                )
+                raise ValueError(f"db_size_range lower bound ({lo}) must not exceed upper bound ({hi})")
         if self.object_count_range is not None:
             lo, hi = self.object_count_range
             if lo < 0 or hi < 0:
                 raise ValueError("object_count_range values must be non-negative")
             if lo > hi:
-                raise ValueError(
-                    f"object_count_range lower bound ({lo}) must not exceed upper bound ({hi})"
-                )
+                raise ValueError(f"object_count_range lower bound ({lo}) must not exceed upper bound ({hi})")
 
 
 @dataclass(frozen=True)
@@ -69,9 +65,7 @@ class EstimationResult:
         if self.estimated_duration_days < 0:
             raise ValueError("estimated_duration_days must be non-negative")
         if not (0.0 <= self.confidence_level <= 1.0):
-            raise ValueError(
-                f"confidence_level must be between 0.0 and 1.0, got {self.confidence_level}"
-            )
+            raise ValueError(f"confidence_level must be between 0.0 and 1.0, got {self.confidence_level}")
         if self.lower_bound_days > self.estimated_duration_days:
             raise ValueError("lower_bound_days must not exceed estimated_duration_days")
         if self.upper_bound_days < self.estimated_duration_days:

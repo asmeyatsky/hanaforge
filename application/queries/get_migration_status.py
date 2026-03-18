@@ -40,9 +40,7 @@ class GetMigrationStatusQuery:
 
         # Build response
         task_responses = [MigrationTaskResponse.from_entity(t) for t in tasks]
-        anomaly_responses = [
-            AnomalyAlertResponse.from_value_object(a) for a in anomalies
-        ]
+        anomaly_responses = [AnomalyAlertResponse.from_value_object(a) for a in anomalies]
 
         return MigrationStatusResponse(
             programme_id=programme_id,
@@ -60,8 +58,7 @@ class GetMigrationStatusQuery:
                 "total_duration_minutes": critical_path.total_duration_minutes,
                 "critical_tasks": list(critical_path.critical_tasks),
                 "slack_per_task": [
-                    {"task_id": tid, "slack_minutes": slack}
-                    for tid, slack in critical_path.slack_per_task
+                    {"task_id": tid, "slack_minutes": slack} for tid, slack in critical_path.slack_per_task
                 ],
             },
             tasks_summary={

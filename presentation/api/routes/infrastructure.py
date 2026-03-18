@@ -42,9 +42,7 @@ async def create_plan(
 ) -> InfrastructurePlanResponse:
     """Create a new GCP infrastructure plan for an SAP S/4HANA migration programme."""
     container = request.app.state.container
-    use_case: CreateInfrastructurePlanUseCase = container.resolve(
-        "CreateInfrastructurePlanUseCase"
-    )
+    use_case: CreateInfrastructurePlanUseCase = container.resolve("CreateInfrastructurePlanUseCase")
     try:
         return await use_case.execute(programme_id=programme_id, request=body)
     except ValueError as exc:
@@ -66,9 +64,7 @@ async def get_plan(
 ) -> InfrastructurePlanResponse:
     """Retrieve the latest infrastructure plan for a programme."""
     container = request.app.state.container
-    query: GetInfrastructurePlanQuery = container.resolve(
-        "GetInfrastructurePlanQuery"
-    )
+    query: GetInfrastructurePlanQuery = container.resolve("GetInfrastructurePlanQuery")
     result = await query.execute(programme_id=programme_id)
     if result is None:
         raise HTTPException(
@@ -90,9 +86,7 @@ async def generate_terraform(
 ) -> TerraformResponse:
     """Generate complete Terraform HCL for a previously created infrastructure plan."""
     container = request.app.state.container
-    use_case: GenerateTerraformUseCase = container.resolve(
-        "GenerateTerraformUseCase"
-    )
+    use_case: GenerateTerraformUseCase = container.resolve("GenerateTerraformUseCase")
     try:
         return await use_case.execute(plan_id=plan_id)
     except ValueError as exc:
@@ -174,9 +168,7 @@ async def create_monitoring_dashboards(
 ) -> dict[str, Any]:
     """Create SAP and GCP Cloud Monitoring dashboards with alert policies for a programme."""
     container = request.app.state.container
-    use_case: CreateMonitoringDashboardUseCase = container.resolve(
-        "CreateMonitoringDashboardUseCase"
-    )
+    use_case: CreateMonitoringDashboardUseCase = container.resolve("CreateMonitoringDashboardUseCase")
     try:
         return await use_case.execute(
             programme_id=programme_id,
@@ -200,7 +192,5 @@ async def get_monitoring_status(
 ) -> dict[str, Any]:
     """Retrieve the current monitoring dashboard status for a programme."""
     container = request.app.state.container
-    use_case: CreateMonitoringDashboardUseCase = container.resolve(
-        "CreateMonitoringDashboardUseCase"
-    )
+    use_case: CreateMonitoringDashboardUseCase = container.resolve("CreateMonitoringDashboardUseCase")
     return await use_case.get_status(programme_id=programme_id)

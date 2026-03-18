@@ -60,8 +60,4 @@ class InMemoryLandscapeRepository:
         return self._from_dict(data)
 
     async def list_by_programme(self, programme_id: str) -> list[SAPLandscape]:
-        return [
-            self._from_dict(data)
-            for data in self._store.values()
-            if data["programme_id"] == programme_id
-        ]
+        return [self._from_dict(data) for data in self._store.values() if data["programme_id"] == programme_id]

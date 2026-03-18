@@ -24,7 +24,6 @@ _DOMAIN_CRITICALITY: dict[BusinessDomain, int] = {
 
 
 class RemediationPriorityService:
-
     def prioritize_backlog(self, objects: list[CustomObject]) -> list[CustomObject]:
         return sorted(objects, key=self._sort_key)
 

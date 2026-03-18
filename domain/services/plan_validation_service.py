@@ -31,16 +31,18 @@ _MIN_HANA_MEMORY: dict[GCPMachineType, int] = {
 }
 
 # SAP-certified HANA instance types
-_CERTIFIED_HANA_TYPES: frozenset[GCPMachineType] = frozenset({
-    GCPMachineType.M3_ULTRAMEM_32,
-    GCPMachineType.M3_ULTRAMEM_64,
-    GCPMachineType.M3_ULTRAMEM_128,
-    GCPMachineType.M3_MEGAMEM_64,
-    GCPMachineType.M3_MEGAMEM_128,
-    GCPMachineType.M2_ULTRAMEM_208,
-    GCPMachineType.M2_ULTRAMEM_416,
-    GCPMachineType.BAREMETAL_BM_HANA,
-})
+_CERTIFIED_HANA_TYPES: frozenset[GCPMachineType] = frozenset(
+    {
+        GCPMachineType.M3_ULTRAMEM_32,
+        GCPMachineType.M3_ULTRAMEM_64,
+        GCPMachineType.M3_ULTRAMEM_128,
+        GCPMachineType.M3_MEGAMEM_64,
+        GCPMachineType.M3_MEGAMEM_128,
+        GCPMachineType.M2_ULTRAMEM_208,
+        GCPMachineType.M2_ULTRAMEM_416,
+        GCPMachineType.BAREMETAL_BM_HANA,
+    }
+)
 
 # Minimum disk sizes per SAP Note 1944799
 _MIN_LOG_DISK_GB = 512
@@ -52,9 +54,7 @@ _MIN_BACKUP_DISK_GB = 256
 class PlanValidationService:
     """Validates an InfrastructurePlan against SAP on GCP certification requirements."""
 
-    def validate_sap_certification(
-        self, plan: InfrastructurePlan
-    ) -> ValidationResult:
+    def validate_sap_certification(self, plan: InfrastructurePlan) -> ValidationResult:
         """Run all certification checks and return an aggregate result."""
         errors: list[str] = []
         warnings: list[str] = []
@@ -69,8 +69,7 @@ class PlanValidationService:
         else:
             checks_failed += 1
             errors.append(
-                f"HANA instance type {plan.hana_config.instance_type.value} "
-                f"is not SAP-certified for HANA workloads."
+                f"HANA instance type {plan.hana_config.instance_type.value} is not SAP-certified for HANA workloads."
             )
 
         # ------------------------------------------------------------------
@@ -94,10 +93,7 @@ class PlanValidationService:
         if plan.ha_enabled:
             checks_passed += 1
         else:
-            warnings.append(
-                "High availability is not enabled. "
-                "HA is mandatory for SAP production landscapes (PRD)."
-            )
+            warnings.append("High availability is not enabled. HA is mandatory for SAP production landscapes (PRD).")
 
         # ------------------------------------------------------------------
         # Check 4: DR recommended for production
@@ -106,8 +102,7 @@ class PlanValidationService:
             checks_passed += 1
         else:
             warnings.append(
-                "Disaster recovery is not configured. "
-                "Cross-region DR is recommended for production SAP landscapes."
+                "Disaster recovery is not configured. Cross-region DR is recommended for production SAP landscapes."
             )
 
         # ------------------------------------------------------------------
@@ -118,15 +113,13 @@ class PlanValidationService:
             checks_failed += 1
             disk_ok = False
             errors.append(
-                f"HANA log disk {plan.hana_config.hana_log_disk_gb} GB is below "
-                f"the minimum {_MIN_LOG_DISK_GB} GB."
+                f"HANA log disk {plan.hana_config.hana_log_disk_gb} GB is below the minimum {_MIN_LOG_DISK_GB} GB."
             )
         if plan.hana_config.hana_data_disk_gb < _MIN_DATA_DISK_GB:
             checks_failed += 1
             disk_ok = False
             errors.append(
-                f"HANA data disk {plan.hana_config.hana_data_disk_gb} GB is below "
-                f"the minimum {_MIN_DATA_DISK_GB} GB."
+                f"HANA data disk {plan.hana_config.hana_data_disk_gb} GB is below the minimum {_MIN_DATA_DISK_GB} GB."
             )
         if plan.hana_config.hana_shared_disk_gb < _MIN_SHARED_DISK_GB:
             checks_failed += 1
@@ -139,8 +132,7 @@ class PlanValidationService:
             checks_failed += 1
             disk_ok = False
             errors.append(
-                f"HANA backup disk {plan.hana_config.backup_disk_gb} GB is below "
-                f"the minimum {_MIN_BACKUP_DISK_GB} GB."
+                f"HANA backup disk {plan.hana_config.backup_disk_gb} GB is below the minimum {_MIN_BACKUP_DISK_GB} GB."
             )
         if disk_ok:
             checks_passed += 1
@@ -152,17 +144,10 @@ class PlanValidationService:
             db_net = ipaddress.ip_network(plan.network_config.subnet_cidr_db, strict=False)
             app_net = ipaddress.ip_network(plan.network_config.subnet_cidr_app, strict=False)
             web_net = ipaddress.ip_network(plan.network_config.subnet_cidr_web, strict=False)
-            overlap = (
-                db_net.overlaps(app_net)
-                or db_net.overlaps(web_net)
-                or app_net.overlaps(web_net)
-            )
+            overlap = db_net.overlaps(app_net) or db_net.overlaps(web_net) or app_net.overlaps(web_net)
             if overlap:
                 checks_failed += 1
-                errors.append(
-                    "Subnet CIDRs overlap. Each SAP tier (DB, App, Web) must use "
-                    "non-overlapping subnets."
-                )
+                errors.append("Subnet CIDRs overlap. Each SAP tier (DB, App, Web) must use non-overlapping subnets.")
             else:
                 checks_passed += 1
         except ValueError as exc:
@@ -186,10 +171,7 @@ class PlanValidationService:
         if plan.security_config.enable_os_login:
             checks_passed += 1
         else:
-            warnings.append(
-                "OS Login is not enabled. OS Login with 2FA is recommended "
-                "for SAP compute instances."
-            )
+            warnings.append("OS Login is not enabled. OS Login with 2FA is recommended for SAP compute instances.")
 
         # ------------------------------------------------------------------
         # Aggregate result

@@ -19,8 +19,10 @@ class FirestoreHypercareRepository(FirestoreBase):
             val = getattr(session, field)
             if isinstance(val, tuple):
                 val = [
-                    {k: (v.value if hasattr(v, "value") else (v.isoformat() if hasattr(v, "isoformat") else v))
-                     for k, v in item.__dict__.items()}
+                    {
+                        k: (v.value if hasattr(v, "value") else (v.isoformat() if hasattr(v, "isoformat") else v))
+                        for k, v in item.__dict__.items()
+                    }
                     if hasattr(item, "__dataclass_fields__")
                     else item
                     for item in val

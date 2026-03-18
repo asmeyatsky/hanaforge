@@ -40,9 +40,7 @@ class DataDomain:
     ) -> DataDomain:
         """Return a new DataDomain with profiling results applied."""
         if not (0.0 <= ref_score <= 1.0):
-            raise ValueError(
-                f"referential_integrity_score must be between 0 and 1, got {ref_score}"
-            )
+            raise ValueError(f"referential_integrity_score must be between 0 and 1, got {ref_score}")
         return replace(
             self,
             null_rates=null_rates,
@@ -66,8 +64,7 @@ class DataDomain:
             DataMigrationStatus.CLEANSED,
         ):
             raise ValueError(
-                f"Cannot mark migration ready from status {self.migration_status.value}; "
-                f"must be PROFILED or CLEANSED"
+                f"Cannot mark migration ready from status {self.migration_status.value}; must be PROFILED or CLEANSED"
             )
         return replace(
             self,

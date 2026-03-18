@@ -20,6 +20,7 @@ from presentation.api.main import app
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture()
 def client():
     """Yield a TestClient with lifespan events triggered (DI container ready)."""
@@ -109,15 +110,11 @@ class TestRootEndpoint:
 class TestCreateProgramme:
     """POST /api/v1/programmes/ — create a new migration programme."""
 
-    def test_create_returns_201(
-        self, client: TestClient, programme_payload: dict
-    ) -> None:
+    def test_create_returns_201(self, client: TestClient, programme_payload: dict) -> None:
         resp = client.post("/api/v1/programmes/", json=programme_payload)
         assert resp.status_code == 201
 
-    def test_create_returns_programme_body(
-        self, client: TestClient, programme_payload: dict
-    ) -> None:
+    def test_create_returns_programme_body(self, client: TestClient, programme_payload: dict) -> None:
         body = client.post("/api/v1/programmes/", json=programme_payload).json()
         assert body["name"] == "Acme ECC Migration"
         assert body["customer_id"] == "dev-tenant"
@@ -125,17 +122,13 @@ class TestCreateProgramme:
         assert body["target_version"] == "S/4HANA 2023"
         assert body["status"] == "CREATED"
 
-    def test_create_generates_id(
-        self, client: TestClient, programme_payload: dict
-    ) -> None:
+    def test_create_generates_id(self, client: TestClient, programme_payload: dict) -> None:
         body = client.post("/api/v1/programmes/", json=programme_payload).json()
         assert body["id"]  # non-empty UUID string
         # Verify it parses as UUID
         uuid.UUID(body["id"])
 
-    def test_create_sets_timestamp(
-        self, client: TestClient, programme_payload: dict
-    ) -> None:
+    def test_create_sets_timestamp(self, client: TestClient, programme_payload: dict) -> None:
         body = client.post("/api/v1/programmes/", json=programme_payload).json()
         assert body["created_at"]  # non-empty ISO timestamp
 
@@ -162,9 +155,7 @@ class TestCreateProgramme:
         resp = client.post("/api/v1/programmes/", json=payload)
         assert resp.status_code == 201
 
-    def test_create_complexity_score_initially_none(
-        self, client: TestClient, programme_payload: dict
-    ) -> None:
+    def test_create_complexity_score_initially_none(self, client: TestClient, programme_payload: dict) -> None:
         body = client.post("/api/v1/programmes/", json=programme_payload).json()
         assert body["complexity_score"] is None
 
@@ -181,17 +172,13 @@ class TestListProgrammes:
         assert body["programmes"] == []
         assert body["total"] == 0
 
-    def test_list_after_create(
-        self, client: TestClient, created_programme: dict
-    ) -> None:
+    def test_list_after_create(self, client: TestClient, created_programme: dict) -> None:
         body = client.get("/api/v1/programmes/").json()
         assert body["total"] >= 1
         ids = [p["id"] for p in body["programmes"]]
         assert created_programme["id"] in ids
 
-    def test_list_multiple_programmes(
-        self, client: TestClient, programme_payload: dict
-    ) -> None:
+    def test_list_multiple_programmes(self, client: TestClient, programme_payload: dict) -> None:
         # Create two programmes with the same tenant (dev-tenant)
         client.post("/api/v1/programmes/", json=programme_payload)
         payload_2 = {**programme_payload, "name": "Beta Migration"}
@@ -200,9 +187,7 @@ class TestListProgrammes:
         body = client.get("/api/v1/programmes/").json()
         assert body["total"] >= 2
 
-    def test_list_filter_by_tenant(
-        self, client: TestClient, programme_payload: dict
-    ) -> None:
+    def test_list_filter_by_tenant(self, client: TestClient, programme_payload: dict) -> None:
         """In dev mode, tenant is dev-tenant from DEV_USER. Only programmes
         with matching customer_id are returned."""
         # Create programme with dev-tenant customer_id (matches dev auth)
@@ -213,9 +198,7 @@ class TestListProgrammes:
         for prog in body["programmes"]:
             assert prog["customer_id"] == "dev-tenant"
 
-    def test_list_excludes_other_tenants(
-        self, client: TestClient, programme_payload: dict
-    ) -> None:
+    def test_list_excludes_other_tenants(self, client: TestClient, programme_payload: dict) -> None:
         """Programmes created with a different customer_id should not appear
         in the dev-tenant listing."""
         # Create with non-matching customer_id
@@ -230,16 +213,12 @@ class TestListProgrammes:
 class TestGetProgrammeById:
     """GET /api/v1/programmes/{programme_id} — get a single programme."""
 
-    def test_get_by_id_returns_200(
-        self, client: TestClient, created_programme: dict
-    ) -> None:
+    def test_get_by_id_returns_200(self, client: TestClient, created_programme: dict) -> None:
         pid = created_programme["id"]
         resp = client.get(f"/api/v1/programmes/{pid}")
         assert resp.status_code == 200
 
-    def test_get_by_id_matches_created(
-        self, client: TestClient, created_programme: dict
-    ) -> None:
+    def test_get_by_id_matches_created(self, client: TestClient, created_programme: dict) -> None:
         pid = created_programme["id"]
         body = client.get(f"/api/v1/programmes/{pid}").json()
         assert body["id"] == pid
@@ -285,9 +264,7 @@ class TestDiscoveryEndpoints:
         # The use case raises ValueError for missing programme -> 500 or error
         assert resp.status_code in (404, 422, 500)
 
-    def test_discover_with_valid_programme(
-        self, client: TestClient, created_programme: dict
-    ) -> None:
+    def test_discover_with_valid_programme(self, client: TestClient, created_programme: dict) -> None:
         """Discovery on a created programme should attempt execution.
 
         The stub SAP adapter doesn't have a 'discover' method, so this will
@@ -303,9 +280,7 @@ class TestDiscoveryEndpoints:
         # at least the route resolves and the programme was found
         assert resp.status_code in (201, 500)
 
-    def test_get_landscape_requires_landscape_id(
-        self, client: TestClient, created_programme: dict
-    ) -> None:
+    def test_get_landscape_requires_landscape_id(self, client: TestClient, created_programme: dict) -> None:
         """GET landscape without landscape_id query param should return 400."""
         pid = created_programme["id"]
         resp = client.get(f"/api/v1/discovery/{pid}/landscape")
@@ -313,9 +288,7 @@ class TestDiscoveryEndpoints:
         body = resp.json()
         assert "landscape_id" in body["detail"]
 
-    def test_get_landscape_nonexistent(
-        self, client: TestClient, created_programme: dict
-    ) -> None:
+    def test_get_landscape_nonexistent(self, client: TestClient, created_programme: dict) -> None:
         """GET landscape with a random landscape_id should return an error or empty data.
 
         The underlying query always returns a response (never None), so the
@@ -404,9 +377,7 @@ class TestABAPAnalysisResultsEndpoint:
         # AnalysisResultsResponse with empty object list from the in-memory repo
         assert resp.status_code in (200, 404)
 
-    def test_results_response_structure(
-        self, client: TestClient, created_programme: dict
-    ) -> None:
+    def test_results_response_structure(self, client: TestClient, created_programme: dict) -> None:
         """Verify response structure from the analysis results endpoint."""
         pid = created_programme["id"]
         lid = str(uuid.uuid4())
@@ -421,9 +392,7 @@ class TestABAPAnalysisResultsEndpoint:
             assert "objects" in body
             assert isinstance(body["objects"], list)
 
-    def test_results_counts_are_integers(
-        self, client: TestClient, created_programme: dict
-    ) -> None:
+    def test_results_counts_are_integers(self, client: TestClient, created_programme: dict) -> None:
         pid = created_programme["id"]
         lid = str(uuid.uuid4())
         resp = client.get(f"/api/v1/abap-analysis/results/{pid}/{lid}")
@@ -678,9 +647,7 @@ class TestMethodNotAllowed:
 class TestProgrammeCRUDWorkflow:
     """Exercise a complete create-list-get sequence."""
 
-    def test_full_crud_cycle(
-        self, client: TestClient, programme_payload: dict
-    ) -> None:
+    def test_full_crud_cycle(self, client: TestClient, programme_payload: dict) -> None:
         # 1. List — should start empty
         list_resp = client.get("/api/v1/programmes/")
         assert list_resp.status_code == 200
@@ -707,9 +674,7 @@ class TestProgrammeCRUDWorkflow:
         assert fetched["target_version"] == programme_payload["target_version"]
         assert fetched["status"] == "CREATED"
 
-    def test_create_multiple_and_list(
-        self, client: TestClient, programme_payload: dict
-    ) -> None:
+    def test_create_multiple_and_list(self, client: TestClient, programme_payload: dict) -> None:
         """Create multiple programmes, verify they all appear in listing."""
         names = ["Alpha Migration", "Beta Migration", "Gamma Migration"]
         created_ids: list[str] = []
@@ -731,9 +696,7 @@ class TestProgrammeCRUDWorkflow:
 class TestAnalysisWorkflow:
     """Verify the ABAP analysis endpoints are accessible end-to-end."""
 
-    def test_results_for_fresh_landscape(
-        self, client: TestClient, created_programme: dict
-    ) -> None:
+    def test_results_for_fresh_landscape(self, client: TestClient, created_programme: dict) -> None:
         """Getting analysis results for a new landscape returns an empty result set."""
         pid = created_programme["id"]
         lid = str(uuid.uuid4())
@@ -744,9 +707,7 @@ class TestAnalysisWorkflow:
             assert body["total_objects"] == 0
             assert body["objects"] == []
 
-    def test_upload_then_results(
-        self, client: TestClient, created_programme: dict
-    ) -> None:
+    def test_upload_then_results(self, client: TestClient, created_programme: dict) -> None:
         """If upload succeeded, results should eventually reflect the objects.
 
         Note: This is a best-effort test since upload requires a real landscape
@@ -765,7 +726,5 @@ class TestAnalysisWorkflow:
         assert upload_resp.status_code in (201, 404, 500)
 
         # Results should still be available (empty)
-        results_resp = client.get(
-            f"/api/v1/abap-analysis/results/{pid}/{fake_lid}"
-        )
+        results_resp = client.get(f"/api/v1/abap-analysis/results/{pid}/{fake_lid}")
         assert results_resp.status_code in (200, 404)

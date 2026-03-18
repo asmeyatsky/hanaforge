@@ -67,7 +67,8 @@ async def get_programme(
     tenant_svc: TenantAccessService = container.resolve(TenantAccessService)
     try:
         programme = await tenant_svc.validate_programme_access(
-            programme_id=programme_id, customer_id=tenant.customer_id,
+            programme_id=programme_id,
+            customer_id=tenant.customer_id,
         )
     except ValueError:
         raise HTTPException(

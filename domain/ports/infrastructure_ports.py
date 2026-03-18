@@ -86,12 +86,22 @@ class CloudMonitoringPort(Protocol):
         """Create a Cloud Monitoring dashboard from a config specification."""
         ...
 
-    async def create_alert_policies(
-        self, plan_ref: str, thresholds: dict[str, float]
-    ) -> list[dict]:
+    async def create_alert_policies(self, plan_ref: str, thresholds: dict[str, float]) -> list[dict]:
         """Create alert policies for the given plan reference and thresholds."""
         ...
 
     async def get_dashboard_url(self, dashboard_id: str) -> str:
         """Return the console URL for a given dashboard ID."""
+        ...
+
+    def build_sap_metrics(self) -> list[dict[str, object]]:
+        """Return standard SAP/HANA metric definitions."""
+        ...
+
+    def build_gcp_metrics(self) -> list[dict[str, object]]:
+        """Return standard GCP infrastructure metric definitions."""
+        ...
+
+    def default_sap_thresholds(self) -> dict[str, float]:
+        """Return default alert thresholds for SAP metrics."""
         ...

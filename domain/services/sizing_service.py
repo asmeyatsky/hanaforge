@@ -180,9 +180,7 @@ class SAPSizingService:
         )
 
     @staticmethod
-    def _select_app_instance(
-        saps: int, users: int
-    ) -> tuple[GCPMachineType, int]:
+    def _select_app_instance(saps: int, users: int) -> tuple[GCPMachineType, int]:
         """Return (machine_type, instance_count) for application servers."""
         if saps < 5_000 and users < 200:
             return GCPMachineType.C3_STANDARD_4, 1

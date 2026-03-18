@@ -116,9 +116,7 @@ class CloudBuildProvisioningAdapter:
             duration_minutes = max(1, int(elapsed / 60))
 
             self._statuses[plan_ref] = _ProvisioningStatus.SUCCEEDED
-            logger.info(
-                "Provisioning succeeded for plan_ref=%s (%.1fs)", plan_ref, elapsed
-            )
+            logger.info("Provisioning succeeded for plan_ref=%s (%.1fs)", plan_ref, elapsed)
 
             return ProvisioningResult(
                 success=True,
@@ -137,9 +135,7 @@ class CloudBuildProvisioningAdapter:
 
         except Exception as exc:
             self._statuses[plan_ref] = _ProvisioningStatus.FAILED
-            logger.error(
-                "Provisioning failed for plan_ref=%s: %s", plan_ref, exc
-            )
+            logger.error("Provisioning failed for plan_ref=%s: %s", plan_ref, exc)
             elapsed = time.monotonic() - start
             return ProvisioningResult(
                 success=False,
@@ -304,12 +300,11 @@ class CloudBuildProvisioningAdapter:
 
         # Add service account if configured
         if self._service_account:
-            build_config["serviceAccount"] = (
-                f"projects/{self._gcp_project_id}/serviceAccounts/{self._service_account}"
-            )
+            build_config["serviceAccount"] = f"projects/{self._gcp_project_id}/serviceAccounts/{self._service_account}"
 
         # Remove empty logsBucket to keep YAML clean
         if not build_config["options"]["logsBucket"]:
             del build_config["options"]["logsBucket"]
 
-        return yaml.dump(build_config, default_flow_style=False, sort_keys=False)
+        result: str = yaml.dump(build_config, default_flow_style=False, sort_keys=False)
+        return result

@@ -45,9 +45,7 @@ class AIAnomalyDetectionAdapter:
         self._memory_threshold_pct = memory_threshold_pct
         self._latency_threshold_ms = latency_threshold_ms
 
-    async def analyze_metrics(
-        self, programme_id: str, metrics: dict
-    ) -> list[AnomalyAlert]:
+    async def analyze_metrics(self, programme_id: str, metrics: dict) -> list[AnomalyAlert]:
         """Analyze aggregated metrics for a programme and return anomaly alerts.
 
         Expected metrics dict keys:
@@ -75,8 +73,7 @@ class AIAnomalyDetectionAdapter:
                     alert_type=AnomalyType.ERROR_RATE_SPIKE,
                     severity=AuditSeverity.ERROR,
                     message=(
-                        f"Programme error rate spike: {total_errors} errors "
-                        f"(threshold: {self._error_rate_threshold})"
+                        f"Programme error rate spike: {total_errors} errors (threshold: {self._error_rate_threshold})"
                     ),
                     detected_at=now,
                     metric_name="total_errors",
@@ -97,8 +94,7 @@ class AIAnomalyDetectionAdapter:
                     alert_type=AnomalyType.PERFORMANCE_DEGRADATION,
                     severity=AuditSeverity.WARNING,
                     message=(
-                        f"Average task duration {avg_duration:.0f}min exceeds "
-                        f"2x expected {expected_duration:.0f}min"
+                        f"Average task duration {avg_duration:.0f}min exceeds 2x expected {expected_duration:.0f}min"
                     ),
                     detected_at=now,
                     metric_name="avg_task_duration_minutes",

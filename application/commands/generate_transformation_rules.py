@@ -29,10 +29,7 @@ class GenerateTransformationRulesUseCase:
         # 1. Load the data domain
         data_domain = await self._data_repo.get_by_table_name(landscape_id, table_name)
         if data_domain is None:
-            raise ValueError(
-                f"DataDomain for table {table_name!r} in landscape "
-                f"{landscape_id!r} not found"
-            )
+            raise ValueError(f"DataDomain for table {table_name!r} in landscape {landscape_id!r} not found")
 
         # 2. Build source schema from profiled data
         source_schema = {

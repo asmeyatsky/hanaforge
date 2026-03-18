@@ -12,9 +12,7 @@ class GetAuditLogQuery:
     def __init__(self, audit_repo: AuditRepositoryPort) -> None:
         self._audit_repo = audit_repo
 
-    async def execute(
-        self, programme_id: str, limit: int = 100
-    ) -> AuditLogResponse:
+    async def execute(self, programme_id: str, limit: int = 100) -> AuditLogResponse:
         """Retrieve audit log entries, newest first."""
         entries = await self._audit_repo.list_by_programme(programme_id, limit=limit)
 

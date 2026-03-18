@@ -116,14 +116,20 @@ class TestRecordDeviation:
         now = datetime.now(timezone.utc)
 
         d1 = ExecutionDeviation(
-            task_id="T-001", deviation_type="DELAY",
-            planned_value="60", actual_value="90",
-            impact="Minor", recorded_at=now,
+            task_id="T-001",
+            deviation_type="DELAY",
+            planned_value="60",
+            actual_value="90",
+            impact="Minor",
+            recorded_at=now,
         )
         d2 = ExecutionDeviation(
-            task_id="T-002", deviation_type="SKIP",
-            planned_value="Execute", actual_value="Skipped",
-            impact="None", recorded_at=now,
+            task_id="T-002",
+            deviation_type="SKIP",
+            planned_value="Execute",
+            actual_value="Skipped",
+            impact="None",
+            recorded_at=now,
         )
 
         updated = execution.record_deviation(d1).record_deviation(d2)

@@ -120,11 +120,7 @@ class ABAPSourceParser:
                     continue
 
                 lower = entry.lower()
-                if not (
-                    lower.endswith(".abap")
-                    or lower.endswith(".txt")
-                    or lower.endswith(".xml")
-                ):
+                if not (lower.endswith(".abap") or lower.endswith(".txt") or lower.endswith(".xml")):
                     continue
 
                 source_code = zf.read(entry).decode("utf-8", errors="replace")

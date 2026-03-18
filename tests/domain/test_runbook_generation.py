@@ -93,7 +93,7 @@ class TestGenerateRunbook:
                 prev_idx = category_order.index(seen_categories[i - 1])
                 curr_idx = category_order.index(cat)
                 assert curr_idx >= prev_idx, (
-                    f"Category {cat} appeared after {seen_categories[i-1]} "
+                    f"Category {cat} appeared after {seen_categories[i - 1]} "
                     f"but should not precede it in execution order"
                 )
 
@@ -108,9 +108,7 @@ class TestGenerateRunbook:
             data_sequences=data_sequences,
         )
 
-        assert len(runbook.go_nogo_gates) >= 4, (
-            "Should have at least 4 gates between major phases"
-        )
+        assert len(runbook.go_nogo_gates) >= 4, "Should have at least 4 gates between major phases"
 
         gate_types_present = {g.gate_type for g in runbook.go_nogo_gates}
         assert GateType.SYSTEM_HEALTH in gate_types_present
@@ -141,9 +139,7 @@ class TestGenerateRunbook:
         assert len(rp.trigger_conditions) > 0, "Rollback plan should have trigger conditions"
         assert len(rp.rollback_steps) > 0, "Rollback plan should have steps"
         assert rp.max_rollback_window_hours > 0
-        assert rp.point_of_no_return_task_id is not None, (
-            "Should identify point of no return"
-        )
+        assert rp.point_of_no_return_task_id is not None, "Should identify point of no return"
 
         # Point of no return should be a TECHNICAL_CUTOVER task
         ponr_task = next(
@@ -235,9 +231,7 @@ class TestRunbookEdgeCases:
             data_sequences=data_sequences,
         )
 
-        data_tasks = [
-            t for t in runbook.tasks if t.category == CutoverCategory.DATA_MIGRATION
-        ]
+        data_tasks = [t for t in runbook.tasks if t.category == CutoverCategory.DATA_MIGRATION]
         task_names = " ".join(t.name for t in data_tasks)
         assert "GL Balances" in task_names
         assert "AP Open Items" in task_names

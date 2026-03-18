@@ -44,10 +44,10 @@ class TerraformHCLGenerator:
         # Check required blocks exist
         required_blocks = [
             ("terraform {", "terraform configuration block"),
-            ("provider \"google\"", "Google provider"),
-            ("resource \"google_compute_network\"", "VPC network"),
-            ("resource \"google_compute_subnetwork\"", "subnet definition"),
-            ("resource \"google_compute_instance\"", "compute instance"),
+            ('provider "google"', "Google provider"),
+            ('resource "google_compute_network"', "VPC network"),
+            ('resource "google_compute_subnetwork"', "subnet definition"),
+            ('resource "google_compute_instance"', "compute instance"),
         ]
         for block, description in required_blocks:
             if block in hcl:
@@ -143,7 +143,7 @@ class TerraformHCLGenerator:
             variable "dr_region" {{
               description = "Disaster recovery GCP region"
               type        = string
-              default     = "{plan.dr_region or ''}"
+              default     = "{plan.dr_region or ""}"
             }}
 
             variable "programme_id" {{
@@ -821,7 +821,8 @@ class TerraformHCLGenerator:
 
     def _generate_security(self, plan: InfrastructurePlan) -> str:
         sc = plan.security_config
-        blocks: list[str] = [textwrap.dedent("""\
+        blocks: list[str] = [
+            textwrap.dedent("""\
             # =============================================================================
             # security.tf — KMS, VPC Service Controls, IAM
             # =============================================================================
@@ -850,10 +851,12 @@ class TerraformHCLGenerator:
               project = var.project_id
               role    = "roles/storage.objectAdmin"
               member  = "serviceAccount:${google_service_account.sap_workload.email}"
-            }""")]
+            }""")
+        ]
 
         if sc.enable_cmek and sc.kms_key_ring:
-            blocks.append(textwrap.dedent(f"""\
+            blocks.append(
+                textwrap.dedent(f"""\
 
             # --- Cloud KMS for CMEK encryption ---
 
@@ -885,10 +888,12 @@ class TerraformHCLGenerator:
               lifecycle {{
                 prevent_destroy = true
               }}
-            }}"""))
+            }}""")
+            )
 
         if sc.enable_vpc_sc:
-            blocks.append(textwrap.dedent("""\
+            blocks.append(
+                textwrap.dedent("""\
 
             # --- VPC Service Controls perimeter ---
 
@@ -908,7 +913,8 @@ class TerraformHCLGenerator:
                   "projects/${var.project_id}",
                 ]
               }
-            }"""))
+            }""")
+            )
 
         return "\n".join(blocks)
 

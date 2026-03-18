@@ -98,9 +98,7 @@ class ExecuteMigrationStepUseCase:
             execution_metrics = result.get("metrics", {})
 
             # 4. Check for anomalies
-            anomalies = self._anomaly_service.detect_anomalies(
-                task, execution_metrics
-            )
+            anomalies = self._anomaly_service.detect_anomalies(task, execution_metrics)
             for anomaly in anomalies:
                 await self._anomaly_repo.save(anomaly)
                 anomaly_event = AnomalyDetectedEvent(
@@ -125,10 +123,7 @@ class ExecuteMigrationStepUseCase:
                 action=AuditAction.TASK_COMPLETED,
                 resource_type="MigrationTask",
                 resource_id=task.id,
-                details=(
-                    f"Completed task '{task.task_name}' "
-                    f"in {duration} minutes"
-                ),
+                details=(f"Completed task '{task.task_name}' in {duration} minutes"),
                 metadata=(
                     ("task_type", task.task_type.value),
                     ("duration_minutes", str(duration)),

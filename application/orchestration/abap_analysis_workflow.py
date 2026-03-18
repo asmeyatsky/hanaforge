@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import uuid
+from datetime import datetime, timezone
 from typing import Any
 
 from application.orchestration.dag_orchestrator import DAGOrchestrator, WorkflowStep
@@ -22,7 +23,7 @@ from domain.ports import (
     RemediationRepositoryPort,
 )
 from domain.services import RemediationPriorityService
-from domain.value_objects.object_type import CompatibilityStatus, RemediationStatus
+from domain.value_objects.object_type import CompatibilityStatus, ReviewStatus
 
 _MAX_CONCURRENT = 10
 
@@ -112,7 +113,12 @@ class ABAPAnalysisWorkflow:
 
         async def _analyse_one(obj: Any) -> dict:
             async with semaphore:
-                result = await self._ai_analysis.analyse(obj)
+                result = await self._ai_analysis.analyze_object(
+                    source_code=obj.source_code,
+                    object_type=obj.object_type,
+                    sap_source_version="ECC 6.0",
+                    target_version="S/4HANA 2023",
+                )
                 return {
                     "object": obj,
                     "result": result,
@@ -148,7 +154,9 @@ class ABAPAnalysisWorkflow:
                 suggested_replacement=result.suggested_replacement,
                 generated_code=result.generated_code or "",
                 confidence_score=result.confidence_score,
-                status=RemediationStatus.NOT_STARTED,
+                reviewed_by=None,
+                status=ReviewStatus.PENDING,
+                created_at=datetime.now(timezone.utc),
             )
             suggestions.append(suggestion)
 

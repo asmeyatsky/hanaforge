@@ -74,9 +74,7 @@ async def approve_runbook(
     try:
         return await use_case.execute(runbook_id=runbook_id, approver=approver)
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
-        ) from exc
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
 
 # ---------------------------------------------------------------------------
@@ -101,9 +99,7 @@ async def start_cutover(
     try:
         return await use_case.execute(runbook_id=runbook_id)
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
-        ) from exc
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
 
 @router.get(
@@ -149,9 +145,7 @@ async def evaluate_gate(
             system_checks=body,
         )
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
-        ) from exc
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
 
 # ---------------------------------------------------------------------------
@@ -183,9 +177,7 @@ async def update_task(
             executor=body.get("executor"),
         )
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
-        ) from exc
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
 
 # ---------------------------------------------------------------------------
@@ -228,9 +220,7 @@ async def log_incident(
 ) -> HypercareResponse:
     """Log an incident during the hypercare period."""
     container = request.app.state.container
-    use_case: LogHypercareIncidentUseCase = container.resolve(
-        LogHypercareIncidentUseCase
-    )
+    use_case: LogHypercareIncidentUseCase = container.resolve(LogHypercareIncidentUseCase)
     try:
         return await use_case.execute(
             session_id=session_id,
@@ -240,9 +230,7 @@ async def log_incident(
             ticket_id=body.get("ticket_id"),
         )
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
-        ) from exc
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
 
 @router.get(
@@ -284,12 +272,8 @@ async def generate_lessons_learned(
 ) -> LessonsLearnedResponse:
     """Analyse cutover execution and hypercare to generate lessons-learned document."""
     container = request.app.state.container
-    use_case: GenerateLessonsLearnedUseCase = container.resolve(
-        GenerateLessonsLearnedUseCase
-    )
+    use_case: GenerateLessonsLearnedUseCase = container.resolve(GenerateLessonsLearnedUseCase)
     try:
         return await use_case.execute(programme_id=programme_id)
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
-        ) from exc
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
