@@ -58,7 +58,7 @@ class RunDataProfilingUseCase:
         async def _profile_one(domain_entity):
             async with semaphore:
                 # Read file data from storage key
-                storage_key = f"data-exports/{landscape_id}/{domain_entity.table_name}"
+                _storage_key = f"data-exports/{landscape_id}/{domain_entity.table_name}"
                 try:
                     file_bytes = b""  # Profiling port receives the raw data
                     profile = await self._profiling_port.profile_table(

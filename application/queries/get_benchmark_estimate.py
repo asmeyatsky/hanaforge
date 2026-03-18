@@ -50,7 +50,7 @@ class GetBenchmarkEstimateQuery:
         custom_object_count = 0
         if landscapes:
             # Use the latest landscape snapshot
-            latest = max(landscapes, key=lambda l: l.created_at)
+            latest = max(landscapes, key=lambda ls: ls.created_at)
             db_size_gb = latest.db_size_gb
             custom_object_count = latest.custom_object_count
 

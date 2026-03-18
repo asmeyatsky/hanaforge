@@ -379,7 +379,7 @@ class TerraformHCLGenerator:
             }}{cloud_nat_block}""")
 
     def _generate_compute_hana(self, plan: InfrastructurePlan) -> str:
-        hc = plan.hana_config
+        _hc = plan.hana_config
         zones = ["${var.region}-a", "${var.region}-b"]
 
         instances_hcl = ""
@@ -939,7 +939,10 @@ class TerraformHCLGenerator:
                 display_name = "HANA memory used > 90%"
 
                 condition_threshold {
-                  filter          = "resource.type = \\"gce_instance\\" AND metric.type = \\"agent.googleapis.com/sap/hana/memory/total_used_size\\""
+                  filter          = join(" AND ", [
+                    "resource.type = \\"gce_instance\\"",
+                    "metric.type = \\"agent.googleapis.com/sap/hana/memory/total_used_size\\""
+                  ])
                   comparison      = "COMPARISON_GT"
                   threshold_value = 90
                   duration        = "300s"
@@ -962,7 +965,10 @@ class TerraformHCLGenerator:
               }
 
               documentation {
-                content   = "SAP HANA memory utilisation has exceeded 90%. Investigate potential memory leaks or consider scaling the instance."
+                content   = join("", [
+                  "SAP HANA memory utilisation has exceeded 90%. ",
+                  "Investigate potential memory leaks or consider scaling the instance."
+                ])
                 mime_type = "text/markdown"
               }
             }
@@ -977,7 +983,11 @@ class TerraformHCLGenerator:
                 display_name = "HANA CPU > 85% for 10 min"
 
                 condition_threshold {
-                  filter          = "resource.type = \\"gce_instance\\" AND metric.type = \\"compute.googleapis.com/instance/cpu/utilization\\" AND metadata.user_labels.sap_component = \\"hana\\""
+                  filter          = join(" AND ", [
+                    "resource.type = \\"gce_instance\\"",
+                    "metric.type = \\"compute.googleapis.com/instance/cpu/utilization\\"",
+                    "metadata.user_labels.sap_component = \\"hana\\""
+                  ])
                   comparison      = "COMPARISON_GT"
                   threshold_value = 0.85
                   duration        = "600s"
@@ -1010,7 +1020,11 @@ class TerraformHCLGenerator:
                 display_name = "HANA disk write latency > 5ms"
 
                 condition_threshold {
-                  filter          = "resource.type = \\"gce_instance\\" AND metric.type = \\"compute.googleapis.com/instance/disk/write_ops_count\\" AND metadata.user_labels.sap_component = \\"hana\\""
+                  filter          = join(" AND ", [
+                    "resource.type = \\"gce_instance\\"",
+                    "metric.type = \\"compute.googleapis.com/instance/disk/write_ops_count\\"",
+                    "metadata.user_labels.sap_component = \\"hana\\""
+                  ])
                   comparison      = "COMPARISON_GT"
                   threshold_value = 5000
                   duration        = "300s"
@@ -1039,7 +1053,11 @@ class TerraformHCLGenerator:
                 display_name = "App server uptime check failed"
 
                 condition_threshold {
-                  filter          = "resource.type = \\"gce_instance\\" AND metric.type = \\"compute.googleapis.com/instance/uptime\\" AND metadata.user_labels.sap_component = \\"application-server\\""
+                  filter          = join(" AND ", [
+                    "resource.type = \\"gce_instance\\"",
+                    "metric.type = \\"compute.googleapis.com/instance/uptime\\"",
+                    "metadata.user_labels.sap_component = \\"application-server\\""
+                  ])
                   comparison      = "COMPARISON_LT"
                   threshold_value = 1
                   duration        = "120s"
@@ -1068,7 +1086,11 @@ class TerraformHCLGenerator:
                 display_name = "Network egress > 1 Gbps for 5 min"
 
                 condition_threshold {
-                  filter          = "resource.type = \\"gce_instance\\" AND metric.type = \\"compute.googleapis.com/instance/network/sent_bytes_count\\" AND metadata.user_labels.workload = \\"sap-s4hana\\""
+                  filter          = join(" AND ", [
+                    "resource.type = \\"gce_instance\\"",
+                    "metric.type = \\"compute.googleapis.com/instance/network/sent_bytes_count\\"",
+                    "metadata.user_labels.workload = \\"sap-s4hana\\""
+                  ])
                   comparison      = "COMPARISON_GT"
                   threshold_value = 125000000
                   duration        = "300s"
@@ -1097,7 +1119,10 @@ class TerraformHCLGenerator:
                 display_name = "No backup log entries in 24h"
 
                 condition_absent {
-                  filter   = "resource.type = \\"gce_instance\\" AND metric.type = \\"logging.googleapis.com/user/sap_hana_backup_success\\""
+                  filter   = join(" AND ", [
+                    "resource.type = \\"gce_instance\\"",
+                    "metric.type = \\"logging.googleapis.com/user/sap_hana_backup_success\\""
+                  ])
                   duration = "86400s"
 
                   aggregations {
@@ -1114,7 +1139,10 @@ class TerraformHCLGenerator:
               notification_channels = [google_monitoring_notification_channel.sap_email.id]
 
               documentation {
-                content   = "No successful HANA backup has been recorded in the last 24 hours. Check Backint agent and Cloud Storage connectivity."
+                content   = join("", [
+                  "No successful HANA backup has been recorded in the last 24 hours. ",
+                  "Check Backint agent and Cloud Storage connectivity."
+                ])
                 mime_type = "text/markdown"
               }
             }
@@ -1135,7 +1163,10 @@ class TerraformHCLGenerator:
                           dataSets = [{
                             timeSeriesQuery = {
                               timeSeriesFilter = {
-                                filter = "resource.type = \\"gce_instance\\" AND metric.type = \\"agent.googleapis.com/sap/hana/memory/total_used_size\\""
+                                filter = join(" AND ", [
+                                  "resource.type = \\"gce_instance\\"",
+                                  "metric.type = \\"agent.googleapis.com/sap/hana/memory/total_used_size\\""
+                                ])
                               }
                             }
                           }]
@@ -1152,7 +1183,11 @@ class TerraformHCLGenerator:
                           dataSets = [{
                             timeSeriesQuery = {
                               timeSeriesFilter = {
-                                filter = "resource.type = \\"gce_instance\\" AND metric.type = \\"compute.googleapis.com/instance/cpu/utilization\\" AND metadata.user_labels.sap_component = \\"hana\\""
+                                filter = join(" AND ", [
+                                  "resource.type = \\"gce_instance\\"",
+                                  "metric.type = \\"compute.googleapis.com/instance/cpu/utilization\\"",
+                                  "metadata.user_labels.sap_component = \\"hana\\""
+                                ])
                               }
                             }
                           }]
@@ -1169,7 +1204,11 @@ class TerraformHCLGenerator:
                           dataSets = [{
                             timeSeriesQuery = {
                               timeSeriesFilter = {
-                                filter = "resource.type = \\"gce_instance\\" AND metric.type = \\"compute.googleapis.com/instance/disk/read_ops_count\\" AND metadata.user_labels.sap_component = \\"hana\\""
+                                filter = join(" AND ", [
+                                  "resource.type = \\"gce_instance\\"",
+                                  "metric.type = \\"compute.googleapis.com/instance/disk/read_ops_count\\"",
+                                  "metadata.user_labels.sap_component = \\"hana\\""
+                                ])
                               }
                             }
                           }]
@@ -1187,7 +1226,11 @@ class TerraformHCLGenerator:
                           dataSets = [{
                             timeSeriesQuery = {
                               timeSeriesFilter = {
-                                filter = "resource.type = \\"gce_instance\\" AND metric.type = \\"compute.googleapis.com/instance/cpu/utilization\\" AND metadata.user_labels.sap_component = \\"application-server\\""
+                                filter = join(" AND ", [
+                                  "resource.type = \\"gce_instance\\"",
+                                  "metric.type = \\"compute.googleapis.com/instance/cpu/utilization\\"",
+                                  "metadata.user_labels.sap_component = \\"application-server\\""
+                                ])
                               }
                             }
                           }]
@@ -1204,7 +1247,11 @@ class TerraformHCLGenerator:
                           dataSets = [{
                             timeSeriesQuery = {
                               timeSeriesFilter = {
-                                filter = "resource.type = \\"gce_instance\\" AND metric.type = \\"compute.googleapis.com/instance/network/sent_bytes_count\\" AND metadata.user_labels.workload = \\"sap-s4hana\\""
+                                filter = join(" AND ", [
+                                  "resource.type = \\"gce_instance\\"",
+                                  "metric.type = \\"compute.googleapis.com/instance/network/sent_bytes_count\\"",
+                                  "metadata.user_labels.workload = \\"sap-s4hana\\""
+                                ])
                               }
                             }
                           }]

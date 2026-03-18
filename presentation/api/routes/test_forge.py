@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import Response
+from pydantic import BaseModel
 
 from application.commands.export_test_scenarios import ExportTestScenariosUseCase
 from application.commands.generate_interface_tests import GenerateInterfaceTestsUseCase
@@ -25,8 +26,6 @@ router = APIRouter(prefix="", tags=["TestForge SAP Edition"])
 # ------------------------------------------------------------------
 # Request models (inline to keep route file self-contained)
 # ------------------------------------------------------------------
-
-from pydantic import BaseModel
 
 
 class GenerateTestsRequest(BaseModel):

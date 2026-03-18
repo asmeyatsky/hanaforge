@@ -587,7 +587,7 @@ class TaskGraphService:
         active = sum(1 for a in anomalies if not a.acknowledged)
 
         # Calculate deviation from critical path
-        critical_path = self.calculate_critical_path(tasks)
+        _critical_path = self.calculate_critical_path(tasks)
         actual_elapsed = 0
         for t in tasks:
             if t.duration_minutes is not None:

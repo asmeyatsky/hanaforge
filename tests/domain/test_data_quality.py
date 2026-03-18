@@ -199,8 +199,14 @@ class TestRiskRegisterPrioritisation:
         bad_quality = DataQualityScore(completeness=0.3, consistency=0.4, accuracy=0.2)
 
         domains = [
-            _make_data_domain(table_name="BKPF", quality_score=good_quality, migration_status=DataMigrationStatus.PROFILED),
-            _make_data_domain(table_name="BSEG", quality_score=bad_quality, migration_status=DataMigrationStatus.PROFILED),
+            _make_data_domain(
+                table_name="BKPF", quality_score=good_quality,
+                migration_status=DataMigrationStatus.PROFILED,
+            ),
+            _make_data_domain(
+                table_name="BSEG", quality_score=bad_quality,
+                migration_status=DataMigrationStatus.PROFILED,
+            ),
         ]
 
         entries = service.generate_risk_register(domains)

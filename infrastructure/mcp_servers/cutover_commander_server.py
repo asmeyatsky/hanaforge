@@ -45,7 +45,10 @@ def create_cutover_commander_server(container: Container) -> Server:
                         },
                         "artefacts": {
                             "type": "object",
-                            "description": "Programme artefacts (migration_tasks, integration_inventory, data_sequences)",
+                            "description": (
+                                "Programme artefacts "
+                                "(migration_tasks, integration_inventory, data_sequences)"
+                            ),
                             "properties": {
                                 "migration_tasks": {
                                     "type": "array",

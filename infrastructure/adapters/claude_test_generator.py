@@ -68,7 +68,8 @@ Return your response as a JSON array where each element follows this schema:
   "description": "<description>",
   "preconditions": ["<precondition1>", ...],
   "steps": [
-    {"action": "<action>", "expected_result": "<result>", "sap_transaction": "<tcode or null>", "test_data": "<data or null>"},
+    {"action": "<action>", "expected_result": "<result>",
+     "sap_transaction": "<tcode or null>", "test_data": "<data or null>"},
     ...
   ],
   "expected_outcome": "<overall expected outcome>",

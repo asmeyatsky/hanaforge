@@ -31,7 +31,7 @@ class RemediationSuggestion:
     def approve(self, reviewer: str) -> RemediationSuggestion:
         if self.status != ReviewStatus.PENDING:
             raise ValueError(f"Cannot approve suggestion with status {self.status.value}")
-        event = RemediationReviewedEvent(
+        _event = RemediationReviewedEvent(
             aggregate_id=self.id,
             object_id=self.object_id,
             approved=True,
@@ -42,7 +42,7 @@ class RemediationSuggestion:
     def reject(self, reviewer: str) -> RemediationSuggestion:
         if self.status != ReviewStatus.PENDING:
             raise ValueError(f"Cannot reject suggestion with status {self.status.value}")
-        event = RemediationReviewedEvent(
+        _event = RemediationReviewedEvent(
             aggregate_id=self.id,
             object_id=self.object_id,
             approved=False,
