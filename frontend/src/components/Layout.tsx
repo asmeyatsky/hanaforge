@@ -1,4 +1,23 @@
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+
+const LAST_PROGRAMME_KEY = 'hanaforge_last_programme_id';
+
+function readLastProgrammeId(): string | null {
+  try {
+    return sessionStorage.getItem(LAST_PROGRAMME_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function writeLastProgrammeId(id: string) {
+  try {
+    sessionStorage.setItem(LAST_PROGRAMME_KEY, id);
+  } catch {
+    /* ignore */
+  }
+}
 
 /** Sidebar module shortcuts: paths are relative to `/programmes/:id`. */
 const modules = [
@@ -89,7 +108,18 @@ export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const breadcrumbs = buildBreadcrumbs(location.pathname);
-  const programmeId = programmeIdFromPath(location.pathname);
+  const pathProgrammeId = programmeIdFromPath(location.pathname);
+  const [lastProgrammeId, setLastProgrammeId] = useState<string | null>(readLastProgrammeId);
+
+  useEffect(() => {
+    if (pathProgrammeId) {
+      writeLastProgrammeId(pathProgrammeId);
+      setLastProgrammeId(pathProgrammeId);
+    }
+  }, [pathProgrammeId]);
+
+  /** Use URL programme when present; otherwise last programme opened this session (sidebar works from Dashboard / list). */
+  const moduleProgrammeId = pathProgrammeId ?? lastProgrammeId;
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -165,8 +195,8 @@ export default function Layout() {
                     <span className="text-sm text-slate-300 font-medium">{mod.name}</span>
                   </>
                 );
-                if (programmeId) {
-                  const to = `/programmes/${programmeId}/${mod.path}`;
+                if (moduleProgrammeId) {
+                  const to = `/programmes/${moduleProgrammeId}/${mod.path}`;
                   return (
                     <NavLink
                       key={mod.id}
