@@ -1,15 +1,16 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 
+/** Sidebar module shortcuts: paths are relative to `/programmes/:id`. */
 const modules = [
-  { id: 'M01', name: 'Discovery', color: 'bg-emerald-400', ready: true },
-  { id: 'M02', name: 'ABAP Intelligence', color: 'bg-blue-400', ready: true },
-  { id: 'M03', name: 'Data Readiness', color: 'bg-violet-400', ready: true },
-  { id: 'M08', name: 'HANA → BigQuery', color: 'bg-indigo-400', ready: true },
-  { id: 'M04', name: 'TestForge', color: 'bg-amber-400', ready: true },
-  { id: 'M05', name: 'Infrastructure', color: 'bg-rose-400', ready: true },
-  { id: 'M06', name: 'Migration Exec', color: 'bg-cyan-400', ready: true },
-  { id: 'M07', name: 'Cutover', color: 'bg-slate-400', ready: true },
-];
+  { id: 'M01', name: 'Discovery', color: 'bg-emerald-400', path: 'discovery' },
+  { id: 'M02', name: 'ABAP Intelligence', color: 'bg-blue-400', path: 'analysis' },
+  { id: 'M03', name: 'Data Readiness', color: 'bg-violet-400', path: 'data-readiness' },
+  { id: 'M08', name: 'HANA → BigQuery', color: 'bg-indigo-400', path: 'hana-bigquery' },
+  { id: 'M04', name: 'TestForge', color: 'bg-amber-400', path: 'test-forge' },
+  { id: 'M05', name: 'Infrastructure', color: 'bg-rose-400', path: 'infrastructure' },
+  { id: 'M06', name: 'Migration Exec', color: 'bg-cyan-400', path: 'migration' },
+  { id: 'M07', name: 'Cutover', color: 'bg-slate-400', path: 'cutover' },
+] as const;
 
 function buildBreadcrumbs(pathname: string): { label: string; href: string }[] {
   const crumbs: { label: string; href: string }[] = [
@@ -79,9 +80,16 @@ function buildBreadcrumbs(pathname: string): { label: string; href: string }[] {
   return crumbs;
 }
 
+function programmeIdFromPath(pathname: string): string | null {
+  const m = pathname.match(/^\/programmes\/([^/]+)/);
+  return m?.[1] ?? null;
+}
+
 export default function Layout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const breadcrumbs = buildBreadcrumbs(location.pathname);
+  const programmeId = programmeIdFromPath(location.pathname);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -149,34 +157,44 @@ export default function Layout() {
               Modules
             </p>
             <div className="space-y-0.5">
-              {modules.map((mod) => (
-                <div
-                  key={mod.id}
-                  className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm"
-                >
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      mod.ready ? mod.color : 'bg-slate-600'
-                    }`}
-                  />
-                  <span
-                    className={`font-mono text-[10px] ${
-                      mod.ready ? 'text-slate-400' : 'text-slate-600'
-                    }`}
+              {modules.map((mod) => {
+                const row = (
+                  <>
+                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${mod.color}`} />
+                    <span className="font-mono text-[10px] text-slate-400">{mod.id}</span>
+                    <span className="text-sm text-slate-300 font-medium">{mod.name}</span>
+                  </>
+                );
+                if (programmeId) {
+                  const to = `/programmes/${programmeId}/${mod.path}`;
+                  return (
+                    <NavLink
+                      key={mod.id}
+                      to={to}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors ${
+                          isActive ? 'bg-slate-800 text-white' : 'hover:bg-slate-800/60'
+                        }`
+                      }
+                    >
+                      {row}
+                    </NavLink>
+                  );
+                }
+                return (
+                  <button
+                    key={mod.id}
+                    type="button"
+                    title="Open a programme from Programmes, then use these shortcuts"
+                    onClick={() => navigate('/programmes')}
+                    className="flex w-full items-center gap-3 px-4 py-2 rounded-lg text-sm text-left text-slate-500 hover:bg-slate-800/40 hover:text-slate-300 transition-colors"
                   >
-                    {mod.id}
-                  </span>
-                  <span
-                    className={`text-sm ${
-                      mod.ready
-                        ? 'text-slate-300 font-medium'
-                        : 'text-slate-600'
-                    }`}
-                  >
-                    {mod.name}
-                  </span>
-                </div>
-              ))}
+                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${mod.color} opacity-50`} />
+                    <span className="font-mono text-[10px] text-slate-600">{mod.id}</span>
+                    <span className="text-sm">{mod.name}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </nav>
