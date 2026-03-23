@@ -16,6 +16,14 @@ class Settings(BaseSettings):
     gcp_project_id: str = ""
     firestore_database: str = "(default)"
     gcs_bucket: str = ""
+    # SAP HANA (optional — when set, HdbcliHanaExtractAdapter is used instead of stub)
+    hana_address: str = ""
+    hana_port: int = 443
+    hana_user: str = ""
+    hana_password: str = ""
+    # BigQuery (optional — enable for real loads from gs:// staging)
+    bq_default_location: str = "US"
+    bq_use_real_client: bool = False
     anthropic_api_key: str = ""
     google_ai_api_key: str = ""
     sap_default_host: str = ""

@@ -4,6 +4,7 @@ const modules = [
   { id: 'M01', name: 'Discovery', color: 'bg-emerald-400', ready: true },
   { id: 'M02', name: 'ABAP Intelligence', color: 'bg-blue-400', ready: true },
   { id: 'M03', name: 'Data Readiness', color: 'bg-violet-400', ready: true },
+  { id: 'M08', name: 'HANA → BigQuery', color: 'bg-indigo-400', ready: true },
   { id: 'M04', name: 'TestForge', color: 'bg-amber-400', ready: true },
   { id: 'M05', name: 'Infrastructure', color: 'bg-rose-400', ready: true },
   { id: 'M06', name: 'Migration Exec', color: 'bg-cyan-400', ready: true },
@@ -40,6 +41,12 @@ function buildBreadcrumbs(pathname: string): { label: string; href: string }[] {
         crumbs.push({
           label: 'Data Readiness',
           href: `/programmes/${segments[1]}/data-readiness`,
+        });
+      }
+      if (segments[2] === 'hana-bigquery') {
+        crumbs.push({
+          label: 'HANA → BigQuery',
+          href: `/programmes/${segments[1]}/hana-bigquery`,
         });
       }
       if (segments[2] === 'test-forge') {

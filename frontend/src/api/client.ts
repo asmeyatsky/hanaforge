@@ -10,6 +10,13 @@ import type {
   InfrastructurePlan,
   MigrationPlan,
   CutoverPlan,
+  DataPipelineResponse,
+  DataPipelineListResponse,
+  PipelineRunResponse,
+  PipelineRunListResponse,
+  ValidatePipelineResponse,
+  CreateHanaBigQueryPipelineRequest,
+  StartHanaBigQueryRunRequest,
 } from '../types';
 
 class APIError extends Error {
@@ -48,8 +55,22 @@ class HanaForgeClient {
     });
 
     if (!response.ok) {
-      const errorBody = await response.text().catch(() => 'Unknown error');
-      throw new APIError(response.status, errorBody);
+      const raw = await response.text().catch(() => 'Unknown error');
+      let message = raw;
+      try {
+        const j = JSON.parse(raw) as { detail?: unknown; error?: { message?: string } };
+        if (typeof j.detail === 'string') {
+          message = j.detail;
+        } else if (Array.isArray(j.detail) && j.detail.length > 0) {
+          const first = j.detail[0] as { msg?: string };
+          if (first?.msg) message = first.msg;
+        } else if (j.error?.message) {
+          message = j.error.message;
+        }
+      } catch {
+        /* keep raw */
+      }
+      throw new APIError(response.status, message);
     }
 
     return response.json() as Promise<T>;
@@ -80,15 +101,12 @@ class HanaForgeClient {
 
   async startDiscovery(
     programmeId: string,
-    connection: SAPConnectionConfig,
+    connection: SAPConnectionConfig | Record<string, unknown> = {},
   ): Promise<DiscoveryResult> {
-    return this.request<DiscoveryResult>(
-      `/programmes/${programmeId}/discovery`,
-      {
-        method: 'POST',
-        body: JSON.stringify(connection),
-      },
-    );
+    return this.request<DiscoveryResult>(`/discovery/${programmeId}/discover`, {
+      method: 'POST',
+      body: JSON.stringify(connection),
+    });
   }
 
   // -------------------------------------------------------------------
@@ -283,6 +301,67 @@ class HanaForgeClient {
         method: 'POST',
         body: JSON.stringify(checks),
       },
+    );
+  }
+
+  // -------------------------------------------------------------------
+  // HANA → BigQuery
+  // -------------------------------------------------------------------
+
+  async createHanaBigQueryPipeline(
+    programmeId: string,
+    body: CreateHanaBigQueryPipelineRequest,
+  ): Promise<DataPipelineResponse> {
+    return this.request<DataPipelineResponse>(
+      `/programmes/${programmeId}/hana-bigquery/pipelines`,
+      { method: 'POST', body: JSON.stringify(body) },
+    );
+  }
+
+  async listHanaBigQueryPipelines(programmeId: string): Promise<DataPipelineListResponse> {
+    return this.request<DataPipelineListResponse>(
+      `/programmes/${programmeId}/hana-bigquery/pipelines`,
+    );
+  }
+
+  async validateHanaBigQueryPipeline(
+    programmeId: string,
+    pipelineId: string,
+    hanaConnection?: Record<string, unknown>,
+  ): Promise<ValidatePipelineResponse> {
+    return this.request<ValidatePipelineResponse>(
+      `/programmes/${programmeId}/hana-bigquery/pipelines/${pipelineId}/validate`,
+      { method: 'POST', body: JSON.stringify(hanaConnection ?? {}) },
+    );
+  }
+
+  async startHanaBigQueryRun(
+    programmeId: string,
+    pipelineId: string,
+    body?: StartHanaBigQueryRunRequest,
+  ): Promise<PipelineRunResponse> {
+    return this.request<PipelineRunResponse>(
+      `/programmes/${programmeId}/hana-bigquery/pipelines/${pipelineId}/runs`,
+      { method: 'POST', body: JSON.stringify(body ?? {}) },
+    );
+  }
+
+  async listHanaBigQueryRuns(
+    programmeId: string,
+    pipelineId: string,
+  ): Promise<PipelineRunListResponse> {
+    return this.request<PipelineRunListResponse>(
+      `/programmes/${programmeId}/hana-bigquery/pipelines/${pipelineId}/runs`,
+    );
+  }
+
+  async getHanaBigQueryRun(
+    programmeId: string,
+    pipelineId: string,
+    runId: string,
+  ): Promise<PipelineRunResponse> {
+    return this.request<PipelineRunResponse>(
+      `/programmes/${programmeId}/hana-bigquery/pipelines/${pipelineId}/runs/${runId}`,
     );
   }
 }

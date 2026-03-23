@@ -269,3 +269,81 @@ export interface CutoverPlan {
   hypercare_end: string | null;
   created_at: string;
 }
+
+// --------------------------------------------------------------------------
+// HANA → BigQuery (API matches FastAPI / Pydantic snake_case JSON)
+// --------------------------------------------------------------------------
+
+export interface HanaBqTableMappingRequest {
+  source_schema: string;
+  source_table: string;
+  target_dataset: string;
+  target_table: string;
+  incremental_column?: string | null;
+}
+
+export interface CreateHanaBigQueryPipelineRequest {
+  landscape_id: string;
+  name: string;
+  replication_mode: 'full' | 'incremental' | 'cdc';
+  table_mappings: HanaBqTableMappingRequest[];
+  hana_connection_ref?: string;
+}
+
+export interface DataPipelineResponse {
+  id: string;
+  programme_id: string;
+  landscape_id: string;
+  name: string;
+  replication_mode: string;
+  table_mappings: HanaBqTableMappingRequest[];
+  hana_connection_ref: string;
+  created_at: string;
+}
+
+export interface DataPipelineListResponse {
+  pipelines: DataPipelineResponse[];
+}
+
+export interface TableRunRecordResponse {
+  source_schema: string;
+  source_table: string;
+  target_dataset: string;
+  target_table: string;
+  phase_reached: string;
+  rows_extracted: number;
+  rows_loaded: number | null;
+  staging_uri: string | null;
+  bq_job_id: string | null;
+  error_message: string | null;
+}
+
+export interface PipelineRunResponse {
+  id: string;
+  pipeline_id: string;
+  programme_id: string;
+  status: string;
+  started_at: string;
+  completed_at: string | null;
+  table_results: TableRunRecordResponse[];
+}
+
+export interface PipelineRunListResponse {
+  runs: PipelineRunResponse[];
+}
+
+export interface ValidatePipelineResponse {
+  hana_reachable: boolean;
+  message: string;
+}
+
+export interface StartHanaBigQueryRunRequest {
+  row_limit_per_table?: number | null;
+  hana_connection?: {
+    address?: string | null;
+    host?: string | null;
+    port?: number | null;
+    user?: string | null;
+    password?: string | null;
+  } | null;
+}

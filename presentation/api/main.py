@@ -21,6 +21,7 @@ from presentation.api.routes import (
     cutover,
     data_readiness,
     discovery,
+    hana_bigquery,
     infrastructure,
     migration,
     programmes,
@@ -75,6 +76,7 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 app.include_router(auth.router, prefix="/api/v1/auth")
 app.include_router(programmes.router, prefix="/api/v1/programmes")
+app.include_router(hana_bigquery.router, prefix="/api/v1/programmes")
 app.include_router(discovery.router, prefix="/api/v1/discovery")
 app.include_router(abap_analysis.router, prefix="/api/v1/abap-analysis")
 app.include_router(test_forge.router, prefix="/api/v1/test-forge")

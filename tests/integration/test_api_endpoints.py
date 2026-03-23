@@ -728,3 +728,91 @@ class TestAnalysisWorkflow:
         # Results should still be available (empty)
         results_resp = client.get(f"/api/v1/abap-analysis/results/{pid}/{fake_lid}")
         assert results_resp.status_code in (200, 404)
+
+
+# ===========================================================================
+# HANA → BigQuery pipelines
+# ===========================================================================
+
+
+class TestHanaBigQueryPipelines:
+    """Programme-scoped HANA → BigQuery data pipeline API."""
+
+    def _discover_landscape(self, client: TestClient, programme_id: str) -> str:
+        resp = client.post(f"/api/v1/discovery/{programme_id}/discover", json={})
+        assert resp.status_code == 201, resp.text
+        return resp.json()["landscape_id"]
+
+    def test_create_list_run_pipeline(self, client: TestClient, created_programme: dict) -> None:
+        pid = created_programme["id"]
+        lid = self._discover_landscape(client, pid)
+        body = {
+            "landscape_id": lid,
+            "name": "Analytics landing",
+            "replication_mode": "full",
+            "table_mappings": [
+                {
+                    "source_schema": "SYS",
+                    "source_table": "TABLES",
+                    "target_dataset": "hana_forge_it",
+                    "target_table": "sys_tables",
+                }
+            ],
+        }
+        cr = client.post(f"/api/v1/programmes/{pid}/hana-bigquery/pipelines", json=body)
+        assert cr.status_code == 201, cr.text
+        pipe = cr.json()
+        assert pipe["programme_id"] == pid
+
+        lst = client.get(f"/api/v1/programmes/{pid}/hana-bigquery/pipelines")
+        assert lst.status_code == 200
+        assert any(p["id"] == pipe["id"] for p in lst.json()["pipelines"])
+
+        val = client.post(
+            f"/api/v1/programmes/{pid}/hana-bigquery/pipelines/{pipe['id']}/validate",
+            json={},
+        )
+        assert val.status_code == 200
+        assert val.json()["hana_reachable"] is True
+
+        run = client.post(
+            f"/api/v1/programmes/{pid}/hana-bigquery/pipelines/{pipe['id']}/runs",
+            json={"row_limit_per_table": 3},
+        )
+        assert run.status_code == 201, run.text
+        run_body = run.json()
+        assert run_body["status"] == "completed"
+        assert run_body["table_results"][0]["rows_extracted"] == 3
+
+        runs = client.get(f"/api/v1/programmes/{pid}/hana-bigquery/pipelines/{pipe['id']}/runs")
+        assert runs.status_code == 200
+        assert len(runs.json()["runs"]) >= 1
+
+        one = client.get(
+            f"/api/v1/programmes/{pid}/hana-bigquery/pipelines/{pipe['id']}/runs/{run_body['id']}"
+        )
+        assert one.status_code == 200
+        assert one.json()["id"] == run_body["id"]
+
+    def test_start_run_cdc_not_implemented(self, client: TestClient, created_programme: dict) -> None:
+        pid = created_programme["id"]
+        lid = self._discover_landscape(client, pid)
+        body = {
+            "landscape_id": lid,
+            "name": "CDC attempt",
+            "replication_mode": "cdc",
+            "table_mappings": [
+                {
+                    "source_schema": "S",
+                    "source_table": "T",
+                    "target_dataset": "d",
+                    "target_table": "t",
+                }
+            ],
+        }
+        cr = client.post(f"/api/v1/programmes/{pid}/hana-bigquery/pipelines", json=body)
+        assert cr.status_code == 201
+        pipe_id = cr.json()["id"]
+        run = client.post(f"/api/v1/programmes/{pid}/hana-bigquery/pipelines/{pipe_id}/runs", json={})
+        assert run.status_code == 400
+        assert "CDC" in run.json()["detail"]

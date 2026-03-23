@@ -18,6 +18,7 @@ from application.commands.create_migration_plan import CreateMigrationPlanUseCas
 from application.commands.create_monitoring_dashboard import CreateMonitoringDashboardUseCase
 
 # Use cases
+from application.commands.create_data_pipeline import CreateDataPipelineUseCase
 from application.commands.create_programme import CreateProgrammeUseCase
 from application.commands.estimate_costs import EstimateCostsUseCase
 from application.commands.evaluate_gate import EvaluateGateUseCase
@@ -38,24 +39,30 @@ from application.commands.run_data_profiling import RunDataProfilingUseCase
 from application.commands.run_migration_batch import RunMigrationBatchUseCase
 from application.commands.run_readiness_check import RunReadinessCheckUseCase
 from application.commands.start_cutover import StartCutoverUseCase
+from application.commands.start_pipeline_run import StartPipelineRunUseCase
 from application.commands.start_discovery import StartDiscoveryUseCase
 from application.commands.start_hypercare import StartHypercareUseCase
 from application.commands.update_cutover_task import UpdateCutoverTaskUseCase
 from application.commands.upload_abap_source import UploadABAPSourceUseCase
 from application.commands.upload_data_export import UploadDataExportUseCase
+from application.commands.validate_data_pipeline import ValidateDataPipelineUseCase
 from application.queries.get_analysis_results import GetAnalysisResultsQuery
 from application.queries.get_audit_log import GetAuditLogQuery
 from application.queries.get_benchmark_estimate import GetBenchmarkEstimateQuery
 from application.queries.get_cutover_status import GetCutoverStatusQuery
 from application.queries.get_data_profiling_results import GetDataProfilingResultsQuery
+from application.queries.get_data_pipeline import GetDataPipelineQuery
 from application.queries.get_hypercare_status import GetHypercareStatusQuery
 from application.queries.get_infrastructure_plan import GetInfrastructurePlanQuery
 from application.queries.get_migration_status import GetMigrationStatusQuery
 
 # Queries
+from application.queries.get_pipeline_run import GetPipelineRunQuery
 from application.queries.get_programme import GetProgrammeQuery
 from application.queries.get_test_results import GetTestResultsQuery
 from application.queries.get_traceability_matrix import GetTraceabilityMatrixQuery
+from application.queries.list_data_pipelines import ListDataPipelinesQuery
+from application.queries.list_pipeline_runs import ListPipelineRunsQuery
 from application.queries.list_programmes import ListProgrammesQuery
 from domain.services.agent_tool_registry import AgentToolRegistry
 from domain.services.anomaly_detection_service import AnomalyDetectionService
@@ -81,10 +88,13 @@ from infrastructure.adapters.claude_agent_executor import ClaudeAgentExecutor
 from infrastructure.adapters.claude_analysis_adapter import ClaudeAnalysisAdapter
 from infrastructure.adapters.claude_migration_advisor import ClaudeMigrationAdvisor
 from infrastructure.adapters.claude_test_generator import ClaudeTestGeneratorAdapter
+from infrastructure.adapters.bigquery_admin_adapter import BigQueryAdminAdapter
 from infrastructure.adapters.cloud_build_provisioning_adapter import CloudBuildProvisioningAdapter
 from infrastructure.adapters.cloud_monitoring_adapter import CloudMonitoringAdapter
 from infrastructure.adapters.data_profiling_adapter import LocalDataProfilingAdapter
+from infrastructure.adapters.hdbcli_hana_extract_adapter import HdbcliHanaExtractAdapter
 from infrastructure.adapters.gcs_storage_adapter import LocalFileStorageAdapter
+from infrastructure.adapters.pipeline_staging_adapter import GcsPipelineStagingAdapter, LocalPipelineStagingAdapter
 from infrastructure.adapters.migration_executor_adapter import StubMigrationExecutor
 from infrastructure.adapters.notification_adapter import LoggingNotificationAdapter
 from infrastructure.adapters.pubsub_event_bus_adapter import InMemoryEventBusAdapter
@@ -97,6 +107,8 @@ from infrastructure.adapters.report_generator_adapter import SimpleReportGenerat
 # --- RISE with SAP ---
 from infrastructure.adapters.rise_connector_adapter import RISEConnectorAdapter
 from infrastructure.adapters.sap_rfc_adapter import SAPRFCAdapter
+from infrastructure.adapters.stub_bigquery_admin_adapter import StubBigQueryAdminAdapter
+from infrastructure.adapters.stub_hana_extract_adapter import StubHanaExtractAdapter
 from infrastructure.adapters.system_health_adapter import StubSystemHealthAdapter
 from infrastructure.adapters.test_exporter_adapter import TestExporterAdapter
 from infrastructure.adapters.ticketing_adapter import StubTicketingAdapter
@@ -139,6 +151,7 @@ from infrastructure.repositories.in_memory_custom_object_repository import (
 from infrastructure.repositories.in_memory_cutover_execution_repository import InMemoryCutoverExecutionRepository
 
 # --- Module 03: Data Readiness ---
+from infrastructure.repositories.in_memory_data_pipeline_repository import InMemoryDataPipelineRepository
 from infrastructure.repositories.in_memory_data_repository import InMemoryDataRepository
 from infrastructure.repositories.in_memory_hypercare_repository import InMemoryHypercareRepository
 
@@ -147,6 +160,7 @@ from infrastructure.repositories.in_memory_infrastructure_repository import InMe
 from infrastructure.repositories.in_memory_landscape_repository import (
     InMemoryLandscapeRepository,
 )
+from infrastructure.repositories.in_memory_pipeline_run_repository import InMemoryPipelineRunRepository
 
 # --- Module 06: Migration Orchestrator ---
 from infrastructure.repositories.in_memory_migration_task_repository import InMemoryMigrationTaskRepository
@@ -276,6 +290,105 @@ class Container:
         return self._get_or_create(
             "FileStoragePort",
             LocalFileStorageAdapter,
+        )
+
+    # ------------------------------------------------------------------
+    # HANA → BigQuery data pipelines
+    # ------------------------------------------------------------------
+
+    def data_pipeline_repository(self) -> InMemoryDataPipelineRepository:
+        return self._get_or_create("DataPipelineRepositoryPort", InMemoryDataPipelineRepository)
+
+    def pipeline_run_repository(self) -> InMemoryPipelineRunRepository:
+        return self._get_or_create("PipelineRunRepositoryPort", InMemoryPipelineRunRepository)
+
+    def hana_extract_port(self) -> Any:
+        def _factory() -> Any:
+            if (self._settings.hana_address or "").strip():
+                return HdbcliHanaExtractAdapter(default_port=self._settings.hana_port)
+            return StubHanaExtractAdapter()
+
+        return self._get_or_create("HanaExtractPort", _factory)
+
+    def pipeline_staging_port(self) -> Any:
+        def _factory() -> Any:
+            pid = (self._settings.gcp_project_id or "").strip()
+            bucket = (self._settings.gcs_bucket or "").strip()
+            if pid and bucket:
+                return GcsPipelineStagingAdapter(project_id=pid, bucket_name=bucket)
+            return LocalPipelineStagingAdapter(storage=self.file_storage())
+
+        return self._get_or_create("PipelineStagingPort", _factory)
+
+    def bigquery_admin_port(self) -> Any:
+        def _factory() -> Any:
+            if self._settings.bq_use_real_client and (self._settings.gcp_project_id or "").strip():
+                return BigQueryAdminAdapter(
+                    project_id=self._settings.gcp_project_id,
+                    default_location=self._settings.bq_default_location,
+                )
+            return StubBigQueryAdminAdapter()
+
+        return self._get_or_create("BigQueryAdminPort", _factory)
+
+    def create_data_pipeline_use_case(self) -> CreateDataPipelineUseCase:
+        return self._get_or_create(
+            "CreateDataPipelineUseCase",
+            lambda: CreateDataPipelineUseCase(
+                pipeline_repo=self.data_pipeline_repository(),
+                landscape_repo=self.landscape_repository(),
+            ),
+        )
+
+    def validate_data_pipeline_use_case(self) -> ValidateDataPipelineUseCase:
+        return self._get_or_create(
+            "ValidateDataPipelineUseCase",
+            lambda: ValidateDataPipelineUseCase(
+                pipeline_repo=self.data_pipeline_repository(),
+                hana=self.hana_extract_port(),
+            ),
+        )
+
+    def start_pipeline_run_use_case(self) -> StartPipelineRunUseCase:
+        return self._get_or_create(
+            "StartPipelineRunUseCase",
+            lambda: StartPipelineRunUseCase(
+                pipeline_repo=self.data_pipeline_repository(),
+                run_repo=self.pipeline_run_repository(),
+                hana=self.hana_extract_port(),
+                staging=self.pipeline_staging_port(),
+                bigquery=self.bigquery_admin_port(),
+            ),
+        )
+
+    def list_data_pipelines_query(self) -> ListDataPipelinesQuery:
+        return self._get_or_create(
+            "ListDataPipelinesQuery",
+            lambda: ListDataPipelinesQuery(self.data_pipeline_repository()),
+        )
+
+    def get_data_pipeline_query(self) -> GetDataPipelineQuery:
+        return self._get_or_create(
+            "GetDataPipelineQuery",
+            lambda: GetDataPipelineQuery(self.data_pipeline_repository()),
+        )
+
+    def get_pipeline_run_query(self) -> GetPipelineRunQuery:
+        return self._get_or_create(
+            "GetPipelineRunQuery",
+            lambda: GetPipelineRunQuery(
+                run_repo=self.pipeline_run_repository(),
+                pipeline_repo=self.data_pipeline_repository(),
+            ),
+        )
+
+    def list_pipeline_runs_query(self) -> ListPipelineRunsQuery:
+        return self._get_or_create(
+            "ListPipelineRunsQuery",
+            lambda: ListPipelineRunsQuery(
+                run_repo=self.pipeline_run_repository(),
+                pipeline_repo=self.data_pipeline_repository(),
+            ),
         )
 
     def event_bus(self) -> InMemoryEventBusAdapter:
@@ -1114,6 +1227,19 @@ class Container:
             "BenchmarkRepositoryPort": self.benchmark_repository,
             "BenchmarkEstimationService": self.benchmark_estimation_service,
             "GetBenchmarkEstimateQuery": self.get_benchmark_estimate_query,
+            # --- HANA → BigQuery ---
+            "DataPipelineRepositoryPort": self.data_pipeline_repository,
+            "PipelineRunRepositoryPort": self.pipeline_run_repository,
+            "HanaExtractPort": self.hana_extract_port,
+            "PipelineStagingPort": self.pipeline_staging_port,
+            "BigQueryAdminPort": self.bigquery_admin_port,
+            "CreateDataPipelineUseCase": self.create_data_pipeline_use_case,
+            "ValidateDataPipelineUseCase": self.validate_data_pipeline_use_case,
+            "StartPipelineRunUseCase": self.start_pipeline_run_use_case,
+            "ListDataPipelinesQuery": self.list_data_pipelines_query,
+            "GetDataPipelineQuery": self.get_data_pipeline_query,
+            "GetPipelineRunQuery": self.get_pipeline_run_query,
+            "ListPipelineRunsQuery": self.list_pipeline_runs_query,
             # --- Multi-tenancy ---
             "TenantAccessService": self.tenant_access_service,
         }

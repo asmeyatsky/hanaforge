@@ -20,12 +20,18 @@ dependencies = [
     "python-multipart>=0.0.12",
     "httpx>=0.28.0",
     "PyJWT>=2.9.0",
+    "google-api-core>=2.23.0",
+    "google-cloud-bigquery>=3.25.0",
     "google-cloud-firestore>=2.19.0",
+    "google-cloud-storage>=2.18.0",
     "structlog>=24.4.0",
     "PyYAML>=6.0",
 ]
 
 [project.optional-dependencies]
+hana = [
+    "hdbcli>=2.19.0",
+]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.24.0",
