@@ -13,9 +13,7 @@ from infrastructure.adapters.hana_sql_identifiers import assert_safe_identifier
 
 def _load_hdbcli_dbapi() -> Any:
     if importlib.util.find_spec("hdbcli.dbapi") is None:
-        raise RuntimeError(
-            "hdbcli is not installed. Install the 'hana' extra: pip install 'hanaforge[hana]'"
-        )
+        raise RuntimeError("hdbcli is not installed. Install the 'hana' extra: pip install 'hanaforge[hana]'")
     return importlib.import_module("hdbcli.dbapi")
 
 

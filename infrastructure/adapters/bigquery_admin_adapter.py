@@ -60,6 +60,9 @@ class BigQueryAdminAdapter:
         def _run_load() -> str:
             job = client.load_table_from_uri(staging_uri, table_ref, job_config=job_config)
             job.result()
-            return job.job_id
+            jid = job.job_id
+            if not isinstance(jid, str):
+                raise TypeError(f"BigQuery job_id must be str, got {type(jid).__name__}")
+            return jid
 
         return await asyncio.to_thread(_run_load)

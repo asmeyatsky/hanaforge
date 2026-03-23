@@ -39,7 +39,7 @@ class GcsPipelineStagingAdapter:
         relative_key: str,
         csv_bytes: bytes,
     ) -> str:
-        from google.cloud import storage
+        from google.cloud import storage  # type: ignore[attr-defined]
 
         blob_path = f"hana-bq/{programme_id}/{run_id}/{relative_key}"
 

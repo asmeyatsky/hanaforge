@@ -788,9 +788,7 @@ class TestHanaBigQueryPipelines:
         assert runs.status_code == 200
         assert len(runs.json()["runs"]) >= 1
 
-        one = client.get(
-            f"/api/v1/programmes/{pid}/hana-bigquery/pipelines/{pipe['id']}/runs/{run_body['id']}"
-        )
+        one = client.get(f"/api/v1/programmes/{pid}/hana-bigquery/pipelines/{pipe['id']}/runs/{run_body['id']}")
         assert one.status_code == 200
         assert one.json()["id"] == run_body["id"]
 
