@@ -85,21 +85,30 @@ class TestHealthEndpoint:
 
 
 class TestRootEndpoint:
-    """GET / — service metadata."""
+    """GET / — service metadata (JSON) or SPA index.html when frontend build exists."""
 
     def test_root_returns_200(self, client: TestClient) -> None:
         resp = client.get("/")
         assert resp.status_code == 200
 
     def test_root_response_body(self, client: TestClient) -> None:
-        body = client.get("/").json()
-        assert body["name"] == "HanaForge"
-        assert body["version"] == "1.0.0"
-        assert "SAP" in body["description"]
+        resp = client.get("/")
+        if "text/html" in resp.headers.get("content-type", ""):
+            # SPA mode — frontend/dist exists; just verify HTML is returned
+            assert "<!DOCTYPE html>" in resp.text
+        else:
+            body = resp.json()
+            assert body["name"] == "HanaForge"
+            assert body["version"] == "1.0.0"
+            assert "SAP" in body["description"]
 
     def test_root_has_required_keys(self, client: TestClient) -> None:
-        body = client.get("/").json()
-        assert set(body.keys()) == {"name", "version", "description"}
+        resp = client.get("/")
+        if "text/html" in resp.headers.get("content-type", ""):
+            assert "<div id=\"root\"></div>" in resp.text
+        else:
+            body = resp.json()
+            assert set(body.keys()) == {"name", "version", "description"}
 
 
 # ===========================================================================

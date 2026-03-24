@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import pathlib
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, Response
+from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from infrastructure.config.dependency_injection import Container
 from infrastructure.config.settings import get_settings
@@ -28,6 +32,37 @@ from presentation.api.routes import (
     rise,
     test_forge,
 )
+
+# Resolve the frontend build directory (exists after `npm run build` or in Docker).
+_FRONTEND_DIST = pathlib.Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
+_INDEX_HTML = _FRONTEND_DIST / "index.html"
+
+
+class _SPAFallbackMiddleware(BaseHTTPMiddleware):
+    """Intercept 404s for non-API GET requests and serve the SPA index.html.
+
+    This runs as middleware (not a catch-all route) so it never shadows
+    FastAPI's own route resolution, trailing-slash redirects, or error
+    responses.
+    """
+
+    async def dispatch(self, request: Request, call_next):  # type: ignore[override]
+        response: Response = await call_next(request)
+        if (
+            response.status_code == 404
+            and request.method == "GET"
+            and not request.url.path.startswith("/api/")
+            and _INDEX_HTML.is_file()
+        ):
+            last_segment = request.url.path.rsplit("/", 1)[-1]
+            if "." in last_segment:
+                # Static file request — serve from dist if it exists on disk
+                candidate = _FRONTEND_DIST / request.url.path.lstrip("/")
+                if candidate.is_file():
+                    return FileResponse(candidate)
+                return response
+            return FileResponse(_INDEX_HTML)
+        return response
 
 
 @asynccontextmanager
@@ -58,6 +93,8 @@ register_error_handlers(app)
 # ---------------------------------------------------------------------------
 # Middleware (order matters — outermost first)
 # ---------------------------------------------------------------------------
+if _FRONTEND_DIST.is_dir():
+    app.add_middleware(_SPAFallbackMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(CorrelationIdMiddleware)
 _cors_settings = get_settings()
@@ -98,11 +135,22 @@ async def health_check() -> dict[str, str]:
     return {"status": "healthy", "version": "1.0.0"}
 
 
-@app.get("/", tags=["Root"])
-async def root() -> dict[str, str]:
-    """API root — service metadata."""
+@app.get("/", tags=["Root"], response_model=None)
+async def root() -> dict[str, str] | FileResponse:
+    """Serve the SPA index.html when the frontend build exists, otherwise return API metadata."""
+    index = _FRONTEND_DIST / "index.html"
+    if index.is_file():
+        return FileResponse(index)
     return {
         "name": "HanaForge",
         "version": "1.0.0",
         "description": "AI-Native SAP S/4HANA Migration Platform",
     }
+
+
+# ---------------------------------------------------------------------------
+# SPA static assets (must come after API routes)
+# ---------------------------------------------------------------------------
+if _FRONTEND_DIST.is_dir():
+    app.mount("/assets", StaticFiles(directory=_FRONTEND_DIST / "assets"), name="static-assets")
+    app.mount("/public", StaticFiles(directory=_FRONTEND_DIST), name="static-root")

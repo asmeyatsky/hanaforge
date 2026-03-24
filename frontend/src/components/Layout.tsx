@@ -24,7 +24,6 @@ const modules = [
   { id: 'M01', name: 'Discovery', color: 'bg-emerald-400', path: 'discovery' },
   { id: 'M02', name: 'ABAP Intelligence', color: 'bg-blue-400', path: 'analysis' },
   { id: 'M03', name: 'Data Readiness', color: 'bg-violet-400', path: 'data-readiness' },
-  { id: 'M08', name: 'HANA → BigQuery', color: 'bg-indigo-400', path: 'hana-bigquery' },
   { id: 'M04', name: 'TestForge', color: 'bg-amber-400', path: 'test-forge' },
   { id: 'M05', name: 'Infrastructure', color: 'bg-rose-400', path: 'infrastructure' },
   { id: 'M06', name: 'Migration Exec', color: 'bg-cyan-400', path: 'migration' },
@@ -37,6 +36,13 @@ function buildBreadcrumbs(pathname: string): { label: string; href: string }[] {
   ];
 
   const segments = pathname.split('/').filter(Boolean);
+
+  if (segments[0] === 'hana-bigquery') {
+    crumbs.push({ label: 'HANA → BigQuery', href: '/hana-bigquery' });
+    if (segments[1]) {
+      crumbs.push({ label: 'Pipeline', href: `/hana-bigquery/${segments[1]}` });
+    }
+  }
 
   if (segments[0] === 'programmes') {
     crumbs.push({ label: 'Programmes', href: '/programmes' });
@@ -61,12 +67,6 @@ function buildBreadcrumbs(pathname: string): { label: string; href: string }[] {
         crumbs.push({
           label: 'Data Readiness',
           href: `/programmes/${segments[1]}/data-readiness`,
-        });
-      }
-      if (segments[2] === 'hana-bigquery') {
-        crumbs.push({
-          label: 'HANA → BigQuery',
-          href: `/programmes/${segments[1]}/hana-bigquery`,
         });
       }
       if (segments[2] === 'test-forge') {
@@ -180,6 +180,24 @@ export default function Layout() {
             </svg>
             Programmes
           </NavLink>
+
+          {/* HANA → BigQuery — top-level product */}
+          <div className="pt-6">
+            <p className="px-4 pb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
+              Data Replication
+            </p>
+            <NavLink
+              to="/hana-bigquery"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? 'active' : ''}`
+              }
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125v-3.75" />
+              </svg>
+              HANA → BigQuery
+            </NavLink>
+          </div>
 
           {/* Module indicators */}
           <div className="pt-6">

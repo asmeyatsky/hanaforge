@@ -8,7 +8,6 @@ type Tab =
   | 'discovery'
   | 'analysis'
   | 'data'
-  | 'hana_bq'
   | 'testing'
   | 'infrastructure'
   | 'migration'
@@ -35,7 +34,6 @@ const tabs: { key: Tab; label: string; disabled: boolean }[] = [
   { key: 'discovery', label: 'Discovery', disabled: false },
   { key: 'analysis', label: 'ABAP Analysis', disabled: false },
   { key: 'data', label: 'Data Readiness', disabled: false },
-  { key: 'hana_bq', label: 'HANA → BigQuery', disabled: false },
   { key: 'testing', label: 'TestForge', disabled: false },
   { key: 'infrastructure', label: 'Infrastructure', disabled: false },
   { key: 'migration', label: 'Migration', disabled: false },
@@ -114,8 +112,6 @@ export default function ProgrammeDetail() {
       navigate(`/programmes/${id}/analysis`);
     } else if (tab === 'data') {
       navigate(`/programmes/${id}/data-readiness`);
-    } else if (tab === 'hana_bq') {
-      navigate(`/programmes/${id}/hana-bigquery`);
     } else if (tab === 'testing') {
       navigate(`/programmes/${id}/test-forge`);
     } else if (tab === 'infrastructure') {
@@ -356,15 +352,6 @@ export default function ProgrammeDetail() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375" />
                   </svg>
                   Data Readiness
-                </button>
-                <button
-                  onClick={() => navigate(`/programmes/${id}/hana-bigquery`)}
-                  className="btn-secondary w-full text-left justify-start"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m-3-3h6" />
-                  </svg>
-                  HANA → BigQuery
                 </button>
                 <button
                   onClick={() => navigate(`/programmes/${id}/test-forge`)}
